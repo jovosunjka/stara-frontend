@@ -1,0 +1,45 @@
+{
+    "elements": [
+            {
+                "id": "ge_1",
+                "name": "Process",
+                "tag": "circle",
+                "properties": [
+                    {
+                        "name": "fill",
+                        "value": "blue"
+                    }
+                ]
+            },
+            {
+                "id": "ge_2",
+                "name": "Complex Process",
+                "tag": "image",
+                "properties": [
+                    {
+                    "name": "xlink:href",
+                    "value": "assets/images/complex-process.png"
+                    }
+                ]
+            },
+            {
+                "id": "ge_3",
+                "name": "Data Flow",
+                "tag": "path",
+                "properties": [
+                    {
+                        "name": "stroke",
+                        "value": "#aaa"
+                    },
+                    {
+                        "name": "stroke-width",
+                        "value": 5
+                    },
+                    {
+                        "name": "fill", 
+                        "value": "none"
+                    }
+                ]
+            }
+    ]
+}

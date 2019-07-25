@@ -1,0 +1,35 @@
+
+<section id="tabs" style="width: 100%; height: 100%">
+    <div class="row"  style="width: 100%; height: 100%">
+        <div class="col-xl-12" style="width: 100%; height: 100%; padding:0px 0px 0px 15px">
+            <nav>
+                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist" style="width: 100%; height: 10%">
+                    <!--<ng-template ngFor let-diagram [ngForOf]="diagrams" let-i="index">-->
+                        <!--https://stackoverflow.com/questions/42658800/how-to-bind-dynamic-data-to-aria-label-->
+                        <!--Da bi se koristile {{}} (angular  expression) u atributima koji su nepoznati tagu, 
+                        mora se dodati attr. ispred naziva atributa-->
+                        <a *ngFor="let diagram of diagrams; let i = index" (click)="changeDiagram(diagram.id)"
+                            class="nav-item nav-link {{i==0 ? 'active' : ''}}"
+                            id="nav-{{diagram.id}}-tab" data-toggle="tab" href="#nav-{{diagram.id}}" role="tab"
+                            attr.aria-controls="nav-{{diagram.id}}" attr.aria-selected="{{i==0 ? 'true' : 'false'}}">
+                            {{diagram.name}}
+                        </a>
+                    <!--</ng-template>-->
+                </div>
+            </nav>
+            <div style="width: 100%; height: 100%" class="tab-content py-3 px-0 px-sm-0" id="nav-tabContent">
+                <!--<ng-template ngFor let-diagram [ngForOf]="diagrams" let-i="index">-->
+                    <!--https://stackoverflow.com/questions/42658800/how-to-bind-dynamic-data-to-aria-label-->
+                    <!--Da bi se koristile {{}} (angular  expression) u atributima koji su nepoznati tagu, 
+                        mora se dodati attr. ispred naziva atributa-->
+                    <div *ngFor="let diagram of diagrams; let i = index" class="tab-pane fade show {{i==0 ? 'active' : ''}}"
+                         id="nav-{{diagram.id}}" role="tabpanel" attr.aria-labelledby="nav-{{diagram.id}}-tab"
+                         style="width: 100%; height: 90%">
+                        <!--<app-canvas [selectSvg]="selectSvgs[i]" [eventEmitterName]="diagram.name"></app-canvas>-->
+                        <app-canvas [eventEmitterName]="diagram.id"></app-canvas>
+                    </div>
+                <!--</ng-template>-->
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,107 @@
+<br/>
+
+<button class="btn btn-primary btn-lg" (click)="switchView()" >{{buttonText}}</button>
+
+<br/><br/>
+
+<div class="row">
+    <div *ngIf="isDesignView()" class="col-xl-2">
+        <div class="row">
+            <div class="col-xl-12">
+                <p style="background-color: rgb(9, 89, 155); color: white; text-align: center; margin-bottom: 0.5rem">
+                    Elements
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12" style="height: 500px">
+                <app-elements-panel [currentDiagram]="currentDiagram"></app-elements-panel>  
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-{{dataFlowDaigrmasPanelColSize()}}">
+        <div class="row">
+            <div class="col-xl-12">
+                <p style="background-color: rgb(9, 89, 155); color: white; text-align: center; margin-bottom: 0.5rem">
+                    Data flow diagrams
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12" style="height: 500px">
+                <app-data-flow-diagrams-panel (currentDiagramEvent)="setCurrentDiagram($event)"></app-data-flow-diagrams-panel>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isDesignView()" class="col-xl-4">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p style="background-color: rgb(38, 129, 38); color: white; text-align: center; margin-bottom: 0.5rem">
+                            Properties
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12" style="height: 250px">
+                        <app-properties-panel></app-properties-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p style="background-color: rgb(104, 36, 4); color: white; text-align: center; margin-bottom: 0.5rem">
+                            Assets
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12" style="height: 250px">
+                        <app-assets-panel></app-assets-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isAnalysisView()" class="col-xl-8">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p style="background-color: rgb(38, 129, 38); color: white; text-align: center; margin-bottom: 0.5rem">
+                            Threat List
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12" style="height: 250px">
+                        <app-threat-list-panel></app-threat-list-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p style="background-color: rgb(104, 36, 4); color: white; text-align: center; margin-bottom: 0.5rem">
+                            Threat Analysis
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12" style="height: 250px">
+                        <app-threat-analysis-panel></app-threat-analysis-panel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
