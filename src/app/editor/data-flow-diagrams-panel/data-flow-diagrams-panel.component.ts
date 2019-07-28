@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Output, AfterViewInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
-import * as d3 from 'd3';
+import { DataFlowDiagramsService } from './service/data-flow-diagrams.service';
 
 
 @Component({
@@ -20,9 +20,105 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
 
   @Output() currentDiagramEvent = new EventEmitter<string>();
 
-  constructor(private toastr: ToastrService) {
+  constructor(private dataFlowDiagramsService: DataFlowDiagramsService, private toastr: ToastrService) {
     this.diagrams = [
-      {id: 'id-context', name: 'Context', elements: [], flows: [], boundaries: [], sections: []},
+      {
+        id: 'id-context',
+        name: 'Context',
+        elements: [],
+        /*elements: [
+          {
+            element: {
+                      name: 'Process 0',
+                      type: 'process',
+                      tag: 'circle',
+                      properties: [{name: 'fill', value: 'blue'}]
+                    },
+            x: 20,
+            y: 20,
+            id: '0'
+          },
+          {
+            element: {
+                  name: 'Process 1',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 100,
+            y: 100,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                  name: 'Process 2',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 200,
+            y: 100,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                      name: 'Process 3',
+                      type: 'process',
+                      tag: 'circle',
+                      properties: [{name: 'fill', value: 'blue'}]
+                    },
+            x: 50,
+            y: 200,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                  name: 'Process 4',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 350,
+            y: 200,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                  name: 'Process 5',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 100,
+            y: 300,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                  name: 'Process 6',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 300,
+            y: 300,
+            id: this.idNodeGenerator++
+          },
+          {
+            element: {
+                  name: 'Process 7',
+                  type: 'process',
+                  tag: 'circle',
+                  properties: [{name: 'fill', value: 'blue'}]
+                },
+            x: 300,
+            y: 250,
+            id: this.idNodeGenerator++
+          }
+        ],*/
+        flows: [],
+        boundaries: [],
+        sections: []},
       {id: 'id-mt-public', name: 'MT Public', elements: [], flows: [], boundaries: [], sections: []},
       {id: 'id-mt-internal', name: 'MT Internal', elements: [], flows: [], boundaries: [], sections: []}
     ];
@@ -39,6 +135,12 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
     } else {
       this.toastr.error('There are currently no diagrams in this model!');
     }
+
+    this.dataFlowDiagramsService.addNewDiagram.subscribe(
+      (newDataFlowDiagram: DataFlowDiagram) => {
+        this.diagrams.push(newDataFlowDiagram);
+      }
+    );
   }
 
   // ngAfterContentInit

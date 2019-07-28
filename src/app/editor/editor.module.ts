@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { GraphicElementsConfigService } from './services/graphic-elements-config/graphic-elements-config.service';
+import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data-flow-diagrams.service';
 
 
 
@@ -38,7 +39,7 @@ import { GraphicElementsConfigService } from './services/graphic-elements-config
     BrowserAnimationsModule, // required animations module
   ],
   providers: [
-    CanvasService, GraphicElementsConfigService
+    CanvasService, GraphicElementsConfigService, DataFlowDiagramsService
   ],
   exports: [
     EditorComponent

@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { ContainerElement } from 'd3';
 import { CanvasService } from '../canvas/service/canvas.service';
 import { GraphicElementsConfigService } from '../services/graphic-elements-config/graphic-elements-config.service';
+import { DataFlowDiagramsService } from '../data-flow-diagrams-panel/service/data-flow-diagrams.service';
 
 
 @Component({
@@ -18,11 +19,13 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
   private SPACE_BETWEEN_SHAPES = 0;
   private TEXT_SIZE = 10;
   private coordinates = { x: 10, y: 10 };
+  private patternImageGenerator = 0;
 
   svg: any;
 
   constructor(private canvasService: CanvasService,
-              private graphicElementsConfigService: GraphicElementsConfigService) { }
+              private dataFlowDiagramsService: DataFlowDiagramsService,
+              private graphicElementsConfigService: GraphicElementsConfigService) {}
 
   ngOnInit() {
   }
@@ -53,72 +56,110 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
       // .style('stroke-width', '4px')
       .style('cursor', 'copy');
 
-      elements.each(function(element: any, i ) {
-        const self = d3.select(this);
-        const tag = self.append(element.tag);
+    elements.each(function(element: any, i ) {
+      const self = d3.select(this);
+      let  tagName;
+      if (element.tag === 'image') {
+        tagName = 'circle';
+      } else {
+        tagName = element.tag;
+      }
+      const tag = self.append(tagName);
 
-        element.properties.forEach(prop => {
-          tag.attr(prop.name, prop.value);
-        });
+      if (element.tag !== 'image') {
+          element.properties.forEach(prop => {
+            tag.attr(prop.name, prop.value);
+          });
+      }
 
-        if (element.tag === 'image') {
-        tag.attr('x', element.x)
-            .attr('y', element.y)
-            .attr('width', that.SHAPE_SIZE)
-            .attr('height', that.SHAPE_SIZE);
-        } else if (element.tag === 'circle') {
-          tag.attr('r', that.SHAPE_SIZE / 2)
+      /*if (element.tag === 'image') {
+      tag.attr('x', element.x)
+          .attr('y', element.y)
+          .attr('width', that.SHAPE_SIZE)
+          .attr('height', that.SHAPE_SIZE);
+      }*/
+      if (element.tag === 'circle'  || element.tag === 'image') {
+        tag.attr('r', that.SHAPE_SIZE / 2)
           .attr('cx', element.x + that.SHAPE_SIZE / 2)
           .attr('cy', element.y + that.SHAPE_SIZE / 2);
-        } else if (element.tag === 'path') {
-          /*tag.attr('x1', that.coordinates.x)
-              .attr('y1', that.coordinates.y)
-              .attr('x2', that.coordinates.x + 50)
-              .attr('y2', that.coordinates.y)
-              .style('width', '200px')
-              .style('height', '100px')
-              .style('border', 'solid 5px #000')
-              .style('border-color', '#000 transparent transparent transparent')
-              .style('border-radius', '50px 0 0 50px');*/
 
-              const points: any[] = [
-                [element.x, element.y],
-                [element.x + 16, element.y + 30],
-                // [element.x + 40, element.y + 5],
-                [element.x + 50, element.y + 50]
-              ];
-
-              const pathData = lineGenerator(points);
-
-              // self.select('path')
-              tag.attr('d', pathData);
-
-              // Also draw points for reference
-              /*svg
-                .selectAll('circle')
-                .data(points)
-                .enter()
-                .append('circle')
-                .attr('cx', function(d) {
-                  return d[0];
-                })
-                .attr('cy', function(d) {
-                  return d[1];
-                })
-                .attr('r', 3);
-              */
+        if (element.tag === 'image') {
+          const patternId = 'id-pattern-image-' + that.patternImageGenerator++;
+          const imagePath = element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+          that.svg.select('defs')
+                  .append('pattern')
+                    .attr('id', patternId)
+                    .attr('patternUnits', 'objectBoundingBox')
+                    .attr('height', that.SHAPE_SIZE)
+                    .attr('width', that.SHAPE_SIZE)
+                    .append('image')
+                      .attr('x', 0)
+                      .attr('y', 0)
+                      .attr('height', that.SHAPE_SIZE)
+                      .attr('width', that.SHAPE_SIZE)
+                      .attr('xlink:href', imagePath);
+          tag.attr('fill', 'url(#' + patternId + ')');
         }
+      } else if (element.tag === 'path') {
+        /*tag.attr('x1', that.coordinates.x)
+            .attr('y1', that.coordinates.y)
+            .attr('x2', that.coordinates.x + 50)
+            .attr('y2', that.coordinates.y)
+            .style('width', '200px')
+            .style('height', '100px')
+            .style('border', 'solid 5px #000')
+            .style('border-color', '#000 transparent transparent transparent')
+            .style('border-radius', '50px 0 0 50px');*/
 
-        self.append('text')
-          .attr('x', element.x + 3 * that.SHAPE_SIZE / 2)
-          .attr('y', element.y + that.SHAPE_SIZE / 2)
-          // .attr('text-anchor', 'middle')
-          .attr('font-size', that.TEXT_SIZE)
-          .attr('font-family', 'sans-serif')
-          .attr('fill', 'green')
-          .text(element.name);
+            /*const points: any[] = [
+              [element.x, element.y],
+              [element.x + 16, element.y + 30],
+              // [element.x + 40, element.y + 5],
+              [element.x + 50, element.y + 50]
+            ];*/
+            const points: any[] = [
+              [element.x, element.y],
+              [(element.x + element.x + that.SHAPE_SIZE) / 2, element.y],
+              [element.x + that.SHAPE_SIZE, element.y]
+            ];
 
-      });
+            const pathData = lineGenerator(points);
+
+            // self.select('path')
+            tag.attr('d', pathData);
+
+            // Also draw points for reference
+            /*svg
+              .selectAll('circle')
+              .data(points)
+              .enter()
+              .append('circle')
+              .attr('cx', function(d) {
+                return d[0];
+              })
+              .attr('cy', function(d) {
+                return d[1];
+              })
+              .attr('r', 3);
+            */
+      }
+
+      self.append('text')
+        .attr('x', element.x + 3 * that.SHAPE_SIZE / 2)
+        .attr('y', function() {
+          if (element.tag === 'path') {
+            return element.y;
+          } else {
+            return element.y + that.SHAPE_SIZE / 2;
+          }
+        })
+        // .attr('text-anchor', 'middle')
+        .attr('font-size', that.TEXT_SIZE)
+        .attr('font-family', 'sans-serif')
+        .attr('fill', 'green')
+        .text(element.name);
+
+    });
 
       this.svg.on('click', function () {
         const containerElement = this as ContainerElement;
@@ -202,8 +243,10 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
               const pointInSvgElements = svgElements.createSVGPoint();
               /*pointInSvgElements.x = currentElement.attr('x');
               pointInSvgElements.y = currentElement.attr('y');*/
-              pointInSvgElements.x = d.x;
-              pointInSvgElements.y = d.y;
+              // pointInSvgElements.x = d.x;
+              // pointInSvgElements.y = d.y;
+              pointInSvgElements.x = d3.event.x;
+              pointInSvgElements.y = d3.event.y;
 
               const domCoordinates = pointInSvgElements.matrixTransform(svgElements.getScreenCTM());
 
@@ -309,9 +352,21 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
 
                       // dragHandlerSvgCanvas(d3.selectAll('svg#id_canvas image'));*/
                 const data = currentElement.data()[0];
+                if (data.tag === 'image') {
+                  yCoordinate += that.SHAPE_SIZE;
+                } else if (data.tag === 'path') {
+                  yCoordinate += 2 * that.SHAPE_SIZE;
+                }
                 that.canvasService.addGraphicElement(that.currentDiagram,
-                  {name: data.name, tag: data.tag, properties: data.properties, x: xCoordinate, y: yCoordinate}
+                  {name: data.name, type: data.type, tag: data.tag, properties: data.properties, x: xCoordinate, y: yCoordinate}
                 );
+
+                if (data.type === 'complex-process') {
+                    that.dataFlowDiagramsService.addNew(
+                      {id: 'id_dfd_1', name: 'New Complex process', elements: [], flows: [],
+                        boundaries: [], sections: []}
+                    );
+                }
             }
 
             // vracamo <g> na staru poziciju
