@@ -16,14 +16,15 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
 
   currentDiagram: string;
 
-  // selectSvgs: string[];
+  private idDiagramGenerator = 0;
+
 
   @Output() currentDiagramEvent = new EventEmitter<string>();
 
   constructor(private dataFlowDiagramsService: DataFlowDiagramsService, private toastr: ToastrService) {
     this.diagrams = [
       {
-        id: 'id-context',
+        id: 'id-diagram-' + this.idDiagramGenerator++,
         name: 'Context',
         elements: [],
         /*elements: [
@@ -119,8 +120,8 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
         flows: [],
         boundaries: [],
         sections: []},
-      {id: 'id-mt-public', name: 'MT Public', elements: [], flows: [], boundaries: [], sections: []},
-      {id: 'id-mt-internal', name: 'MT Internal', elements: [], flows: [], boundaries: [], sections: []}
+      {id: 'id-diagram-' + this.idDiagramGenerator++, name: 'MT Public', elements: [], flows: [], boundaries: [], sections: []},
+      {id: 'id-diagram-' + this.idDiagramGenerator++, name: 'MT Internal', elements: [], flows: [], boundaries: [], sections: []}
     ];
 
 
@@ -137,8 +138,18 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
     }
 
     this.dataFlowDiagramsService.addNewDiagram.subscribe(
-      (newDataFlowDiagram: DataFlowDiagram) => {
-        this.diagrams.push(newDataFlowDiagram);
+      (newDataFlowDiagramName: string) => {
+
+        this.diagrams.push(
+          {
+            id: 'id-diagram-' + this.idDiagramGenerator++,
+            name: newDataFlowDiagramName,
+            elements: [],
+            flows: [],
+            boundaries: [],
+            sections: []
+          }
+        );
       }
     );
   }

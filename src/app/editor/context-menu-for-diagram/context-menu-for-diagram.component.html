@@ -1,0 +1,26 @@
+<!--<ul>
+    <li *ngFor="let item of items" [contextMenu]="basicMenu" [contextMenuSubject]="item">Right Click: {{item?.name}}</li>
+</ul>-->
+
+<context-menu #basicMenu>
+    <ng-template contextMenuItem let-item [enabled]="false">
+            <b>{{item?.name}}</b>
+    </ng-template>
+    <ng-template contextMenuItem let-item [enabled]="false">
+            <b>{{getDashes(item?.name.length)}}</b>
+    </ng-template>
+    <ng-template contextMenuItem divider="true"></ng-template>
+    <ng-template contextMenuItem divider="true"></ng-template>
+    <ng-template contextMenuItem (execute)="delete($event.item)">
+        Delete
+    </ng-template>
+    <ng-template contextMenuItem let-item (execute)="copy($event.item)">
+        Copy
+    </ng-template>
+    <ng-template contextMenuItem let-item (execute)="cut($event.item)">
+        Cut
+    </ng-template>
+    <ng-template contextMenuItem let-item (execute)="showProperties($event.item)">
+        Properties
+    </ng-template>
+</context-menu>

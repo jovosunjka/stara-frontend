@@ -1,20 +1,23 @@
-import { Component, OnInit, AfterContentInit, Input } from '@angular/core';
+import { Component, OnInit, AfterContentInit, Input, AfterViewInit } from '@angular/core';
 import * as d3 from 'd3';
 import { CanvasService } from './service/canvas.service';
 import { NewGraphicElement } from 'src/app/shared/model/new-graphic-element';
-import { mean } from 'd3';
+import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
+import * as d3contextMenuLib from 'd3-context-menu';
+import { ContextMenuService } from 'ngx-contextmenu';
 
 @Component({
   selector: 'app-canvas',
   templateUrl: './canvas.component.html',
   styleUrls: ['./canvas.component.css']
 })
-export class CanvasComponent implements OnInit, AfterContentInit {
+export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit*/ {
   static svgIdIndexGenerator = 0;
   selectSvg: string;
+  idSvg: string;
 
   @Input()
-  eventEmitterName: string;
+  diagram: DataFlowDiagram;
 
   elements: any[];
 
@@ -27,6 +30,7 @@ export class CanvasComponent implements OnInit, AfterContentInit {
   private link: any;
   private nodeText: any;
   private linkText: any;
+  private linkArrow: any;
 
   private idNodeGenerator = 0;
   private idLinkGenerator = 0;
@@ -331,24 +335,39 @@ export class CanvasComponent implements OnInit, AfterContentInit {
   private patternImageGenerator = 0;
   private imagesMap: Map<string, string>;
 
-  constructor(private canvasService: CanvasService) {
+
+  constructor(private canvasService: CanvasService, private contextMenuService: ContextMenuService) {
     this.selectSvg = 'svg#id_canvas_' + CanvasComponent.svgIdIndexGenerator++;
     console.log(this.selectSvg);
 
     this.imagesMap = new Map();
   }
 
-  ngOnInit() {
+  public onContextMenu($event: MouseEvent, item: any): void {
+    this.contextMenuService.show.next({
+      // Optional - if unspecified, all context menu components will open
+      // contextMenu: this.contextMenu,
+      event: $event,
+      item: item,
+    });
+    // $event.preventDefault();
+    // $event.stopPropagation();
   }
 
-  ngAfterContentInit() {
-    if (CanvasComponent.svgIdIndexGenerator === 3) {
+  ngOnInit() {
+    this.idSvg = this.diagram.id + '-canvas';
+    this.selectSvg = 'svg#' + this.idSvg;
+  }
+
+  // ngAfterContentInit() {
+  ngAfterViewInit() {
+    /*if (CanvasComponent.svgIdIndexGenerator === 3) {
       CanvasComponent.svgIdIndexGenerator++; // ovo stavljamo da u sledecoj komponenti ne bi usli u ovaj if
       let index = 0;
       d3.selectAll('app-canvas svg').attr('id', function() {
         return 'id_canvas_' + index++;
       });
-    }
+    }*/
     /*this.dragHandler = d3.drag()
         .on('drag', function (d: any) {
             d3.select(this)
@@ -359,33 +378,70 @@ export class CanvasComponent implements OnInit, AfterContentInit {
     this.dragHandler(d3.selectAll('image'));
     */
 
-   this.lineGenerator = d3.line().curve(d3.curveCardinal);
+    this.lineGenerator = d3.line().curve(d3.curveCardinal);
 
     this.makeGraph();
 
     this.doZoom(d3.select(this.selectSvg));
 
     // dodajemo svoj eventEmitterName u mapu svih eventEmitter-a
-    this.canvasService.addEventEmitterName(this.eventEmitterName);
+    this.canvasService.addEventEmitterName(this.diagram.id);
 
-    this.canvasService.getEventEmitter(this.eventEmitterName).subscribe(
+    /*this.canvasService.getEventEmitter(this.diagram.id).subscribe(
       (newGraphicElement: NewGraphicElement) => {
         this.addGraphicElement(newGraphicElement);
+      }
+    );*/
+
+    this.canvasService.getEventEmitter(this.diagram.id).subscribe(
+      (action: any) => {
+        if (action.type === 'add-new-graphic-element') {
+            this.addGraphicElement(action.obj);
+        } else if (action.type === 'remove-graphic-element') {
+            this.removeGraphicElement(action.obj);
+        } else if (action.type === 'zoom-out') {
+            this.zoomOut();
+        }
       }
     );
 
 
     // dodajemo svoj eventEmitterName za zoomOut u mapu svih eventEmitter-a
-    this.canvasService.addEventEmitterName(this.eventEmitterName + 'zoom_out');
+    /*this.canvasService.addEventEmitterName(this.diagram.id + 'zoom_out');
 
-    this.canvasService.getEventEmitter(this.eventEmitterName + 'zoom_out').subscribe(
+    this.canvasService.getEventEmitter(this.diagram.id + 'zoom_out').subscribe(
       () => this.zoomOut()
-    );
+    );*/
 
     const that = this;
     d3.select(this.selectSvg).on('click', function () {
       that.clickOnSvg();
     });
+  }
+
+  removeGraphicElement(graphicElementForRemoving: any) {
+      if (graphicElementForRemoving.type === 'data-flow') {
+          /*const indexOfLastLink =  this.nodeLinks.length - 1;
+          const tmp = this.nodeLinks[graphicElementForRemoving.index];
+          this.nodeLinks[graphicElementForRemoving.index] = this.nodeLinks[indexOfLastLink];
+          this.nodeLinks[indexOfLastLink] = tmp;
+          this.nodeLinks.splice(indexOfLastLink, 1);*/
+          this.nodeLinks.splice(graphicElementForRemoving.index, 1);
+      } else {
+          const node = this.nodeData[graphicElementForRemoving.index];
+          this.nodeLinks.forEach(link => {
+              if (link.source && link.source.id === node.id) {
+                link.source = null;
+              }
+
+              if (link.target && link.target.id === node.id) {
+                link.target = null;
+              }
+          });
+          this.nodeData.splice(graphicElementForRemoving.index, 1);
+      }
+
+      this.restart();
   }
 
   addGraphicElement(newGraphicElement: NewGraphicElement) {
@@ -445,6 +501,7 @@ export class CanvasComponent implements OnInit, AfterContentInit {
     this.link.exit().remove();
     this.link = this.link.enter()
               .append('path')
+              .merge(this.link)
               .classed('zoom-element', true)
               .classed('link', true)
               .style('cursor', 'move')
@@ -459,10 +516,17 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                   that.dragended(d);
                 }));
 
-    this.link.on('contextmenu', function(d) {
+    this.link.on('contextmenu', function(d, i) {
+      if (d3.event.ctrlKey) {
         that.clickOnLink(d);
-        d3.event.preventDefault(); // ovo ce prekinuti obradu ovog eventa
-        // i nece se prikazati browser-ov context menu
+      } else {
+        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+      }
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
     });
 
     this.link.each(function(d: any, i) {
@@ -490,10 +554,10 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                 // startPoint,
                 [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2],
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
+                endPoint
+                /*[endPoint[0], endPoint[1] - 10],
                 endPoint,
-                [endPoint[0], endPoint[1] - 10],
-                endPoint,
-                [endPoint[0], endPoint[1] + 10]
+                [endPoint[0], endPoint[1] + 10]*/
              ];
             }
 
@@ -504,15 +568,22 @@ export class CanvasComponent implements OnInit, AfterContentInit {
     });
     this.link = svgCanvas.selectAll(this.selectSvg + ' .link');
 
+    // ostaju samo oni koji imaju definisan target
+    this.linkArrow = this.linkArrow.data(this.nodeLinks.filter(l => l.target));
+    // nema dodavanja novih, moglo je doci samo do brisanja linkova ili nodova,
+    // pa zato nestaju strelice (trouglici)
+    this.linkArrow.exit().remove();
+
     this.linkText = this.linkText.data(this.nodeLinks);
     this.linkText.exit().remove();
     this.linkText = this.linkText.enter()
               .append('text')
+              .merge(this.linkText)
               .attr('x', function(d: any) {
-                  return mean(d.points.map(point => point[0]));
+                  return d3.mean(d.points.map(point => point[0]));
               })
               .attr('y', function(d: any) {
-                  return mean(d.points.map(point => point[1]));
+                  return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
               .attr('font-size', that.TEXT_SIZE)
@@ -555,6 +626,7 @@ export class CanvasComponent implements OnInit, AfterContentInit {
         node.exit().remove();
         node = node.enter()
               .append(key)
+              .merge(node)
                 .classed('zoom-element', true)
                 .classed('node', true)
                 .style('cursor', 'move')
@@ -569,34 +641,43 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                   that.dragended(d);
                 }));
 
-        node.each(function(d: any, i ) {
-            const self = d3.select(this);
+      node.on('contextmenu', function(d: any, i) {
+        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
 
-            /*d.element.properties.forEach(prop => {
-            self.attr(prop.name, prop.value);
-            });*/
+        // ovo ce prekinuti obradu ovog eventa
+        // i nece se prikazati browser-ov context menu
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+      });
 
-            /*if (d.element.tag === 'image') {
-            self.attr('x', d.x)
-                .attr('y', d.y)
-                .attr('width', that.SHAPE_SIZE)
-                .attr('height', that.SHAPE_SIZE);
-            } */
-            if (d.element.tag === 'circle' || d.element.tag === 'image') {
-              self.attr('r', that.SHAPE_SIZE / 2)
-                  .attr('cx', d.x + that.SHAPE_SIZE / 2)
-                  .attr('cy', d.y + that.SHAPE_SIZE / 2);
+      node.each(function(d: any, i ) {
+          const self = d3.select(this);
 
-              if (d.element.tag === 'circle') {
-                d.element.properties.forEach(prop => {
-                  self.attr(prop.name, prop.value);
-                  });
-              } else if (d.element.tag === 'image') {
-                const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-                self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-              }
+          /*d.element.properties.forEach(prop => {
+          self.attr(prop.name, prop.value);
+          });*/
+
+          /*if (d.element.tag === 'image') {
+          self.attr('x', d.x)
+              .attr('y', d.y)
+              .attr('width', that.SHAPE_SIZE)
+              .attr('height', that.SHAPE_SIZE);
+          } */
+          if (d.element.tag === 'circle' || d.element.tag === 'image') {
+            self.attr('r', that.SHAPE_SIZE / 2)
+                .attr('cx', d.x + that.SHAPE_SIZE / 2)
+                .attr('cy', d.y + that.SHAPE_SIZE / 2);
+
+            if (d.element.tag === 'circle') {
+              d.element.properties.forEach(prop => {
+                self.attr(prop.name, prop.value);
+                });
+            } else if (d.element.tag === 'image') {
+              const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+              self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
             }
-        });
+          }
+      });
     });
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
     console.log(this.node.data());
@@ -605,6 +686,7 @@ export class CanvasComponent implements OnInit, AfterContentInit {
     this.nodeText.exit().remove();
     this.nodeText = this.nodeText.enter()
         .append('text')
+        .merge(this.nodeText)
         .attr('x', function(d: any) { return d.x; })
         .attr('y', function(d: any) { return d.y; })
         // .attr('text-anchor', 'middle')
@@ -813,8 +895,8 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                 // menjamo prvu i srednju tacku
                 l.points[0][0] = point.x;
                 l.points[0][1] = point.y;
-                l.points[1][0] = mean([l.points[0][0], l.points[l.points.length - 1][0]]);
-                l.points[1][1] = mean([l.points[0][1], l.points[l.points.length - 1][1]]);
+                l.points[1][0] = d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]);
+                l.points[1][1] = d3.mean([l.points[0][1], l.points[l.points.length - 1][1]]);
                 /*l.points = [
                     point,
                     [point.x, point.y - 10],
@@ -824,8 +906,8 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                 ].concat(l.points.slice(6));
 
                 l.points.splice(5, 0, [
-                    mean([l.points[0][0], l.points[l.points.length - 1][0]]),
-                    mean([l.points[0][0], l.points[l.points.length - 1][1]])
+                    d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]),
+                    d3.mean([l.points[0][0], l.points[l.points.length - 1][1]])
                   ]
                 );*/
               }
@@ -840,8 +922,8 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                 // menjamo poslednju i srednju tacku
                 l.points[l.points.length - 1][0] = point.x;
                 l.points[l.points.length - 1][1] = point.y;
-                l.points[l.points.length - 2][0] = mean([l.points[0][0], l.points[l.points.length - 1][0]]);
-                l.points[l.points.length - 2][1] = mean([l.points[0][1], l.points[l.points.length - 1][1]]);
+                l.points[l.points.length - 2][0] = d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]);
+                l.points[l.points.length - 2][1] = d3.mean([l.points[0][1], l.points[l.points.length - 1][1]]);
                 /*l.points = l.points.slice(0, 5).concat(
                   [
                     point,
@@ -852,8 +934,8 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                   ]
                 );
                 l.points.splice(5, 0, [
-                    mean([l.points[0][0], l.points[l.points.length - 1][0]]),
-                    mean([l.points[0][0], l.points[l.points.length - 1][1]])
+                    d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]),
+                    d3.mean([l.points[0][0], l.points[l.points.length - 1][1]])
                   ]
                 );*/
               }
@@ -992,25 +1074,26 @@ export class CanvasComponent implements OnInit, AfterContentInit {
               .style('cursor', 'move')
               .call(d3.drag()
                 .on('start', function(d) {
-                  if (!d3.event.ctrlKey) {
                     that.dragstarted(d);
-                  }
                 })
                 .on('drag', function(d) {
-                  if (!d3.event.ctrlKey) {
                     that.dragged(d);
-                  }
                 })
                 .on('end', function(d) {
-                  if (!d3.event.ctrlKey) {
                     that.dragended(d);
-                  }
                 }));
 
-    this.link.on('contextmenu', function(d) {
+    this.link.on('contextmenu', function(d, i) {
+      if (d3.event.ctrlKey) {
         that.clickOnLink(d);
-        d3.event.preventDefault(); // ovo ce prekinuti obradu ovog eventa
-        // i nece se prikazati browser-ov context menu
+      } else {
+        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+      }
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
     });
 
     this.link.each(function(d: any, i) {
@@ -1057,7 +1140,7 @@ export class CanvasComponent implements OnInit, AfterContentInit {
             .type(d3.symbolTriangle)
             .size(150);
 
-    svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
+    this.linkArrow = svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
               .data(this.nodeLinks.filter(l => l.target)) // ostaju samo oni koji imaju definisan target
               .enter()
               .append('path')
@@ -1074,10 +1157,10 @@ export class CanvasComponent implements OnInit, AfterContentInit {
               .enter()
               .append('text')
               .attr('x', function(d: any) {
-                  return mean(d.points.map(point => point[0]));
+                  return d3.mean(d.points.map(point => point[0]));
               })
               .attr('y', function(d: any) {
-                  return mean(d.points.map(point => point[1]));
+                  return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
               .attr('font-size', that.TEXT_SIZE)
@@ -1132,34 +1215,43 @@ export class CanvasComponent implements OnInit, AfterContentInit {
                   that.dragended(d);
                 }));
 
-        node.each(function(d: any, i ) {
-            const self = d3.select(this);
+      node.on('contextmenu', function(d: any, i) {
+        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
 
-            /*d.element.properties.forEach(prop => {
-            self.attr(prop.name, prop.value);
-            });*/
+        // ovo ce prekinuti obradu ovog eventa
+        // i nece se prikazati browser-ov context menu
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+      });
 
-            /*if (d.element.tag === 'image') {
-            self.attr('x', d.x)
-                .attr('y', d.y)
-                .attr('width', that.SHAPE_SIZE)
-                .attr('height', that.SHAPE_SIZE);
-            } */
-            if (d.element.tag === 'circle' || d.element.tag === 'image') {
-              self.attr('r', that.SHAPE_SIZE / 2)
-                  .attr('cx', d.x + that.SHAPE_SIZE / 2)
-                  .attr('cy', d.y + that.SHAPE_SIZE / 2);
+      node.each(function(d: any, i ) {
+          const self = d3.select(this);
 
-              if (d.element.tag === 'circle') {
-                d.element.properties.forEach(prop => {
-                  self.attr(prop.name, prop.value);
-                  });
-              } else if (d.element.tag === 'image') {
-                const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-                self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-              }
+          /*d.element.properties.forEach(prop => {
+          self.attr(prop.name, prop.value);
+          });*/
+
+          /*if (d.element.tag === 'image') {
+          self.attr('x', d.x)
+              .attr('y', d.y)
+              .attr('width', that.SHAPE_SIZE)
+              .attr('height', that.SHAPE_SIZE);
+          } */
+          if (d.element.tag === 'circle' || d.element.tag === 'image') {
+            self.attr('r', that.SHAPE_SIZE / 2)
+                .attr('cx', d.x + that.SHAPE_SIZE / 2)
+                .attr('cy', d.y + that.SHAPE_SIZE / 2);
+
+            if (d.element.tag === 'circle') {
+              d.element.properties.forEach(prop => {
+                self.attr(prop.name, prop.value);
+                });
+            } else if (d.element.tag === 'image') {
+              const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+              self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
             }
-        });
+          }
+      });
     });
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
     console.log(this.node.data());
@@ -1258,10 +1350,10 @@ export class CanvasComponent implements OnInit, AfterContentInit {
 
     this.linkText
         .attr('x', function(d: any) {
-            return mean(d.points.map(point => point[0]));
+            return d3.mean(d.points.map(point => point[0]));
         })
         .attr('y', function(d: any) {
-            return mean(d.points.map(point => point[1]));
+            return d3.mean(d.points.map(point => point[1]));
         });
 
     this.node.each(function(d: any) {

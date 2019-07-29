@@ -6,11 +6,11 @@ import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
 })
 export class DataFlowDiagramsService {
 
-  @Output() addNewDiagram: EventEmitter<DataFlowDiagram> = new EventEmitter<DataFlowDiagram>();
+  @Output() addNewDiagram: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }
 
-  addNew(newDiagram: DataFlowDiagram) {
+  addNew(newDiagram: string) {
     this.addNewDiagram.emit( newDiagram );
   }
 

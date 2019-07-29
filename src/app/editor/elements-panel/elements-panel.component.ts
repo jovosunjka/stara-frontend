@@ -226,13 +226,13 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
     const dragHandlerSvgElements = d3.drag()
         .on('start', function(d: any) {
           // gasimo zoom (vracamo sve u normalu pre dodavanja novo elementa na canvas)
-          that.canvasService.zoomOut(that.currentDiagram);
+          that.canvasService.doAction(that.currentDiagram, 'zoom-out', null);
 
             oldPosition = { x: d.x, y: d.y };
             currentElement = d3.select(this).clone(true)
                               .classed('current-element', true)
                               .style('position', 'absolute')
-                              .style('z-index', 9999);
+                              .style('z-index', 999);
             currentElement.select('text').remove();
 
         })
@@ -357,15 +357,12 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
                 } else if (data.tag === 'path') {
                   yCoordinate += 2 * that.SHAPE_SIZE;
                 }
-                that.canvasService.addGraphicElement(that.currentDiagram,
+                that.canvasService.doAction(that.currentDiagram, 'add-new-graphic-element',
                   {name: data.name, type: data.type, tag: data.tag, properties: data.properties, x: xCoordinate, y: yCoordinate}
                 );
 
                 if (data.type === 'complex-process') {
-                    that.dataFlowDiagramsService.addNew(
-                      {id: 'id_dfd_1', name: 'New Complex process', elements: [], flows: [],
-                        boundaries: [], sections: []}
-                    );
+                    that.dataFlowDiagramsService.addNew('New Complex process');
                 }
             }
 

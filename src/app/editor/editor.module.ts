@@ -16,7 +16,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { GraphicElementsConfigService } from './services/graphic-elements-config/graphic-elements-config.service';
 import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data-flow-diagrams.service';
-
+import { ContextMenuModule } from 'ngx-contextmenu';
+import { ContextMenuForDiagramComponent } from './context-menu-for-diagram/context-menu-for-diagram.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data
     AssetsPanelComponent,
     ThreatListPanelComponent,
     ThreatAnalysisPanelComponent,
-    CanvasComponent
+    CanvasComponent,
+    ContextMenuForDiagramComponent
   ],
   imports: [
     CommonModule,
@@ -37,6 +39,7 @@ import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data
     RouterModule,
     FormsModule,
     BrowserAnimationsModule, // required animations module
+    ContextMenuModule.forRoot()
   ],
   providers: [
     CanvasService, GraphicElementsConfigService, DataFlowDiagramsService

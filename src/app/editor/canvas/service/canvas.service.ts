@@ -17,16 +17,20 @@ export class CanvasService {
     this.eventEmitters.set(eventEmitterName, new EventEmitter<NewGraphicElement>());
   }
 
-  addGraphicElement(diagramName: string, newGraphicElement: NewGraphicElement) {
+  /*addGraphicElement(diagramName: string, newGraphicElement: NewGraphicElement) {
     this.eventEmitters.get(diagramName).emit( newGraphicElement );
   }
 
   zoomOut(diagramName: string) {
     this.eventEmitters.get(diagramName + 'zoom_out').emit();
+  }*/
+
+  doAction(diagramId: string, type: string, obj: any) {
+    this.eventEmitters.get(diagramId).emit( {type: type, obj: obj} );
   }
 
   @Output()
-  getEventEmitter(name: string): EventEmitter<Object> {
-      return this.eventEmitters.get(name);
+  getEventEmitter(diagramId: string): EventEmitter<Object> {
+      return this.eventEmitters.get(diagramId);
   }
 }
