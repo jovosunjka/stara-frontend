@@ -26,7 +26,7 @@ export class ContextMenuForDiagramComponent implements OnInit {
 
   delete(item: any)  {
     this.canvasService.doAction(this.diagramId, 'remove-graphic-element',
-                               {type: item.type, index: item.index});
+                               {type: item.type, id: item.id});
     this.toastr.info('Delete action');
   }
 

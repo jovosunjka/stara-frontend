@@ -1,8 +1,7 @@
 {
-    "elements": [
+    "stencils": [
             {
                 "id": "ge_1",
-                "name": "Process",
                 "type": "process",
                 "tag": "circle",
                 "properties": [
@@ -14,7 +13,6 @@
             },
             {
                 "id": "ge_2",
-                "name": "Complex Process",
                 "type": "complex-process",
                 "tag": "image",
                 "properties": [
@@ -26,7 +24,6 @@
             },
             {
                 "id": "ge_3",
-                "name": "Data Flow",
                 "type": "data-flow",
                 "tag": "path",
                 "properties": [

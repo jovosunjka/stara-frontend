@@ -1,1 +1,10 @@
-<p>properties-panel works!</p>
+<div *ngIf="selectedElement" class="scrollbar scrollbar-primary">
+    <div class="row" *ngFor="let key of getKeys()">
+        <div class="col-xl-6">
+            {{key}}
+        </div>
+        <div class="col-xl-6">
+            {{selectedElement[key]}}
+        </div>
+    </div>
+</div>

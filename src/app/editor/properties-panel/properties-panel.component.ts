@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PropertiesService } from './service/properties.service';
 
 @Component({
   selector: 'app-properties-panel',
@@ -7,9 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PropertiesPanelComponent implements OnInit {
 
-  constructor() { }
+  selectedElement: Object;
+
+  constructor(private propertiesService: PropertiesService) { }
 
   ngOnInit() {
+    this.propertiesService.selectedElementEvent.subscribe(
+      (selectedElement: Object) => {
+        this.selectedElement = selectedElement;
+        console.log('Selected element:');
+        console.log(selectedElement);
+      }
+    );
+  }
+
+  getKeys() {
+    return Object.keys(this.selectedElement);
   }
 
 }

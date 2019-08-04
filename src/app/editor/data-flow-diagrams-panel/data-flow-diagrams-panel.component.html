@@ -17,7 +17,7 @@
                     <!--</ng-template>-->
                 </div>
             </nav>
-            <div style="width: 100%; height: 100%" class="tab-content py-3 px-0 px-sm-0" id="nav-tabContent">
+            <div style="width: 100%; height: 100%" class="tab-content pt-2 pb-0 px-0 px-sm-0" id="nav-tabContent">
                 <!--<ng-template ngFor let-diagram [ngForOf]="diagrams" let-i="index">-->
                     <!--https://stackoverflow.com/questions/42658800/how-to-bind-dynamic-data-to-aria-label-->
                     <!--Da bi se koristile {{}} (angular  expression) u atributima koji su nepoznati tagu, 
@@ -26,7 +26,8 @@
                          id="nav-{{diagram.id}}" role="tabpanel" attr.aria-labelledby="nav-{{diagram.id}}-tab"
                          style="width: 100%; height: 90%">
                         <!--<app-canvas [selectSvg]="selectSvgs[i]" [eventEmitterName]="diagram.name"></app-canvas>-->
-                        <app-canvas [diagram]="diagram"></app-canvas>
+                        <app-canvas (addNewDiagram)="makeNewDiagram($event)" (removeDiagram)="removeComplexProcessDiagram($event)"
+                                 [diagram]="diagram"></app-canvas>
                     </div>
                 <!--</ng-template>-->
             </div>

@@ -8,4 +8,12 @@
 <br/>
 <br/>
 
+<div class="form-group">
+    <label for="id_path_to_existing_model">&nbsp;&nbsp;File name</label>
+    <div class="custom-file">
+      <input type="file" id="id_path_to_existing_model" class="form-control custom-file-input" (change)="onFileChange($event)" accept=".json">
+      <label class="custom-file-label" for="id_confirmation">{{fileName}}</label>
+    </div>
+    <!--<input id="id_confirmation" class="form-control" type="file" (change)="onFileChange($event)" accept="image/*" #fileInput/>-->
+</div>
 <a class="btn btn-outline-primary" href="#" [routerLink]="['/editor']">Open Model</a>

@@ -44,7 +44,7 @@ export class EditorComponent implements OnInit {
 
   dataFlowDaigrmasPanelColSize() {
     if (this.view === View.DESIGN) {
-      return 7;
+      return 8;
     } else {  // Analysis view
       return 4;
     }

@@ -2,8 +2,8 @@ import { Component, OnInit, AfterContentInit, Input } from '@angular/core';
 import * as d3 from 'd3';
 import { ContainerElement } from 'd3';
 import { CanvasService } from '../canvas/service/canvas.service';
-import { GraphicElementsConfigService } from '../services/graphic-elements-config/graphic-elements-config.service';
-import { DataFlowDiagramsService } from '../data-flow-diagrams-panel/service/data-flow-diagrams.service';
+import { Stencil } from 'src/app/shared/model/stencil';
+import { StencilsConfigService } from '../services/stencils-config/stencils-config.service';
 
 
 @Component({
@@ -24,8 +24,7 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
   svg: any;
 
   constructor(private canvasService: CanvasService,
-              private dataFlowDiagramsService: DataFlowDiagramsService,
-              private graphicElementsConfigService: GraphicElementsConfigService) {}
+              private stencilsConfigService: StencilsConfigService) {}
 
   ngOnInit() {
   }
@@ -39,10 +38,10 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
 
     const lineGenerator = d3.line().curve(d3.curveCardinal);
 
-    const graphicElements: any[] = this.graphicElementsConfigService.getGraphicElements();
+    const stencils: Stencil[] = this.stencilsConfigService.getStencils();
 
     const elements = this.svg.selectAll('g')
-      .data(graphicElements)
+      .data(stencils)
       // .datum(graphicElements)
       .enter()
       .append('g')
@@ -145,19 +144,20 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
       }
 
       self.append('text')
-        .attr('x', element.x + 3 * that.SHAPE_SIZE / 2)
+      .attr('x', element.x)
+        // .attr('x', element.x + 3 * that.SHAPE_SIZE / 2)
         .attr('y', function() {
           if (element.tag === 'path') {
-            return element.y;
+            return element.y + that.SHAPE_SIZE / 3;
           } else {
-            return element.y + that.SHAPE_SIZE / 2;
+            return element.y + that.SHAPE_SIZE * 5 / 4;
           }
         })
         // .attr('text-anchor', 'middle')
         .attr('font-size', that.TEXT_SIZE)
         .attr('font-family', 'sans-serif')
         .attr('fill', 'green')
-        .text(element.name);
+        .text(element.type.charAt(0).toUpperCase() + element.type.slice(1));
 
     });
 
@@ -357,13 +357,11 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
                 } else if (data.tag === 'path') {
                   yCoordinate += 2 * that.SHAPE_SIZE;
                 }
-                that.canvasService.doAction(that.currentDiagram, 'add-new-graphic-element',
-                  {name: data.name, type: data.type, tag: data.tag, properties: data.properties, x: xCoordinate, y: yCoordinate}
-                );
 
-                if (data.type === 'complex-process') {
-                    that.dataFlowDiagramsService.addNew('New Complex process');
-                }
+                that.canvasService.doAction(that.currentDiagram, 'add-new-graphic-element',
+                  { id: -1, stencilId: data.id, position: { x: xCoordinate, y: yCoordinate },
+                      idOfData: null }
+                );
             }
 
             // vracamo <g> na staru poziciju

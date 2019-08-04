@@ -1,0 +1,1219 @@
+{
+    "diagrams": [
+        {
+            "id": "id-diagram-0",
+            "name": "Context",
+            "graph": {
+                "nodes": [
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 20,
+                            "y": 20
+                        },
+                        "id": 0,
+                        "idOfData": "id-element-0"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 100,
+                            "y": 100
+                        },
+                        "id": 1,
+                        "idOfData": "id-element-1"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 200,
+                            "y": 100
+                        },
+                        "id": 2,
+                        "idOfData": "id-element-2"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 50,
+                            "y": 200
+                        },
+                        "id": 3,
+                        "idOfData": "id-element-3"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 350,
+                            "y": 200
+                        },
+                        "id": 4,
+                        "idOfData": "id-element-4"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 100,
+                            "y": 300
+                        },
+                        "id": 5,
+                        "idOfData": "id-element-5"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 300,
+                            "y": 300
+                        },
+                        "id": 6,
+                        "idOfData": "id-element-6"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 300,
+                            "y": 250
+                        },
+                        "id": 7,
+                        "idOfData": "id-element-7"
+                    }
+                ],
+                "links": [
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 0,
+                        "target": 1,
+                        "enabledCirclesOnLink": false,
+                        "id": 0,
+                        "idOfData": "id-flow-0"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 1,
+                        "target": 2,
+                        "enabledCirclesOnLink": false,
+                        "id": 1,
+                        "idOfData": "id-flow-1"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 2,
+                        "target": 3,
+                        "enabledCirclesOnLink": false,
+                        "id": 2,
+                        "idOfData": "id-flow-2"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 3,
+                        "target": 4,
+                        "enabledCirclesOnLink": false,
+                        "id": 3,
+                        "idOfData": "id-flow-3"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 4,
+                        "target": 5,
+                        "enabledCirclesOnLink": false,
+                        "id": 4,
+                        "idOfData": "id-flow-4"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 5,
+                        "target": 6,
+                        "enabledCirclesOnLink": false,
+                        "id": 5,
+                        "idOfData": "id-flow-5"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 6,
+                        "target": 0,
+                        "enabledCirclesOnLink": false,
+                        "id": 6,
+                        "idOfData": "id-flow-6"
+                    }
+                ],
+                "boundaries": [],
+                "sections": [],
+                "translateX": 0,
+                "translateY": 0,
+                "scale": 1
+            },
+            "elements": [
+                {
+                    "id": "id-element-0",
+                    "name": "Process 0",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 0",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-1",
+                    "name": "Process 1",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 1",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-2",
+                    "name": "Process 2",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 2",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-3",
+                    "name": "Process 3",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 3",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-4",
+                    "name": "Process 4",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 4",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-5",
+                    "name": "Process 5",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 5",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-6",
+                    "name": "Process 6",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 6",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-7",
+                    "name": "Process 7",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 7",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 7",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                }
+            ],
+            "flows": [
+                {
+                    "id": "id-flow-0",
+                    "name": "Data flow 0",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-0",
+                    "destination": "id-element-1",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-1",
+                    "name": "Data flow 1",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-1",
+                    "destination": "id-element-2",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-2",
+                    "name": "Data flow 2",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-2",
+                    "destination": "id-element-3",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-3",
+                    "name": "Data flow 3",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-3",
+                    "destination": "id-element-4",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-4",
+                    "name": "Data flow 4",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-4",
+                    "destination": "id-element-5",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-5",
+                    "name": "Data flow 5",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-5",
+                    "destination": "id-element-6",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-6",
+                    "name": "Data flow 6",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-6",
+                    "destination": "id-element-0",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                }
+            ],
+            "boundaries": [],
+            "sections": []
+        },
+        {
+            "id": "id-diagram-1",
+            "name": "MT Public",
+            "graph": {
+                "nodes": [
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 20,
+                            "y": 20
+                        },
+                        "id": 0,
+                        "idOfData": "id-element-0"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 100,
+                            "y": 100
+                        },
+                        "id": 1,
+                        "idOfData": "id-element-1"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 200,
+                            "y": 100
+                        },
+                        "id": 2,
+                        "idOfData": "id-element-2"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 50,
+                            "y": 200
+                        },
+                        "id": 3,
+                        "idOfData": "id-element-3"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 350,
+                            "y": 200
+                        },
+                        "id": 4,
+                        "idOfData": "id-element-4"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 100,
+                            "y": 300
+                        },
+                        "id": 5,
+                        "idOfData": "id-element-5"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 300,
+                            "y": 300
+                        },
+                        "id": 6,
+                        "idOfData": "id-element-6"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 300,
+                            "y": 250
+                        },
+                        "id": 7,
+                        "idOfData": "id-element-7"
+                    }
+                ],
+                "links": [
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 0,
+                        "target": 1,
+                        "enabledCirclesOnLink": false,
+                        "id": 0,
+                        "idOfData": "id-flow-0"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 1,
+                        "target": 2,
+                        "enabledCirclesOnLink": false,
+                        "id": 1,
+                        "idOfData": "id-flow-1"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 2,
+                        "target": 3,
+                        "enabledCirclesOnLink": false,
+                        "id": 2,
+                        "idOfData": "id-flow-2"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 3,
+                        "target": 4,
+                        "enabledCirclesOnLink": false,
+                        "id": 3,
+                        "idOfData": "id-flow-3"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 4,
+                        "target": 5,
+                        "enabledCirclesOnLink": false,
+                        "id": 4,
+                        "idOfData": "id-flow-4"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 5,
+                        "target": 6,
+                        "enabledCirclesOnLink": false,
+                        "id": 5,
+                        "idOfData": "id-flow-5"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 6,
+                        "target": 0,
+                        "enabledCirclesOnLink": false,
+                        "id": 6,
+                        "idOfData": "id-flow-6"
+                    }
+                ],
+                "boundaries": [],
+                "sections": [],
+                "translateX": 0,
+                "translateY": 0,
+                "scale": 1
+            },
+            "elements": [
+                {
+                    "id": "id-element-0",
+                    "name": "Process 0",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 0",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-1",
+                    "name": "Process 1",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 1",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-2",
+                    "name": "Process 2",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 2",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-3",
+                    "name": "Process 3",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 3",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-4",
+                    "name": "Process 4",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 4",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-5",
+                    "name": "Process 5",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 5",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-6",
+                    "name": "Process 6",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 6",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-7",
+                    "name": "Process 7",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 7",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 7",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                }
+            ],
+            "flows": [
+                {
+                    "id": "id-flow-0",
+                    "name": "Data flow 0",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-0",
+                    "destination": "id-element-1",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-1",
+                    "name": "Data flow 1",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-1",
+                    "destination": "id-element-2",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-2",
+                    "name": "Data flow 2",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-2",
+                    "destination": "id-element-3",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-3",
+                    "name": "Data flow 3",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-3",
+                    "destination": "id-element-4",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-4",
+                    "name": "Data flow 4",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-4",
+                    "destination": "id-element-5",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-5",
+                    "name": "Data flow 5",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-5",
+                    "destination": "id-element-6",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-6",
+                    "name": "Data flow 6",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-6",
+                    "destination": "id-element-0",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                }
+            ],
+            "boundaries": [],
+            "sections": []
+        },
+        {
+            "id": "id-diagram-2",
+            "name": "MT Internal",
+            "graph": {
+                "nodes": [
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 20,
+                            "y": 20
+                        },
+                        "id": 0,
+                        "idOfData": "id-element-0"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 100,
+                            "y": 100
+                        },
+                        "id": 1,
+                        "idOfData": "id-element-1"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 200,
+                            "y": 100
+                        },
+                        "id": 2,
+                        "idOfData": "id-element-2"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 50,
+                            "y": 200
+                        },
+                        "id": 3,
+                        "idOfData": "id-element-3"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 350,
+                            "y": 200
+                        },
+                        "id": 4,
+                        "idOfData": "id-element-4"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 100,
+                            "y": 300
+                        },
+                        "id": 5,
+                        "idOfData": "id-element-5"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position": {
+                            "x": 300,
+                            "y": 300
+                        },
+                        "id": 6,
+                        "idOfData": "id-element-6"
+                    },
+                    {
+                        "stencilId": "ge_1",
+                        "position" : {
+                            "x": 300,
+                            "y": 250
+                        },
+                        "id": 7,
+                        "idOfData": "id-element-7"
+                    }
+                ],
+                "links": [
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 0,
+                        "target": 1,
+                        "enabledCirclesOnLink": false,
+                        "id": 0,
+                        "idOfData": "id-flow-0"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 1,
+                        "target": 2,
+                        "enabledCirclesOnLink": false,
+                        "id": 1,
+                        "idOfData": "id-flow-1"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 2,
+                        "target": 3,
+                        "enabledCirclesOnLink": false,
+                        "id": 2,
+                        "idOfData": "id-flow-2"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 3,
+                        "target": 4,
+                        "enabledCirclesOnLink": false,
+                        "id": 3,
+                        "idOfData": "id-flow-3"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 4,
+                        "target": 5,
+                        "enabledCirclesOnLink": false,
+                        "id": 4,
+                        "idOfData": "id-flow-4"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 5,
+                        "target": 6,
+                        "enabledCirclesOnLink": false,
+                        "id": 5,
+                        "idOfData": "id-flow-5"
+                    },
+                    {
+                        "stencilId": "ge_3",
+                        "points": null,
+                        "source": 6,
+                        "target": 0,
+                        "enabledCirclesOnLink": false,
+                        "id": 6,
+                        "idOfData": "id-flow-6"
+                    }
+                ],
+                "boundaries": [],
+                "sections": [],
+                "translateX": 0,
+                "translateY": 0,
+                "scale": 1
+            },
+            "elements": [
+                {
+                    "id": "id-element-0",
+                    "name": "Process 0",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 0",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-1",
+                    "name": "Process 1",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 1",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-2",
+                    "name": "Process 2",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 2",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-3",
+                    "name": "Process 3",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 3",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-4",
+                    "name": "Process 4",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 4",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-5",
+                    "name": "Process 5",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 5",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-6",
+                    "name": "Process 6",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 6",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                },
+                {
+                    "id": "id-element-7",
+                    "name": "Process 7",
+                    "outOfScope": false,
+                    "outOfScopeReason": "Out of scope reason 7",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "section": "section 7",
+                    "runLevel": "HIGH_PRIVILEGE",
+                    "assets": [],
+                    "sanitizeInput": false,
+                    "sanitizeOutput": true,
+                    "hasForgeryProtection": false,
+                    "sessionHasTimeouts": true,
+                    "requiresAuthentication": false,
+                    "requiresAuthorization": true
+                }
+            ],
+            "flows": [
+                {
+                    "id": "id-flow-0",
+                    "name": "Data flow 0",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 0",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-0",
+                    "destination": "id-element-1",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-1",
+                    "name": "Data flow 1",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 1",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-1",
+                    "destination": "id-element-2",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-2",
+                    "name": "Data flow 2",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 2",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-2",
+                    "destination": "id-element-3",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-3",
+                    "name": "Data flow 3",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 3",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-3",
+                    "destination": "id-element-4",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-4",
+                    "name": "Data flow 4",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 4",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-4",
+                    "destination": "id-element-5",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-5",
+                    "name": "Data flow 5",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 5",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-5",
+                    "destination": "id-element-6",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                },
+                {
+                    "id": "id-flow-6",
+                    "name": "Data flow 6",
+                    "outOfScope": true,
+                    "outOfScopeReason": "Out of scope reason 6",
+                    "exploits": [],
+                    "importAssets": [],
+                    "importExploits": [],
+                    "source": "id-element-6",
+                    "destination": "id-element-0",
+                    "containsCookies": true,
+                    "containsXML": false,
+                    "boundariesCrossed": [],
+                    "assets": []
+                }
+            ],
+            "boundaries": [],
+            "sections": []
+        }
+    ]
+}

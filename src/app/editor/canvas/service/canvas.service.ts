@@ -1,5 +1,4 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
-import { NewGraphicElement } from 'src/app/shared/model/new-graphic-element';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +13,7 @@ export class CanvasService {
   }
 
   addEventEmitterName(eventEmitterName: string) {
-    this.eventEmitters.set(eventEmitterName, new EventEmitter<NewGraphicElement>());
+    this.eventEmitters.set(eventEmitterName, new EventEmitter<Object>());
   }
 
   /*addGraphicElement(diagramName: string, newGraphicElement: NewGraphicElement) {

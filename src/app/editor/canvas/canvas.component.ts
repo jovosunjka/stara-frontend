@@ -1,10 +1,21 @@
-import { Component, OnInit, AfterContentInit, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterContentInit, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import * as d3 from 'd3';
 import { CanvasService } from './service/canvas.service';
-import { NewGraphicElement } from 'src/app/shared/model/new-graphic-element';
+import { GraphicElement } from 'src/app/shared/model/graphic-element';
 import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
-import * as d3contextMenuLib from 'd3-context-menu';
 import { ContextMenuService } from 'ngx-contextmenu';
+import { Link } from 'src/app/shared/model/link';
+import { StencilsConfigService } from '../services/stencils-config/stencils-config.service';
+import { Stencil } from 'src/app/shared/model/stencil';
+import { Point } from 'src/app/shared/model/point';
+import { RunLevel } from 'src/app/shared/model/enum/run-level.enum';
+import { Flow } from 'src/app/shared/model/flow';
+import { DataFlowDiagramsService } from '../data-flow-diagrams-panel/service/data-flow-diagrams.service';
+import { PropertiesService } from '../properties-panel/service/properties.service';
+
+// u fajlu angular.json, u atribut scripts ubaceno je: "node_modules/d3plus/d3plus.full.min.js"
+declare const d3plus: any;
+
 
 @Component({
   selector: 'app-canvas',
@@ -18,6 +29,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
   @Input()
   diagram: DataFlowDiagram;
+
+  @Output() addNewDiagram: EventEmitter<string> = new EventEmitter<string>();
+  @Output() removeDiagram: EventEmitter<string> = new EventEmitter<string>();
 
   elements: any[];
 
@@ -35,328 +49,51 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   private idNodeGenerator = 0;
   private idLinkGenerator = 0;
 
-  private SHAPE_SIZE = 50;
+  private SHAPE_SIZE = 80; // 70
   private TEXT_SIZE = 10;
 
 
   private MAX_ZOOM_OUT = 0.2;
   private MAX_ZOOM_IN = 100;
-  private scale = 1;
-  private translateX = 0;
-  private translateY = 0;
+  // private scale = 1;
+  // private translateX = 0;
+  // private translateY = 0;
 
   private zoom: any;
 
-  nodeData: any[] = [
-    {
-      element: {
-                name: 'Process 0',
-                type: 'process',
-                tag: 'circle',
-                properties: [{name: 'fill', value: 'blue'}]
-              },
-      x: 20,
-      y: 20,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 1',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 100,
-      y: 100,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 2',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 200,
-      y: 100,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-                name: 'Process 3',
-                type: 'process',
-                tag: 'circle',
-                properties: [{name: 'fill', value: 'blue'}]
-              },
-      x: 50,
-      y: 200,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 4',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 350,
-      y: 200,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 5',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 100,
-      y: 300,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 6',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 300,
-      y: 300,
-      id: this.idNodeGenerator++
-    },
-    {
-      element: {
-            name: 'Process 7',
-            type: 'process',
-            tag: 'circle',
-            properties: [{name: 'fill', value: 'blue'}]
-          },
-      x: 300,
-      y: 250,
-      id: this.idNodeGenerator++
-    }
-  ];
-
-  nodeLinks: any[] = [
-    {
-      element: {
-        name: 'Data Flow 0',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 0,
-      target: 1,
-      distance: 10,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 1',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 1,
-      target: 2,
-      distance: 20,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 2',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 2,
-      target: 3,
-      distance: 30,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 3',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 3,
-      target: 4,
-      distance: 40,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 4',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 4,
-      target: 5,
-      distance: 50,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 5',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 5,
-      target: 6,
-      distance: 60,
-      id: this.idLinkGenerator++
-    },
-    {
-      element: {
-        name: 'Data Flow 6',
-        type: 'data-flow',
-        tag: 'path',
-        properties: [
-          {
-              name: 'stroke',
-              'value': '#aaa'
-          },
-          {
-              name: 'stroke-width',
-              value: 10
-          },
-          {
-              name: 'fill',
-              value: 'none'
-          }
-       ]
-      },
-      enabledCirclesOnLink: false,
-      points: null,
-      source: 6,
-      target: 0,
-      distance: 70,
-      id: this.idLinkGenerator++
-    }
-  ];
+  stencils: Stencil[];
 
   lineGenerator: any;
 
   private patternImageGenerator = 0;
   private imagesMap: Map<string, string>;
 
+  newElementData: any;
 
-  constructor(private canvasService: CanvasService, private contextMenuService: ContextMenuService) {
-    this.selectSvg = 'svg#id_canvas_' + CanvasComponent.svgIdIndexGenerator++;
-    console.log(this.selectSvg);
+  constructor(private stencilsConfigService: StencilsConfigService,
+              private dataFlowDiagramsService: DataFlowDiagramsService,
+               private canvasService: CanvasService, private contextMenuService: ContextMenuService,
+               private propertiesService: PropertiesService) {
+    this.stencils = this.stencilsConfigService.getStencils();
 
     this.imagesMap = new Map();
-  }
-
-  public onContextMenu($event: MouseEvent, item: any): void {
-    this.contextMenuService.show.next({
-      // Optional - if unspecified, all context menu components will open
-      // contextMenu: this.contextMenu,
-      event: $event,
-      item: item,
-    });
-    // $event.preventDefault();
-    // $event.stopPropagation();
   }
 
   ngOnInit() {
     this.idSvg = this.diagram.id + '-canvas';
     this.selectSvg = 'svg#' + this.idSvg;
+
+    this.idNodeGenerator = this.diagram.graph.nodes.length;
+    this.idLinkGenerator = this.diagram.graph.links.length;
+
+    this.dataFlowDiagramsService.newIdOfDiagram.subscribe(
+      (newId: string) => {
+        if (this.newElementData) {
+          this.newElementData.idOfDiagram = newId;
+          console.log('New id: ' + newId);
+        }
+      }
+    );
   }
 
   // ngAfterContentInit() {
@@ -377,6 +114,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.dragHandler(d3.selectAll('image'));
     */
+    /*const data = [
+      {text: 'Here is <i>some</i> sample text that has been <strong>wrapped</strong> using d3plus.textBox.'},
+      {text: '...and here is a <b>second</b> sentence!'},
+      {text: '这是句3号。这也即使包装没有空格！'}
+    ];
+   new d3plus.TextBox()
+   .data(data)
+   .fontSize(16)
+   .width(200)
+   .x(function(d, i) { return i * 250; })
+   .render();*/
 
     this.lineGenerator = d3.line().curve(d3.curveCardinal);
 
@@ -388,15 +136,20 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.canvasService.addEventEmitterName(this.diagram.id);
 
     /*this.canvasService.getEventEmitter(this.diagram.id).subscribe(
-      (newGraphicElement: NewGraphicElement) => {
-        this.addGraphicElement(newGraphicElement);
+      (graphicElement: GraphicElement) => {
+        this.addGraphicElement(graphicElement);
       }
     );*/
 
     this.canvasService.getEventEmitter(this.diagram.id).subscribe(
       (action: any) => {
         if (action.type === 'add-new-graphic-element') {
-            this.addGraphicElement(action.obj);
+            const stencil: Stencil = this.getStencil(action.obj.stencilId);
+            const idOfData: any = this.addElementData(stencil.type);
+            if (idOfData) {
+              action.obj.idOfData = idOfData;
+              this.addGraphicElement(action.obj, stencil.tag);
+            }
         } else if (action.type === 'remove-graphic-element') {
             this.removeGraphicElement(action.obj);
         } else if (action.type === 'zoom-out') {
@@ -419,67 +172,169 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
   }
 
+  public onContextMenu($event: MouseEvent, item: any): void {
+    this.contextMenuService.show.next({
+      // Optional - if unspecified, all context menu components will open
+      // contextMenu: this.contextMenu,
+      event: $event,
+      item: item,
+    });
+    // $event.preventDefault();
+    // $event.stopPropagation();
+  }
+
   removeGraphicElement(graphicElementForRemoving: any) {
       if (graphicElementForRemoving.type === 'data-flow') {
-          /*const indexOfLastLink =  this.nodeLinks.length - 1;
-          const tmp = this.nodeLinks[graphicElementForRemoving.index];
-          this.nodeLinks[graphicElementForRemoving.index] = this.nodeLinks[indexOfLastLink];
-          this.nodeLinks[indexOfLastLink] = tmp;
-          this.nodeLinks.splice(indexOfLastLink, 1);*/
-          this.nodeLinks.splice(graphicElementForRemoving.index, 1);
-      } else {
-          const node = this.nodeData[graphicElementForRemoving.index];
-          this.nodeLinks.forEach(link => {
-              if (link.source && link.source.id === node.id) {
+          /*const indexOfLastLink =  this.diagram.graph.links.length - 1;
+          const tmp = this.diagram.graph.links[graphicElementForRemoving.index];
+          this.diagram.graph.links[graphicElementForRemoving.index] = this.diagram.graph.links[indexOfLastLink];
+          this.diagram.graph.links[indexOfLastLink] = tmp;
+          this.diagram.graph.links.splice(indexOfLastLink, 1);*/
+          const graphLink = this.diagram.graph.links.filter(l => l.id === graphicElementForRemoving.id)[0];
+          const graphLinkIndex = this.diagram.graph.links.indexOf(graphLink);
+          // uklanjamo podatke vezane za graficki prikaz linka
+          this.diagram.graph.links.splice(graphLinkIndex, 1);
+
+          const flow: Flow = this.diagram.flows.filter(f => f.id === graphLink.idOfData)[0];
+          const  index = this.diagram.flows.indexOf(flow);
+          this.diagram.flows.splice(index, 1); // uklanjamo i iz podataka
+      } else if (graphicElementForRemoving.type === 'process'
+                || graphicElementForRemoving.type === 'complex-process') {
+          const graphNode = this.diagram.graph.nodes.filter(n => n.id === graphicElementForRemoving.id)[0];
+          this.diagram.graph.links.forEach(link => {
+              let flow: Flow = null;
+              if (link.source && (link.source as GraphicElement).id === graphNode.id) {
+                // uklanjamo referencu ka source-u u podacima o grafickom prikazu linka
                 link.source = null;
+                flow = this.diagram.flows.filter(f => f.id === link.idOfData)[0];
+                // uklanjamo id source-a u podacima
+                flow.source = null;
               }
 
-              if (link.target && link.target.id === node.id) {
+              if (link.target && (link.target as GraphicElement).id === graphNode.id) {
+                // uklanjamo referencu ka target-u u podacima o grafickom prikazu linka
                 link.target = null;
+                if (!flow) {
+                  flow = this.diagram.flows.filter(f => f.id === link.idOfData)[0];
+                }
+                // uklanjamo id destination-a u podacima
+                flow.destination = null;
               }
           });
-          this.nodeData.splice(graphicElementForRemoving.index, 1);
+
+          const graphNodeIndex = this.diagram.graph.nodes.indexOf(graphNode);
+          // uklanjamo podatke vezane za graficki prikaz elementa
+          this.diagram.graph.nodes.splice(graphNodeIndex, 1);
+
+          const element: any = this.diagram.elements.filter(e => e.id === graphNode.idOfData)[0];
+          const  index = this.diagram.elements.indexOf(element);
+          this.diagram.elements.splice(index, 1); // uklanjamo i iz podataka
+
+          if (graphicElementForRemoving.type === 'complex-process') {
+            this.removeDiagram.emit(element.idOfDiagram);
+          }
       }
 
       this.restart();
   }
 
-  addGraphicElement(newGraphicElement: NewGraphicElement) {
-    if (newGraphicElement.tag === 'path') {
-      const newId = this.idLinkGenerator++;
-      newGraphicElement.name += ' ' + newId;
-      this.nodeLinks.push(
-          {element: newGraphicElement,
-            points: [
-              [newGraphicElement.x, newGraphicElement.y],
-              /*[(newGraphicElement.x
-                + (newGraphicElement.x + newGraphicElement.x + 2 * this.SHAPE_SIZE) / 2) / 2,
-                  newGraphicElement.y],*/
-              [(newGraphicElement.x + newGraphicElement.x + this.SHAPE_SIZE) / 2,
-                newGraphicElement.y],
-              /*[((newGraphicElement.x + newGraphicElement.x + 2 * this.SHAPE_SIZE) / 2
-                 + newGraphicElement.x + 2 * this.SHAPE_SIZE) / 2, newGraphicElement.y],*/
-              [newGraphicElement.x + this.SHAPE_SIZE, newGraphicElement.y],
-            ],
-            source: null,
-            target: null,
-            distance: 2 * this.SHAPE_SIZE,
-            id: newId
-          }
-      );
+  addGraphicElement(graphicElement: GraphicElement, htmlTag: string) {
+    if (htmlTag === 'path') {
+      const newLink: Link =  {
+        id: this.idLinkGenerator++,
+        stencilId: graphicElement.stencilId,
+        position: graphicElement.position,
+        idOfData: graphicElement.idOfData,
+        points: [
+          { x: graphicElement.position.x, y: graphicElement.position.y },
+          { x: (graphicElement.position.x + graphicElement.position.x + this.SHAPE_SIZE) / 2,
+            y: graphicElement.position.y },
+          { x: graphicElement.position.x + this.SHAPE_SIZE, y: graphicElement.position.y},
+        ],
+        source: null,
+        target: null,
+        enabledCirclesOnLink: false
+      };
+      this.diagram.graph.links.push(newLink);
     } else {
-      const newId = this.idNodeGenerator++;
-      newGraphicElement.name += ' ' + newId;
-      this.nodeData.push({element: newGraphicElement, x: newGraphicElement.x, y: newGraphicElement.y, id: newId});
+      // const newId = this.idNodeGenerator++;
+      // graphicElement.name += ' ' + newId;
+      graphicElement.id = this.idNodeGenerator++;
+      graphicElement.idOfData = graphicElement.idOfData;
+      this.diagram.graph.nodes.push(graphicElement);
     }
 
     this.restart();
   }
 
+  addElementData(type: string) {
+    let idOfData: string;
+    let len: number;
+
+    switch (type) {
+      case 'process':
+      case 'complex-process':
+        len = this.diagram.elements.length;
+        idOfData = 'id-element-' + len;
+        this.newElementData = {
+          id: idOfData,
+          name: (type === 'process' ? 'Process ' : 'Complex process ') + len,
+          outOfScope: false,
+          outOfScopeReason: 'Out of scope reason ' + len,
+          exploits: [],
+          importAssets: [],
+          importExploits: [],
+          section: 'section ' + len,
+          runLevel: RunLevel.HIGH_PRIVILEGE,
+          assets: [],
+          sanitizeInput: false,
+          sanitizeOutput: true,
+          hasForgeryProtection: false,
+          sessionHasTimeouts: true,
+          requiresAuthentication: false,
+          requiresAuthorization: true
+        };
+        if (type === 'complex-process') {
+          this.addNewDiagram.emit(this.newElementData.name);
+        }
+
+        this.diagram.elements.push(this.newElementData);
+        break;
+
+      case 'data-flow':
+        len = this.diagram.flows.length;
+        idOfData = 'id-flow-' + len;
+        const newFlowData = {
+          id: idOfData,
+          name: 'Data flow ' + len,
+          outOfScope: true,
+          outOfScopeReason: 'Out of scope reason ' + len,
+          exploits: [],
+          importAssets: [],
+          importExploits: [],
+          source: null,
+          destination: null,
+          containsCookies: true,
+          containsXML: false,
+          boundariesCrossed: [],
+          assets: []
+        };
+        this.diagram.flows.push(newFlowData);
+        break;
+
+      default:
+        idOfData = null;
+        alert('Not implemented for type: ' + type + ' (addElementData method)');
+        break;
+    }
+
+    return idOfData;
+  }
+
   zoomOut() {
-    this.translateX = 0;
-    this.translateY = 0;
-    this.scale = 1;
+    this.diagram.graph.translateX = 0;
+    this.diagram.graph.translateY = 0;
+    this.diagram.graph.scale = 1;
 
     const svgCanvas = d3.select(this.selectSvg);
 
@@ -497,7 +352,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // this.simulation.stop();
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
-    this.link = this.link.data(this.nodeLinks);
+    this.link = this.link.data(this.diagram.graph.links);
     this.link.exit().remove();
     this.link = this.link.enter()
               .append('path')
@@ -518,9 +373,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.link.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.clickOnLink(d);
+        that.rightClickOnLink(d);
       } else {
-        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'link').name,
+                                      type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -529,19 +385,29 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       d3.event.stopPropagation();
     });
 
+    this.link.on('click', function(d, i) {
+      that.clickOnElement(d);
+
+       // ovo ce prekinuti obradu ovog eventa
+       d3.event.preventDefault();
+       d3.event.stopPropagation();
+    });
+
     this.link.each(function(d: any, i) {
       const self = d3.select(this);
 
-      d.element.properties.forEach(prop => {
+      const stencil = that.getStencil(d.stencilId);
+
+      stencil.properties.forEach(prop => {
         self.attr(prop.name, prop.value);
       });
 
-      if (d.element.tag === 'path') {
+      if (stencil.tag === 'path') {
             if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.x + that.SHAPE_SIZE / 2,
-                                                                d.source.y + that.SHAPE_SIZE / 2,
-                                                                d.target.x + that.SHAPE_SIZE / 2,
-                                                                d.target.y + that.SHAPE_SIZE / 2,
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
+                                                                d.source.position.y + that.SHAPE_SIZE / 2,
+                                                                d.target.position.x + that.SHAPE_SIZE / 2,
+                                                                d.target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -552,7 +418,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 // startPoint,
                 // [startPoint[0], startPoint[1] + 10],
                 // startPoint,
-                [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2],
+                { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2},
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
                 endPoint
                 /*[endPoint[0], endPoint[1] - 10],
@@ -561,7 +427,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
              ];
             }
 
-            const pathData = that.lineGenerator(d.points);
+            const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
       }
 
@@ -569,38 +435,41 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.link = svgCanvas.selectAll(this.selectSvg + ' .link');
 
     // ostaju samo oni koji imaju definisan target
-    this.linkArrow = this.linkArrow.data(this.nodeLinks.filter(l => l.target));
+    this.linkArrow = this.linkArrow.data(this.diagram.graph.links.filter(l => l.target));
     // nema dodavanja novih, moglo je doci samo do brisanja linkova ili nodova,
     // pa zato nestaju strelice (trouglici)
     this.linkArrow.exit().remove();
 
-    this.linkText = this.linkText.data(this.nodeLinks);
+    this.linkText = this.linkText.data(this.diagram.graph.links);
     this.linkText.exit().remove();
     this.linkText = this.linkText.enter()
               .append('text')
               .merge(this.linkText)
               .attr('x', function(d: any) {
-                  return d3.mean(d.points.map(point => point[0]));
+                  return d.points[1].x + 10;
+                  // return d3.mean(d.points.map(point => point[0]));
               })
               .attr('y', function(d: any) {
-                  return d3.mean(d.points.map(point => point[1]));
+                  return d.points[1].y;
+                  // return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE)
+              .attr('font-size', that.TEXT_SIZE * 3 / 2)
               .attr('font-family', 'sans-serif')
               .attr('fill', 'green')
+              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
               .text(function(d: any) {
-                  return d.element.name;
+                  return that.getGraphicElement(d.idOfData, 'link').name;
               })
               .classed('link-text', true)
               .classed('zoom-element', true);
     this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text');
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
-    this.nodeData
-      .filter(n => n.element.tag === 'image')
+    this.diagram.graph.nodes
+      .filter(n => this.getStencil(n.stencilId).tag === 'image')
       .forEach(n => {
-        const imagePath = n.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+        const imagePath = this.getStencil(n.stencilId).properties.filter(prop => prop.name === 'xlink:href')[0].value;
         if (!this.imagesMap.has(imagePath)) {
           const patternId = 'id-pattern-image-' + this.patternImageGenerator++;
           this.imagesMap.set(imagePath, patternId);
@@ -620,9 +489,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       });
 
-    const nodeMap = this.groupBy(this.nodeData);
+    const nodeMap = this.groupBy(this.diagram.graph.nodes);
     nodeMap.forEach((value, key) => {
-        let node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value); // value je podniz od this.nodeData
+        let node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value); // value je podniz od this.diagram.graph.nodes
         node.exit().remove();
         node = node.enter()
               .append(key)
@@ -642,10 +511,19 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 }));
 
       node.on('contextmenu', function(d: any, i) {
-        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
+                                        type: that.getStencil(d.stencilId).type, id: d.id});
 
         // ovo ce prekinuti obradu ovog eventa
         // i nece se prikazati browser-ov context menu
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+      });
+
+      node.on('click', function(d, i) {
+       that.clickOnElement(d);
+
+        // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
         d3.event.stopPropagation();
       });
@@ -663,17 +541,18 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('width', that.SHAPE_SIZE)
               .attr('height', that.SHAPE_SIZE);
           } */
-          if (d.element.tag === 'circle' || d.element.tag === 'image') {
+          const stencil: Stencil = that.getStencil(d.stencilId);
+          if (stencil.tag === 'circle' || stencil.tag === 'image') {
             self.attr('r', that.SHAPE_SIZE / 2)
-                .attr('cx', d.x + that.SHAPE_SIZE / 2)
-                .attr('cy', d.y + that.SHAPE_SIZE / 2);
+                .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
 
-            if (d.element.tag === 'circle') {
-              d.element.properties.forEach(prop => {
+            if (stencil.tag === 'circle') {
+              stencil.properties.forEach(prop => {
                 self.attr(prop.name, prop.value);
                 });
-            } else if (d.element.tag === 'image') {
-              const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+            } else if (stencil.tag === 'image') {
+              const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
               self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
             }
           }
@@ -682,51 +561,52 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
     console.log(this.node.data());
 
-    this.nodeText = this.nodeText.data(this.nodeData);
+    this.nodeText = this.nodeText.data(this.diagram.graph.nodes);
     this.nodeText.exit().remove();
     this.nodeText = this.nodeText.enter()
         .append('text')
         .merge(this.nodeText)
-        .attr('x', function(d: any) { return d.x; })
-        .attr('y', function(d: any) { return d.y; })
+        .attr('x', function(d: any) { return d.position.x; })
+        .attr('y', function(d: any) { return d.position.y; })
         // .attr('text-anchor', 'middle')
-        .attr('font-size', that.TEXT_SIZE)
+        .attr('font-size', that.TEXT_SIZE * 3 / 2)
         .attr('font-family', 'sans-serif')
         .attr('fill', 'green')
-        .text(function(d: any) { return d.element.name; })
+        .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+        .text(function(d: any) { return that.getGraphicElement(d.idOfData, 'node').name; })
         .classed('node-text', true)
         .classed('zoom-element', true);
     this.nodeText = svgCanvas.selectAll(this.selectSvg + ' text.node-text');
 
     /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        return 'translate(' + that.translateX + ','
-          + that.translateY + ') scale(' + that.scale + ')';
+        return 'translate(' + that.diagram.graph.translateX + ','
+          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });*/
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
-        let x = that.translateX;
-        let y = that.translateY;
+        let x = that.diagram.graph.translateX;
+        let y = that.diagram.graph.translateY;
 
         if (self.classed('link-arrows')) {
           const data: any = self.data()[0];
           const point = data.points[data.points.length - 1];
-          x += point[0];
-          y += point[1];
+          x += point.x;
+          y += point.y;
         }
         return 'translate(' + x + ','
-          + y + ') scale(' + that.scale + ')';
+          + y + ') scale(' + that.diagram.graph.scale + ')';
     });
 
     /*// Update and restart the this.simulation.
-    this.simulation.nodes(this.nodeData);
+    this.simulation.nodes(this.diagram.graph.nodes);
     const forceLink: any = this.simulation.force('link');
-    forceLink.links(this.nodeLinks);
+    forceLink.links(this.diagram.graph.links);
     // this.simulation.alpha(1).restart();
     this.simulation.restart();*/
   }
 
-  clickOnLink(link: any) {
+  rightClickOnLink(link: any) {
     if (d3.event.defaultPrevented) {
       return;
     }
@@ -740,10 +620,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       circlesOnLink.data(link.points).enter()
           .append('circle')
             .attr('cx', function(d: any) {
-              return d[0];
+              return d.x;
             })
             .attr('cy', function(d: any) {
-              return d[1];
+              return d.y;
             })
             .attr('r', 10)
             .attr('fill', 'red')
@@ -777,26 +657,26 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     .scaleExtent([that.MAX_ZOOM_OUT, that.MAX_ZOOM_IN])
     .on('zoom', function () {
         // console.log(d3.event);
-        // simp.attr('transform', 'translate(' + d3.event.translate + ')' + ' scale(' + d3.event.scale + ')');
+        // simp.attr('transform', 'translate(' + d3.event.translate + ')' + ' scale(' + d3.event.diagram.graph.scale + ')');
         d3.selectAll(that.selectSvg + ' .zoom-element')
             .each(function(d: any, i) {
-                that.translateX = d3.event.transform.x;
-                that.translateY = d3.event.transform.y;
-                that.scale = d3.event.transform.k;
+                that.diagram.graph.translateX = d3.event.transform.x;
+                that.diagram.graph.translateY = d3.event.transform.y;
+                that.diagram.graph.scale = d3.event.transform.k;
             });
         that.ticked();
             /*
             .attr('transform', function(d: any) {
                 // d.x = d3.event.transform.x;
                 // d.y = d3.event.transform.y;
-                that.scale = d3.event.transform.k;
+                that.diagram.graph.scale = d3.event.transform.k;
                 return 'translate(' + d3.event.transform.x + ','
-                  + d3.event.transform.y + ') scale(' + that.scale + ')';
+                  + d3.event.transform.y + ') scale(' + that.diagram.graph.scale + ')';
             });*/
             /*.attr('id', function(d: any) {
                 d.x = d3.event.transform.x;
                 d.y = d3.event.transform.y;
-                that.scale = d3.event.transform.k;
+                that.diagram.graph.scale = d3.event.transform.k;
                 return 'aaa';
             });
             that.ticked();*/
@@ -829,8 +709,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // this.simulation.restart();
     // this.simulation.alpha(0.7);
     // this.simulation.alpha(0.7);
-    d.fx = d.x;
-    d.fy = d.y;
+    // d.fx = d.position.x;
+    // d.fy = d.position.y;
 
 
     /*if (d.element.tag === 'path') {
@@ -846,19 +726,23 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   dragged(d) {
-    if (d.element.tag === 'path') {
+    if (this.getStencil(d.stencilId).tag === 'path') {
       d.source = null;
       d.target = null;
-      const nearestPoint = this.getNearestPoint(d.points, [d3.event.x, d3.event.y]);
-      const dx = d3.event.x - nearestPoint[0];
-      const dy = d3.event.y - nearestPoint[1];
+      const nearestPoint = this.getNearestPoint(d.points, { x: d3.event.x, y: d3.event.y });
+      const dx = d3.event.x - nearestPoint.x;
+      const dy = d3.event.y - nearestPoint.y;
       d.points.forEach(point => {
-        point[0] = point[0] + dx;
-        point[1] = point[1] + dy;
+        point.x = point.x + dx;
+        point.y = point.y + dy;
       });
     } else {
-      d.x = d3.event.x;
-      d.y = d3.event.y;
+      // d.position.x = d3.event.x;
+      // d.position.y = d3.event.y;
+      // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
+      d.position.x = d3.event.x - this.SHAPE_SIZE / 2;
+      // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
+      d.position.y = d3.event.y - this.SHAPE_SIZE / 2;
       const that = this;
       this.link.each(function (l: any) {
             if (l.source && l.source.id === d.id) {
@@ -886,17 +770,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
 
                 // TODO ovde nesto ne valja, pokreni program pa ces videiti, baca undefined
-                const point = that.getNearestPointOnCircle(l.source.x + that.SHAPE_SIZE / 2,
-                                                                    l.source.y + that.SHAPE_SIZE / 2,
-                                                                    l.points[0][0],
-                                                                    l.points[0][1],
+                const point = that.getNearestPointOnCircle(l.source.position.x + that.SHAPE_SIZE / 2,
+                                                                    l.source.position.y + that.SHAPE_SIZE / 2,
+                                                                    l.points[0].x,
+                                                                    l.points[0].y,
                                                                     that.SHAPE_SIZE / 2);
 
                 // menjamo prvu i srednju tacku
-                l.points[0][0] = point.x;
-                l.points[0][1] = point.y;
-                l.points[1][0] = d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]);
-                l.points[1][1] = d3.mean([l.points[0][1], l.points[l.points.length - 1][1]]);
+                l.points[0].x = point.x;
+                l.points[0].y = point.y;
+                l.points[1].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
+                l.points[1].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
                 /*l.points = [
                     point,
                     [point.x, point.y - 10],
@@ -913,17 +797,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               }
 
               if (l.target && l.target.id === d.id) {
-                const point = that.getNearestPointOnCircle(l.target.x + that.SHAPE_SIZE / 2,
-                                                          l.target.y + that.SHAPE_SIZE / 2,
-                                                          l.points[l.points.length - 1][0],
-                                                          l.points[l.points.length - 1][1],
+                const point = that.getNearestPointOnCircle(l.target.position.x + that.SHAPE_SIZE / 2,
+                                                          l.target.position.y + that.SHAPE_SIZE / 2,
+                                                          l.points[l.points.length - 1].x,
+                                                          l.points[l.points.length - 1].y,
                                                           that.SHAPE_SIZE / 2);
 
                 // menjamo poslednju i srednju tacku
-                l.points[l.points.length - 1][0] = point.x;
-                l.points[l.points.length - 1][1] = point.y;
-                l.points[l.points.length - 2][0] = d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]);
-                l.points[l.points.length - 2][1] = d3.mean([l.points[0][1], l.points[l.points.length - 1][1]]);
+                l.points[l.points.length - 1].x = point.x;
+                l.points[l.points.length - 1].y = point.y;
+                l.points[l.points.length - 2].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
+                l.points[l.points.length - 2].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
                 /*l.points = l.points.slice(0, 5).concat(
                   [
                     point,
@@ -948,27 +832,30 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   dragended(d) {
       const that = this;
       // d.fixed = true;
-      d.fx = null;
-      d.fy = null;
+      // d.fx = null;
+      // d.fy = null;
 
-      if (d.element.tag === 'path') {
-          const circles = this.node.data().map(el => [el.x + this.SHAPE_SIZE / 2, el.y + this.SHAPE_SIZE / 2]);
+      if (this.getStencil(d.stencilId).tag === 'path') {
+          const circles = this.node.data()
+                              .map(el => {
+                                return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
+                              });
 
-          const nearestPointToLinkStart = this.getNearestPointOnCircles(circles, d.points[0][0], d.points[0][1], this.SHAPE_SIZE / 2);
+          const nearestPointToLinkStart = this.getNearestPointOnCircles(circles, d.points[0].x, d.points[0].y, this.SHAPE_SIZE / 2);
           console.log('(nearestPointToLinkStart) Distance : ' + nearestPointToLinkStart.distance);
           if (nearestPointToLinkStart.distance <= 25 ) {
-              d.points[0][0] = nearestPointToLinkStart.x;
-              d.points[0][1] = nearestPointToLinkStart.y;
+              d.points[0].x = nearestPointToLinkStart.x;
+              d.points[0].y = nearestPointToLinkStart.y;
               d.source = that.node.data()[nearestPointToLinkStart.index];
           }
 
           const indexOfLastPoint = d.points.length - 1;
           const nearestPointToLinkEnd = this.getNearestPointOnCircles(circles,
-                 d.points[indexOfLastPoint][0], d.points[indexOfLastPoint][1], this.SHAPE_SIZE / 2);
+                 d.points[indexOfLastPoint].x, d.points[indexOfLastPoint].y, this.SHAPE_SIZE / 2);
           console.log('(nearestPointToLinkEnd) Distance : ' + nearestPointToLinkEnd.distance);
           if (nearestPointToLinkEnd.distance <= 25 ) {
-              d.points[indexOfLastPoint][0] = nearestPointToLinkEnd.x;
-              d.points[indexOfLastPoint][1] = nearestPointToLinkEnd.y;
+              d.points[indexOfLastPoint].x = nearestPointToLinkEnd.x;
+              d.points[indexOfLastPoint].y = nearestPointToLinkEnd.y;
               d.target = that.node.data()[nearestPointToLinkEnd.index];
           }
           console.log(this.link.data());
@@ -996,13 +883,13 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       link.target = null;
     }
 
-    d.fx = d[0];
-    d.fy = d[1];
+    // d.fx = d.x;
+    // d.fy = d.y;
   }
 
   draggedForCircleOnLink(d) {
-      d[0] = d3.event.x;
-      d[1] = d3.event.y;
+      d.x = d3.event.x;
+      d.y = d3.event.y;
 
       this.ticked();
   }
@@ -1010,17 +897,20 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   dragendedForCircleOnLink(d) {
     const that = this;
     // d.fixed = true;
-    d.fx = null;
-    d.fy = null;
+    // d.fx = null;
+    // d.fy = null;
 
-    const circles = this.node.data().map(el => [el.x + this.SHAPE_SIZE / 2, el.y + this.SHAPE_SIZE / 2]);
+    const circles = this.node.data()
+                          .map(el => {
+                            return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
+                          });
     const nearestPoint = this.getNearestPointOnCircles(circles, d3.event.x, d3.event.y, this.SHAPE_SIZE / 2);
     console.log('Distance: ' + nearestPoint.distance);
     if (nearestPoint.distance <= 25 ) {
       this.link.each(function (el: any) {
           if (el.points[0] === d || el.points[el.points.length - 1] === d) {
-            d[0] = nearestPoint.x;
-            d[1] = nearestPoint.y;
+            d.x = nearestPoint.x;
+            d.y = nearestPoint.y;
             if (el.points[0] === d) {
               el.source = that.node.data()[nearestPoint.index];
             } else if (el.points[el.points.length - 1] === d) {
@@ -1045,12 +935,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     const svgCanvas = d3.select(this.selectSvg);
 
-    this.nodeLinks.forEach((l: any) => {
+    this.diagram.graph.links.forEach((l: any) => {
       l.source = this.getNode(l.source);
       l.target = this.getNode(l.target);
     });
 
-    /*const linkForce  = d3.forceLink(this.nodeLinks)
+    /*const linkForce  = d3.forceLink(this.diagram.graph.links)
                           // .id(function(d: any) { return d.id; })
                           .distance(this.dist)
                           .strength(2);
@@ -1066,7 +956,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
     this.link = svgCanvas.selectAll(this.selectSvg + ' path.link')
-              .data(this.nodeLinks)
+              .data(this.diagram.graph.links)
               .enter()
               .append('path')
               .classed('link', true)
@@ -1085,9 +975,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.link.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.clickOnLink(d);
+        that.rightClickOnLink(d);
       } else {
-        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'link').name,
+                                      type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -1096,19 +987,28 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       d3.event.stopPropagation();
     });
 
+    this.link.on('click', function(d, i) {
+        that.clickOnElement(d);
+
+        // ovo ce prekinuti obradu ovog eventa
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+    });
+
     this.link.each(function(d: any, i) {
       const self = d3.select(this);
+      const stencil: Stencil = that.getStencil(d.stencilId);
 
-      d.element.properties.forEach(prop => {
+      stencil.properties.forEach(prop => {
         self.attr(prop.name, prop.value);
       });
 
-      if (d.element.tag === 'path') {
+      if (stencil.tag === 'path') {
             if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.x + that.SHAPE_SIZE / 2,
-                                                                d.source.y + that.SHAPE_SIZE / 2,
-                                                                d.target.x + that.SHAPE_SIZE / 2,
-                                                                d.target.y + that.SHAPE_SIZE / 2,
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
+                                                                d.source.position.y + that.SHAPE_SIZE / 2,
+                                                                d.target.position.x + that.SHAPE_SIZE / 2,
+                                                                d.target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -1119,7 +1019,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 // startPoint,
                 // [startPoint[0], startPoint[1] + 10],
                 // startPoint,
-                [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2],
+                { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2 },
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
                 // endPoint,
                 // [endPoint[0], endPoint[1] - 10],
@@ -1129,7 +1029,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
              ];
             }
 
-            const pathData = that.lineGenerator(d.points);
+            const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
       }
 
@@ -1141,42 +1041,45 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             .size(150);
 
     this.linkArrow = svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
-              .data(this.nodeLinks.filter(l => l.target)) // ostaju samo oni koji imaju definisan target
+              .data(this.diagram.graph.links.filter(l => l.target)) // ostaju samo oni koji imaju definisan target
               .enter()
               .append('path')
               .attr('d', triangle)
               .attr('transform', function(d) {
                 const point = d.points[d.points.length - 1];
-                return 'translate(' + point[0] + ',' + point[1] + ')'; })
+                return 'translate(' + point.x + ',' + point.y + ')'; })
               .style('fill', '#585858')
               .classed('link-arrows', true)
               .classed('zoom-element', true);
 
     this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text')
-              .data(this.nodeLinks)
+              .data(this.diagram.graph.links)
               .enter()
               .append('text')
               .attr('x', function(d: any) {
-                  return d3.mean(d.points.map(point => point[0]));
+                  return d.points[1].x + 10;
+                  // return d3.mean(d.points.map(point => point[0]));
               })
               .attr('y', function(d: any) {
-                  return d3.mean(d.points.map(point => point[1]));
+                  return d.points[1].y;
+                  // return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE)
+              .attr('font-size', that.TEXT_SIZE * 3 / 2)
               .attr('font-family', 'sans-serif')
               .attr('fill', 'green')
+              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
               .text(function(d: any) {
-                  return d.element.name;
+                  return that.getGraphicElement(d.idOfData, 'link').name;
               })
               .classed('link-text', true)
               .classed('zoom-element', true);
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
-    this.nodeData
-      .filter(n => n.element.tag === 'image')
+    this.diagram.graph.nodes
+      .filter(n => this.getStencil(n.stencilId).tag === 'image')
       .forEach(n => {
-        const imagePath = n.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+        const imagePath = this.getStencil(n.stencilId).properties.filter(prop => prop.name === 'xlink:href')[0].value;
         if (!this.imagesMap.has(imagePath)) {
           const patternId = 'id-pattern-image-' + this.patternImageGenerator++;
           this.imagesMap.set(imagePath, patternId);
@@ -1196,11 +1099,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       });
 
-    const nodeMap = this.groupBy(this.nodeData);
+    const nodeMap = this.groupBy(this.diagram.graph.nodes);
     nodeMap.forEach((value, key) => {
-        const node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value) // value je podniz od this.nodeData
+        const node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value) // value je podniz od this.diagram.graph.nodes
               .enter()
               .append(key)
+                .classed('shape', true)
                 .classed('zoom-element', true)
                 .classed('node', true)
                 .style('cursor', 'move')
@@ -1216,7 +1120,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 }));
 
       node.on('contextmenu', function(d: any, i) {
-        that.onContextMenu(d3.event, {name: d.element.name, type: d.element.type, index: i});
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
+                                      type: that.getStencil(d.stencilId).type, id: d.id});
 
         // ovo ce prekinuti obradu ovog eventa
         // i nece se prikazati browser-ov context menu
@@ -1224,30 +1129,30 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         d3.event.stopPropagation();
       });
 
+      node.on('click', function(d, i) {
+        that.clickOnElement(d);
+
+         // ovo ce prekinuti obradu ovog eventa
+         d3.event.preventDefault();
+         d3.event.stopPropagation();
+      });
+
       node.each(function(d: any, i ) {
           const self = d3.select(this);
 
-          /*d.element.properties.forEach(prop => {
-          self.attr(prop.name, prop.value);
-          });*/
+          const stencil: Stencil = that.getStencil(d.stencilId);
 
-          /*if (d.element.tag === 'image') {
-          self.attr('x', d.x)
-              .attr('y', d.y)
-              .attr('width', that.SHAPE_SIZE)
-              .attr('height', that.SHAPE_SIZE);
-          } */
-          if (d.element.tag === 'circle' || d.element.tag === 'image') {
+          if (stencil.tag === 'circle' || stencil.tag === 'image') {
             self.attr('r', that.SHAPE_SIZE / 2)
-                .attr('cx', d.x + that.SHAPE_SIZE / 2)
-                .attr('cy', d.y + that.SHAPE_SIZE / 2);
+                .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
 
-            if (d.element.tag === 'circle') {
-              d.element.properties.forEach(prop => {
+            if (stencil.tag === 'circle') {
+              stencil.properties.forEach(prop => {
                 self.attr(prop.name, prop.value);
                 });
-            } else if (d.element.tag === 'image') {
-              const imagePath = d.element.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+            } else if (stencil.tag === 'image') {
+              const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
               self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
             }
           }
@@ -1257,32 +1162,34 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     console.log(this.node.data());
 
     this.nodeText = svgCanvas.selectAll(this.selectSvg + ' text.node-text')
-        .data(this.nodeData)
+        .data(this.diagram.graph.nodes)
         .enter()
         .append('text')
-        .attr('x', function(d: any) { return d.x; })
-        .attr('y', function(d: any) { return d.y; })
+        .attr('x', function(d: any) { return d.position.x + that.SHAPE_SIZE / 20; })
+        .attr('y', function(d: any) { return d.position.y + that.SHAPE_SIZE / 2; })
         // .attr('text-anchor', 'middle')
-        .attr('font-size', that.TEXT_SIZE)
+        .attr('font-size', that.TEXT_SIZE * 3 / 2)
         .attr('font-family', 'sans-serif')
         .attr('fill', 'green')
-        .text(function(d: any) { return d.element.name; })
+        .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+        .text(function(d: any) { return that.getGraphicElement(d.idOfData, 'node').name + 'aaaaa aaaaa aaaaa aaaaaaaa aaaa'; })
+        .classed('wrap', true)
         .classed('node-text', true)
         .classed('zoom-element', true);
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
-        let x = that.translateX;
-        let y = that.translateY;
+        let x = that.diagram.graph.translateX;
+        let y = that.diagram.graph.translateY;
 
         if (self.classed('link-arrows')) {
           const data: any = self.data()[0];
           const point = data.points[data.points.length - 1];
-          x += point[0];
-          y += point[1];
+          x += point.x;
+          y += point.y;
         }
         return 'translate(' + x + ','
-          + y + ') scale(' + that.scale + ')';
+          + y + ') scale(' + that.diagram.graph.scale + ')';
     });
 
     /*this.simulation
@@ -1295,7 +1202,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   getNode(id: number) {
-    const filtered = this.nodeData.filter(n => n.id === id);
+    const filtered = this.diagram.graph.nodes.filter(n => n.id === id);
     if (filtered.length > 0) {
       return filtered[0];
     } else {
@@ -1335,25 +1242,27 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           ];
         }*/
 
-        const pathData = that.lineGenerator(d.points);
+        const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
         const self = d3.select(this);
         self.attr('d', pathData);
 
         d3.selectAll(that.selectSvg + ' circle.circle-on-link-' + d.id)
               .attr('cx', function(point: any) {
-                 return point[0];
+                 return point.x;
               })
               .attr('cy', function(point: any) {
-                return point[1];
+                return point.y;
               });
     });
 
     this.linkText
         .attr('x', function(d: any) {
-            return d3.mean(d.points.map(point => point[0]));
+            return d.points[1].x + 10;
+            // return d3.mean(d.points.map(point => point[0]));
         })
         .attr('y', function(d: any) {
-            return d3.mean(d.points.map(point => point[1]));
+            return d.points[1].y;
+            // return d3.mean(d.points.map(point => point[1]));
         });
 
     this.node.each(function(d: any) {
@@ -1362,33 +1271,34 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           self.attr('x', function(el: any) { return el.x; })
               .attr('y', function(el: any) { return el.y; });
         }*/
-        if (d.element.tag === 'circle' || d.element.tag === 'image') {
-          self.attr('cx', function(el: any) { return el.x + that.SHAPE_SIZE / 2; })
-              .attr('cy', function(el: any) { return el.y + that.SHAPE_SIZE / 2; });
+        const stencil: Stencil = that.getStencil(d.stencilId);
+        if (stencil.tag === 'circle' || stencil.tag === 'image') {
+          self.attr('cx', function(el: any) { return el.position.x + that.SHAPE_SIZE / 2; })
+              .attr('cy', function(el: any) { return el.position.y + that.SHAPE_SIZE / 2; });
         }
     });
 
-    this.nodeText.attr('x', function(d: any) { return d.x; })
-              .attr('y', function(d: any) { return d.y; });
+    this.nodeText.attr('x', function(d: any) { return d.position.x; })
+              .attr('y', function(d: any) { return d.position.y; });
 
     /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        return 'translate(' + that.translateX + ','
-          + that.translateY + ') scale(' + that.scale + ')';
+        return 'translate(' + that.diagram.graph.translateX + ','
+          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });*/
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
-        let x = that.translateX;
-        let y = that.translateY;
+        let x = that.diagram.graph.translateX;
+        let y = that.diagram.graph.translateY;
 
         if (self.classed('link-arrows')) {
           const data: any = self.data()[0];
           const point = data.points[data.points.length - 1];
-          x += point[0];
-          y += point[1];
+          x += point.x;
+          y += point.y;
         }
         return 'translate(' + x + ','
-          + y + ') scale(' + that.scale + ')';
+          + y + ') scale(' + that.diagram.graph.scale + ')';
     });
   }
 
@@ -1396,10 +1306,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     const map = new Map();
     list.forEach((item) => {
          let key;
-         if (item.element.tag === 'image') {
+         const stencil: Stencil = this.getStencil(item.stencilId);
+         if (stencil.tag === 'image') {
            key = 'circle';
          } else {
-           key = item.element.tag;
+           key = stencil.tag;
          }
          const collection = map.get(key);
          if (!collection) {
@@ -1454,14 +1365,14 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       yEnd = y2;
     }
 
-    return {start: [xStart, yStart],  end: [ xEnd, yEnd]};
+    return {start: { x: xStart, y: yStart},  end: { x: xEnd, y: yEnd}};
   }
 
   getNearestPointOnCircle(x1: number, y1: number, x2: number, y2: number, r: number) {
-    // x1 = x1 + this.translateX;
-    // y2 = x1 + this.translateY;
-    // x2 = x2 + this.translateX;
-    // y2 = y2 + this.translateY;
+    // x1 = x1 + this.diagram.graph.translateX;
+    // y2 = x1 + this.diagram.graph.translateY;
+    // x2 = x2 + this.diagram.graph.translateX;
+    // y2 = y2 + this.diagram.graph.translateY;
 
     let xNearest: number;
     let yNearest: number;
@@ -1505,8 +1416,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   getNearestPointOnCircles(circles: any[], x2: number, y2: number, r: number) {
-    // x2 = x2 + this.translateX;
-    // y2 = x2 + this.translateY;
+    // x2 = x2 + this.diagram.graph.translateX;
+    // y2 = x2 + this.diagram.graph.translateY;
 
     let x1;
     let y1;
@@ -1525,10 +1436,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     // d3.selectAll(this.selectSvg + ' .brisanje').remove();
 
-    // x1 = circles[0][0] + this.translateX;
-    // y1 = circles[0][1] + this.translateY;
-    x1 = circles[0][0];
-    y1 = circles[0][1];
+    // x1 = circles[0][0] + this.diagram.graph.translateX;
+    // y1 = circles[0][1] + this.diagram.graph.translateY;
+    x1 = circles[0].x;
+    y1 = circles[0].y;
     z = Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     // a1 = r * Math.abs(y1 - y2) / z;
     // b1 = Math.sqrt( Math.pow(r, 2) - Math.pow(a1, 2));
@@ -1559,14 +1470,14 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('r', 3)
               .classed('brisanje', true);*/
 
-    minDistance = this.getDistance([xNearest, yNearest], [x2, y2]);
+    minDistance = this.getDistance({ x: xNearest, y: yNearest }, { x: x2, y: y2 });
 
     circles = circles.slice(1);
     circles.forEach((c, i) => {
-        // x1 = c[0] + this.translateX;
-        // y1 = c[1] + this.translateY;
-        x1 = c[0];
-        y1 = c[1];
+        // x1 = c[0] + this.diagram.graph.translateX;
+        // y1 = c[1] + this.diagram.graph.translateY;
+        x1 = c.x;
+        y1 = c.y;
         z = Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
         // a1 = r * Math.abs(y1 - y2) / z;
         // b1 = Math.sqrt( Math.pow(r, 2) - Math.pow(a1, 2));
@@ -1595,7 +1506,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('r', 3)
               .classed('brisanje', true);*/
 
-        distance = this.getDistance([xCurrentNearest, yCurrentNearest], [x2, y2]);
+        distance = this.getDistance({ x: xCurrentNearest, y: yCurrentNearest}, { x: x2, y: y2 });
         if (distance < minDistance) {
           minDistance = distance;
           xNearest = xCurrentNearest;
@@ -1607,28 +1518,59 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     return {x: xNearest, y: yNearest, distance: minDistance, index: index};
   }
 
-  getNearestPoint(points: any[], point: any) {
+  getNearestPoint(points: Point[], point: Point) {
     // u ovoj metodi vodjeno je racuna da li su tacke translirane,
     // ali ne i da li su skalirane (zoom i zoomOut)
 
     let nearestPoint = points[0];
-    let minDistance: number = this.getDistance([points[0][0] + this.translateX, points[0][1] + this.translateY], point);
+    let minDistance: number = this.getDistance({ x: points[0].x + this.diagram.graph.translateX,
+                                                y: points[0].y + this.diagram.graph.translateY }, point);
 
     points = points.slice(1);
     points.forEach(p => {
-        const distance: number = this.getDistance([p[0] + this.translateX, p[1] + this.translateY], point);
+        const distance: number = this.getDistance({ x: p.x + this.diagram.graph.translateX,
+                                                    y: p.y + this.diagram.graph.translateY }, point);
         if (distance < minDistance) {
           minDistance = distance;
           nearestPoint = p;
         }
     });
 
-    return [nearestPoint[0] + this.translateX, nearestPoint[1] + this.translateY];
+    return { x: nearestPoint.x + this.diagram.graph.translateX, y: nearestPoint.y + this.diagram.graph.translateY };
   }
 
-  getDistance(p1, p2) {
-    return Math.sqrt( Math.pow(p1[0] - p2[0], 2)
-                    + Math.pow(p1[1] - p2[1], 2));
+  getDistance(p1: Point, p2: Point) {
+    return Math.sqrt( Math.pow(p1.x - p2.x, 2)
+                    + Math.pow(p1.y - p2.y, 2));
+  }
+
+  getGraphicElement(idOfData: string, type: string) {
+    if (type === 'node') {
+      return this.diagram.elements.filter(e => e.id === idOfData)[0];
+    } else if (type === 'link') {
+      return this.diagram.flows.filter(f => f.id === idOfData)[0];
+    } else {
+      alert('Not implemented for type: ' + type + '(getGraphicElementName method)');
+      return null;
+    }
+  }
+
+  getStencil(id: string) {
+      return this.stencils.filter(s => s.id === id)[0];
+  }
+
+  clickOnElement(d: any) {
+    let obj = null;
+    const stencil: Stencil = this.getStencil(d.stencilId);
+    if (stencil.type === 'process' || stencil.type === 'complex-process') {
+        obj = this.diagram.elements.filter(e => e.id === d.idOfData)[0];
+    } else if (stencil.type === 'data-flow') {
+      obj = this.diagram.flows.filter(f => f.id === d.idOfData)[0];
+    } else {
+      alert('Not implented for type: ' + stencil.type + ' (this.link.onClick method)');
+    }
+
+    this.propertiesService.setSelectedElement(obj);
   }
 
 }

@@ -14,10 +14,12 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { GraphicElementsConfigService } from './services/graphic-elements-config/graphic-elements-config.service';
 import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data-flow-diagrams.service';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { ContextMenuForDiagramComponent } from './context-menu-for-diagram/context-menu-for-diagram.component';
+import { StencilsConfigService } from './services/stencils-config/stencils-config.service';
+import { LoadModelService } from './services/load-model/load-model.service';
+import { PropertiesService } from './properties-panel/service/properties.service';
 
 
 @NgModule({
@@ -42,7 +44,7 @@ import { ContextMenuForDiagramComponent } from './context-menu-for-diagram/conte
     ContextMenuModule.forRoot()
   ],
   providers: [
-    CanvasService, GraphicElementsConfigService, DataFlowDiagramsService
+    CanvasService, StencilsConfigService, DataFlowDiagramsService, LoadModelService, PropertiesService
   ],
   exports: [
     EditorComponent

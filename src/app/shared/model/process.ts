@@ -7,4 +7,5 @@ export interface Process extends BlockElement {
     sessionHasTimeouts: boolean;
     requiresAuthentication: boolean;
     requiresAuthorization: boolean;
+    idOfDiagram?: string; // ovo ima samo complex-process
 }

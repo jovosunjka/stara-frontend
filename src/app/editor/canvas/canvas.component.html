@@ -2,6 +2,14 @@
 <svg id="{{idSvg}}" style="background-color: #ffffff; width: 100%; height: 100%;
         border:3px solid blue; position: relative; z-index: 900"> 
         <defs>
+            <filter x="0" y="0" width="1" height="1" id="{{idSvg}}_id_yellow_color">
+                <feFlood flood-color="yellow"/>
+                <feComposite in="SourceGraphic" operator="over" />
+            </filter>
+            <filter x="0" y="0" width="1" height="1" id="{{idSvg}}_id_orange_color">
+                <feFlood flood-color="orange"/>
+                <feComposite in="SourceGraphic" operator="over" />
+            </filter>
             <!--<pattern id="image" patternUnits="objectBoundingBox" height="50" width="50">
                 <image x="0" y="0" height="50" width="50" xlink:href="assets/images/complex-process.png"/>
             </pattern>-->

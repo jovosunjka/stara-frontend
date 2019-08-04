@@ -2,6 +2,8 @@ import { Component, OnInit, EventEmitter, Output, AfterViewInit } from '@angular
 import { ToastrService } from 'ngx-toastr';
 import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
 import { DataFlowDiagramsService } from './service/data-flow-diagrams.service';
+import { LoadModelService } from '../services/load-model/load-model.service';
+
 
 
 @Component({
@@ -21,137 +23,53 @@ export class DataFlowDiagramsPanelComponent implements OnInit/*, AfterViewInit*/
 
   @Output() currentDiagramEvent = new EventEmitter<string>();
 
-  constructor(private dataFlowDiagramsService: DataFlowDiagramsService, private toastr: ToastrService) {
-    this.diagrams = [
-      {
-        id: 'id-diagram-' + this.idDiagramGenerator++,
-        name: 'Context',
-        elements: [],
-        /*elements: [
-          {
-            element: {
-                      name: 'Process 0',
-                      type: 'process',
-                      tag: 'circle',
-                      properties: [{name: 'fill', value: 'blue'}]
-                    },
-            x: 20,
-            y: 20,
-            id: '0'
-          },
-          {
-            element: {
-                  name: 'Process 1',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 100,
-            y: 100,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                  name: 'Process 2',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 200,
-            y: 100,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                      name: 'Process 3',
-                      type: 'process',
-                      tag: 'circle',
-                      properties: [{name: 'fill', value: 'blue'}]
-                    },
-            x: 50,
-            y: 200,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                  name: 'Process 4',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 350,
-            y: 200,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                  name: 'Process 5',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 100,
-            y: 300,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                  name: 'Process 6',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 300,
-            y: 300,
-            id: this.idNodeGenerator++
-          },
-          {
-            element: {
-                  name: 'Process 7',
-                  type: 'process',
-                  tag: 'circle',
-                  properties: [{name: 'fill', value: 'blue'}]
-                },
-            x: 300,
-            y: 250,
-            id: this.idNodeGenerator++
-          }
-        ],*/
-        flows: [],
-        boundaries: [],
-        sections: []},
-      {id: 'id-diagram-' + this.idDiagramGenerator++, name: 'MT Public', elements: [], flows: [], boundaries: [], sections: []},
-      {id: 'id-diagram-' + this.idDiagramGenerator++, name: 'MT Internal', elements: [], flows: [], boundaries: [], sections: []}
-    ];
-
-
-    // this.selectSvgs = [];
-
+  constructor(private loadModelService: LoadModelService,
+               private dataFlowDiagramsService: DataFlowDiagramsService,
+                private toastr: ToastrService) {
+    this.diagrams = this.loadModelService.getDataFlowDiagrams();
+    this.idDiagramGenerator = this.diagrams.length - 1;
   }
 
   ngOnInit() {
     if (this.diagrams && this.diagrams.length > 0) {
       this.currentDiagram = this.diagrams[0].id;
       this.currentDiagramEvent.emit(this.currentDiagram);
+
+      this.idDiagramGenerator = this.diagrams.length;
     } else {
       this.toastr.error('There are currently no diagrams in this model!');
     }
+  }
 
-    this.dataFlowDiagramsService.addNewDiagram.subscribe(
-      (newDataFlowDiagramName: string) => {
-
-        this.diagrams.push(
-          {
-            id: 'id-diagram-' + this.idDiagramGenerator++,
-            name: newDataFlowDiagramName,
-            elements: [],
-            flows: [],
+  makeNewDiagram(diagramName: string) {
+    const newId = 'id-diagram-' + this.idDiagramGenerator++;
+    this.diagrams.push(
+      {
+        id: newId,
+        name: diagramName,
+        graph: {
+            nodes: [],
+            links: [],
             boundaries: [],
-            sections: []
-          }
-        );
+            sections: [],
+            translateX: 0,
+            translateY: 0,
+            scale: 1
+        },
+        elements: [],
+        flows: [],
+        boundaries: [],
+        sections: []
       }
     );
+    this.dataFlowDiagramsService.returnNewIdOfDiagram(newId);
+    this.toastr.success('A new diagram is created for the complex process: diagramName');
+  }
+
+  removeComplexProcessDiagram(id: string) {
+    const diagram: DataFlowDiagram = this.diagrams.filter(d => d.id === id)[0];
+    const index = this.diagrams.indexOf(diagram);
+    this.diagrams.splice(index, 1);
   }
 
   // ngAfterContentInit
