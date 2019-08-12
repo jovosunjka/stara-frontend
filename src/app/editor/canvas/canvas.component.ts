@@ -40,6 +40,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   // private IMAGE_SIZE = 42;
 
   // private simulation: any;
+  private gNode: any;
   private node: any;
   private link: any;
   private nodeText: any;
@@ -70,6 +71,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
   newElementData: any;
 
+  private SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+  private nodeTextConfig: any;
+
   constructor(private stencilsConfigService: StencilsConfigService,
               private dataFlowDiagramsService: DataFlowDiagramsService,
                private canvasService: CanvasService, private contextMenuService: ContextMenuService,
@@ -77,6 +81,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.stencils = this.stencilsConfigService.getStencils();
 
     this.imagesMap = new Map();
+
+    this.nodeTextConfig = {
+      'width': this.SHAPE_SIZE,
+      'height': this.SHAPE_SIZE,
+      'resize': true
+    };
   }
 
   ngOnInit() {
@@ -135,12 +145,6 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // dodajemo svoj eventEmitterName u mapu svih eventEmitter-a
     this.canvasService.addEventEmitterName(this.diagram.id);
 
-    /*this.canvasService.getEventEmitter(this.diagram.id).subscribe(
-      (graphicElement: GraphicElement) => {
-        this.addGraphicElement(graphicElement);
-      }
-    );*/
-
     this.canvasService.getEventEmitter(this.diagram.id).subscribe(
       (action: any) => {
         if (action.type === 'add-new-graphic-element') {
@@ -158,13 +162,41 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       }
     );
 
+    // dodajemo svoj eventEmitterName u mapu svih eventEmitter-a
+    this.propertiesService.addEventEmitterName(this.diagram.id);
 
-    // dodajemo svoj eventEmitterName za zoomOut u mapu svih eventEmitter-a
-    /*this.canvasService.addEventEmitterName(this.diagram.id + 'zoom_out');
+    this.propertiesService.getEventEmitter(this.diagram.id).subscribe(
+      (setSelectedElementId: string) => {
+        this.gNode.each(function(d, i) {
+          if (d.idOfData === setSelectedElementId) {
+            const self = d3.select(this);
+            self.select('text').remove();
+            self.append('text')
+                // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                // .attr('text-anchor', 'middle')
+                .attr('font-size', that.TEXT_SIZE * 4)
+                .attr('font-family', 'sans-serif')
+                .attr('fill', 'red')
+                .attr('id', that.idSvg + '_id_text' + i)
+                // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+                .text(that.getGraphicElement(setSelectedElementId, 'node').name)
+                .classed('wrap', true)
+                .classed('node-text', true)
+                .classed('zoom-element', true);
 
-    this.canvasService.getEventEmitter(this.diagram.id + 'zoom_out').subscribe(
-      () => this.zoomOut()
-    );*/
+            d3plus.textwrap()
+                .config(that.nodeTextConfig)
+                .container('#' + that.idSvg + '_id_text' + i)
+                .shape('circle')
+                .padding(10)
+                // .align('middle')
+                .valign('middle')
+                .draw();
+          }
+        });
+      }
+    );
 
     const that = this;
     d3.select(this.selectSvg).on('click', function () {
@@ -365,7 +397,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   that.dragstarted(d);
                 })
                 .on('drag', function(d) {
-                  that.dragged(d);
+                  that.dragged(d, -1);
                 })
                 .on('end', function(d) {
                   that.dragended(d);
@@ -489,94 +521,103 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       });
 
-    const nodeMap = this.groupBy(this.diagram.graph.nodes);
-    nodeMap.forEach((value, key) => {
-        let node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value); // value je podniz od this.diagram.graph.nodes
-        node.exit().remove();
-        node = node.enter()
-              .append(key)
-              .merge(node)
+      this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes);
+      this.gNode.exit().remove();
+      this.gNode.enter()
+              .append('g')
+              .merge(this.gNode)
+              .classed('g-node', true)
+              .each(function(d: any, i) {
+                const stencil: Stencil = that.getStencil(d.stencilId);
+                const self = d3.select(this);
+                const nodeElement = self.append(() => {
+                    let tagName;
+                    if (stencil.tag === 'image') {
+                      tagName = 'circle';
+                    } else {
+                      tagName = stencil.tag;
+                    }
+                    // return document.createElement(tagName);
+                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
+                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
+                  }
+                )
+                .classed('shape', true)
                 .classed('zoom-element', true)
                 .classed('node', true)
                 .style('cursor', 'move')
                 .call(d3.drag()
-                .on('start', function(d) {
+                .on('start', function() {
                   that.dragstarted(d);
                 })
-                .on('drag', function(d) {
-                  that.dragged(d);
+                .on('drag', function() {
+                  that.dragged(d, i);
                 })
-                .on('end', function(d) {
+                .on('end', function() {
                   that.dragended(d);
                 }));
 
-      node.on('contextmenu', function(d: any, i) {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
-                                        type: that.getStencil(d.stencilId).type, id: d.id});
+                if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
+                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
 
-        // ovo ce prekinuti obradu ovog eventa
-        // i nece se prikazati browser-ov context menu
-        d3.event.preventDefault();
-        d3.event.stopPropagation();
-      });
+                  if (stencil.tag === 'circle') {
+                    stencil.properties.forEach(prop => {
+                      nodeElement.attr(prop.name, prop.value);
+                      });
+                  } else if (stencil.tag === 'image') {
+                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
+                  }
+                }
 
-      node.on('click', function(d, i) {
-       that.clickOnElement(d);
+                self.append('text')
+                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                    // .attr('text-anchor', 'middle')
+                    .attr('font-size', that.TEXT_SIZE * 4)
+                    .attr('font-family', 'sans-serif')
+                    .attr('fill', 'red')
+                    .attr('id', that.idSvg + '_id_text' + i)
+                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+                    .text(that.getGraphicElement(d.idOfData, 'node').name)
+                    .classed('wrap', true)
+                    .classed('node-text', true)
+                    .classed('zoom-element', true);
 
-        // ovo ce prekinuti obradu ovog eventa
-        d3.event.preventDefault();
-        d3.event.stopPropagation();
-      });
+                d3plus.textwrap()
+                    .config(that.nodeTextConfig)
+                    .container('#' + that.idSvg + '_id_text' + i)
+                    .shape('circle')
+                    .padding(10)
+                    // .align('middle')
+                    .valign('middle')
+                    .draw();
+              });
 
-      node.each(function(d: any, i ) {
-          const self = d3.select(this);
-
-          /*d.element.properties.forEach(prop => {
-          self.attr(prop.name, prop.value);
-          });*/
-
-          /*if (d.element.tag === 'image') {
-          self.attr('x', d.x)
-              .attr('y', d.y)
-              .attr('width', that.SHAPE_SIZE)
-              .attr('height', that.SHAPE_SIZE);
-          } */
-          const stencil: Stencil = that.getStencil(d.stencilId);
-          if (stencil.tag === 'circle' || stencil.tag === 'image') {
-            self.attr('r', that.SHAPE_SIZE / 2)
-                .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
-                .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
-
-            if (stencil.tag === 'circle') {
-              stencil.properties.forEach(prop => {
-                self.attr(prop.name, prop.value);
-                });
-            } else if (stencil.tag === 'image') {
-              const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-              self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-            }
-          }
-      });
-    });
+    this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node');
+    this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
-    console.log(this.node.data());
 
-    this.nodeText = this.nodeText.data(this.diagram.graph.nodes);
-    this.nodeText.exit().remove();
-    this.nodeText = this.nodeText.enter()
-        .append('text')
-        .merge(this.nodeText)
-        .attr('x', function(d: any) { return d.position.x; })
-        .attr('y', function(d: any) { return d.position.y; })
-        // .attr('text-anchor', 'middle')
-        .attr('font-size', that.TEXT_SIZE * 3 / 2)
-        .attr('font-family', 'sans-serif')
-        .attr('fill', 'green')
-        .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-        .text(function(d: any) { return that.getGraphicElement(d.idOfData, 'node').name; })
-        .classed('node-text', true)
-        .classed('zoom-element', true);
-    this.nodeText = svgCanvas.selectAll(this.selectSvg + ' text.node-text');
+    this.node.on('contextmenu', function(d: any, i) {
+      that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
+                                    type: that.getStencil(d.stencilId).type, id: d.id});
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+    });
+
+    this.node.on('click', function(d, i) {
+      that.clickOnElement(d);
+
+        // ovo ce prekinuti obradu ovog eventa
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+    });
+
 
     /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         return 'translate(' + that.diagram.graph.translateX + ','
@@ -647,7 +688,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
   clickOnSvg() {
       d3.selectAll(this.selectSvg + ' circle.circle-on-link').remove();
-      this.ticked();
+      this.ticked(-1);
   }
 
   doZoom(areaForZoom) {
@@ -664,7 +705,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 that.diagram.graph.translateY = d3.event.transform.y;
                 that.diagram.graph.scale = d3.event.transform.k;
             });
-        that.ticked();
+        that.ticked(-1);
             /*
             .attr('transform', function(d: any) {
                 // d.x = d3.event.transform.x;
@@ -725,8 +766,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     }*/
   }
 
-  dragged(d) {
-    if (this.getStencil(d.stencilId).tag === 'path') {
+  dragged(d, i) {
+    if (this.getStencil(d.stencilId).type === 'data-flow') {
       d.source = null;
       d.target = null;
       const nearestPoint = this.getNearestPoint(d.points, { x: d3.event.x, y: d3.event.y });
@@ -826,7 +867,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             });
     }
 
-    this.ticked();
+    this.ticked(i);
   }
 
   dragended(d) {
@@ -859,7 +900,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               d.target = that.node.data()[nearestPointToLinkEnd.index];
           }
           console.log(this.link.data());
-          that.ticked();
+          that.ticked(-1);
       }
 
       // this.simulation.alpha(0);
@@ -891,7 +932,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       d.x = d3.event.x;
       d.y = d3.event.y;
 
-      this.ticked();
+      this.ticked(-1);
   }
 
   dragendedForCircleOnLink(d) {
@@ -916,7 +957,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             } else if (el.points[el.points.length - 1] === d) {
               el.target = that.node.data()[nearestPoint.index];
             }
-            that.ticked();
+            that.ticked(-1);
             return;
           }
       });
@@ -955,6 +996,79 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     const that = this;
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
+    svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes)
+              .enter()
+              .append('g')
+              .classed('g-node', true)
+              .each(function(d: any, i) {
+                const stencil: Stencil = that.getStencil(d.stencilId);
+                const self = d3.select(this);
+                const nodeElement = self.append(() => {
+                    let tagName;
+                    if (stencil.tag === 'image') {
+                      tagName = 'circle';
+                    } else {
+                      tagName = stencil.tag;
+                    }
+                    // return document.createElement(tagName);
+                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
+                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
+                  }
+                )
+                .classed('shape', true)
+                .classed('zoom-element', true)
+                .classed('node', true)
+                .style('cursor', 'move')
+                .call(d3.drag()
+                .on('start', function() {
+                  that.dragstarted(d);
+                })
+                .on('drag', function() {
+                  that.dragged(d, i);
+                })
+                .on('end', function() {
+                  that.dragended(d);
+                }));
+
+                if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
+                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
+
+                  if (stencil.tag === 'circle') {
+                    stencil.properties.forEach(prop => {
+                      nodeElement.attr(prop.name, prop.value);
+                      });
+                  } else if (stencil.tag === 'image') {
+                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
+                  }
+                }
+
+                self.append('text')
+                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                    // .attr('text-anchor', 'middle')
+                    .attr('font-size', that.TEXT_SIZE * 4)
+                    .attr('font-family', 'sans-serif')
+                    .attr('fill', 'red')
+                    .attr('id', that.idSvg + '_id_text' + i)
+                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+                    .text(that.getGraphicElement(d.idOfData, 'node').name)
+                    .classed('wrap', true)
+                    .classed('node-text', true)
+                    .classed('zoom-element', true);
+
+                d3plus.textwrap()
+                    .config(that.nodeTextConfig)
+                    .container('#' + that.idSvg + '_id_text' + i)
+                    .shape('circle')
+                    .padding(10)
+                    // .align('middle')
+                    .valign('middle')
+                    .draw();
+              });
+
     this.link = svgCanvas.selectAll(this.selectSvg + ' path.link')
               .data(this.diagram.graph.links)
               .enter()
@@ -967,7 +1081,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     that.dragstarted(d);
                 })
                 .on('drag', function(d) {
-                    that.dragged(d);
+                    that.dragged(d, -1);
                 })
                 .on('end', function(d) {
                     that.dragended(d);
@@ -1099,83 +1213,100 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       });
 
-    const nodeMap = this.groupBy(this.diagram.graph.nodes);
-    nodeMap.forEach((value, key) => {
-        const node = svgCanvas.selectAll(this.selectSvg + ' ' + key + '.node').data(value) // value je podniz od this.diagram.graph.nodes
+      this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes)
               .enter()
-              .append(key)
+              .append('g')
+              .classed('g-node', true)
+              .each(function(d: any, i) {
+                const stencil: Stencil = that.getStencil(d.stencilId);
+                const self = d3.select(this);
+                const nodeElement = self.append(() => {
+                    let tagName;
+                    if (stencil.tag === 'image') {
+                      tagName = 'circle';
+                    } else {
+                      tagName = stencil.tag;
+                    }
+                    // return document.createElement(tagName);
+                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
+                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
+                  }
+                )
                 .classed('shape', true)
                 .classed('zoom-element', true)
                 .classed('node', true)
                 .style('cursor', 'move')
                 .call(d3.drag()
-                .on('start', function(d) {
+                .on('start', function() {
                   that.dragstarted(d);
                 })
-                .on('drag', function(d) {
-                  that.dragged(d);
+                .on('drag', function() {
+                  that.dragged(d, i);
                 })
-                .on('end', function(d) {
+                .on('end', function() {
                   that.dragended(d);
                 }));
 
-      node.on('contextmenu', function(d: any, i) {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
-                                      type: that.getStencil(d.stencilId).type, id: d.id});
+                if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
+                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
+
+                  if (stencil.tag === 'circle') {
+                    stencil.properties.forEach(prop => {
+                      nodeElement.attr(prop.name, prop.value);
+                      });
+                  } else if (stencil.tag === 'image') {
+                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
+                  }
+                }
+
+                self.append('text')
+                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                    // .attr('text-anchor', 'middle')
+                    .attr('font-size', that.TEXT_SIZE * 4)
+                    .attr('font-family', 'sans-serif')
+                    .attr('fill', 'red')
+                    .attr('id', that.idSvg + '_id_text' + i)
+                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+                    .text(that.getGraphicElement(d.idOfData, 'node').name)
+                    .classed('wrap', true)
+                    .classed('node-text', true)
+                    .classed('zoom-element', true);
+
+                d3plus.textwrap()
+                    .config(that.nodeTextConfig)
+                    .container('#' + that.idSvg + '_id_text' + i)
+                    .shape('circle')
+                    .padding(10)
+                    // .align('middle')
+                    .valign('middle')
+                    .draw();
+              });
+
+    this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node');
+    this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
+    this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
+
+    this.node.on('contextmenu', function(d: any, i) {
+      that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
+                                    type: that.getStencil(d.stencilId).type, id: d.id});
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+    });
+
+    this.node.on('click', function(d, i) {
+      that.clickOnElement(d);
 
         // ovo ce prekinuti obradu ovog eventa
-        // i nece se prikazati browser-ov context menu
         d3.event.preventDefault();
         d3.event.stopPropagation();
-      });
-
-      node.on('click', function(d, i) {
-        that.clickOnElement(d);
-
-         // ovo ce prekinuti obradu ovog eventa
-         d3.event.preventDefault();
-         d3.event.stopPropagation();
-      });
-
-      node.each(function(d: any, i ) {
-          const self = d3.select(this);
-
-          const stencil: Stencil = that.getStencil(d.stencilId);
-
-          if (stencil.tag === 'circle' || stencil.tag === 'image') {
-            self.attr('r', that.SHAPE_SIZE / 2)
-                .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
-                .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
-
-            if (stencil.tag === 'circle') {
-              stencil.properties.forEach(prop => {
-                self.attr(prop.name, prop.value);
-                });
-            } else if (stencil.tag === 'image') {
-              const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-              self.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-            }
-          }
-      });
     });
-    this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
-    console.log(this.node.data());
-
-    this.nodeText = svgCanvas.selectAll(this.selectSvg + ' text.node-text')
-        .data(this.diagram.graph.nodes)
-        .enter()
-        .append('text')
-        .attr('x', function(d: any) { return d.position.x + that.SHAPE_SIZE / 20; })
-        .attr('y', function(d: any) { return d.position.y + that.SHAPE_SIZE / 2; })
-        // .attr('text-anchor', 'middle')
-        .attr('font-size', that.TEXT_SIZE * 3 / 2)
-        .attr('font-family', 'sans-serif')
-        .attr('fill', 'green')
-        .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-        .text(function(d: any) { return that.getGraphicElement(d.idOfData, 'node').name + 'aaaaa aaaaa aaaaa aaaaaaaa aaaa'; })
-        .classed('wrap', true)
-        .classed('node-text', true)
-        .classed('zoom-element', true);
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
@@ -1214,7 +1345,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     return d.distance + 30;
   }
 
-  ticked() {
+  ticked(indexOfNodeText) {
     const that = this;
 
     this.link.each(function(d: any, i) {
@@ -1278,8 +1409,43 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
     });
 
-    this.nodeText.attr('x', function(d: any) { return d.position.x; })
+    /*this.nodeText.attr('x', function(d: any) { return d.position.x; })
               .attr('y', function(d: any) { return d.position.y; });
+    */
+
+    if (indexOfNodeText >= 0) {
+      const svgCanvas = d3.select(this.selectSvg);
+      svgCanvas.selectAll(this.selectSvg + ' g.g-node')
+                .each(function(d: any, i) {
+                  if (i === indexOfNodeText) {
+                    const self = d3.select(this);
+                    self.select('text').remove();
+                    self.append('text')
+                        // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                        // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                        // .attr('text-anchor', 'middle')
+                        .attr('font-size', that.TEXT_SIZE * 4)
+                        .attr('font-family', 'sans-serif')
+                        .attr('fill', 'red')
+                        .attr('id', that.idSvg + '_id_text' + i)
+                        // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+                        .text(that.getGraphicElement(d.idOfData, 'node').name)
+                        .classed('wrap', true)
+                        .classed('node-text', true)
+                        .classed('zoom-element', true);
+
+                    d3plus.textwrap()
+                        .config(that.nodeTextConfig)
+                        .container('#' + that.idSvg + '_id_text' + i)
+                        .shape('circle')
+                        .padding(10)
+                        // .align('middle')
+                        .valign('middle')
+                        .draw();
+                  }
+                });
+      this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
+    }
 
     /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         return 'translate(' + that.diagram.graph.translateX + ','

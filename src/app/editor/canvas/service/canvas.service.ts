@@ -12,8 +12,8 @@ export class CanvasService {
     this.eventEmitters = new Map<string, EventEmitter<Object>>();
   }
 
-  addEventEmitterName(eventEmitterName: string) {
-    this.eventEmitters.set(eventEmitterName, new EventEmitter<Object>());
+  addEventEmitterName(diagramId: string) {
+    this.eventEmitters.set(diagramId, new EventEmitter<Object>());
   }
 
   /*addGraphicElement(diagramName: string, newGraphicElement: NewGraphicElement) {

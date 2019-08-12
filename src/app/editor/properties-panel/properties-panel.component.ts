@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { PropertiesService } from './service/properties.service';
 
 @Component({
@@ -8,13 +8,16 @@ import { PropertiesService } from './service/properties.service';
 })
 export class PropertiesPanelComponent implements OnInit {
 
-  selectedElement: Object;
+  @Input()
+  currentDiagram: string;
+
+  selectedElement: any;
 
   constructor(private propertiesService: PropertiesService) { }
 
   ngOnInit() {
     this.propertiesService.selectedElementEvent.subscribe(
-      (selectedElement: Object) => {
+      (selectedElement: any) => {
         this.selectedElement = selectedElement;
         console.log('Selected element:');
         console.log(selectedElement);
@@ -26,4 +29,7 @@ export class PropertiesPanelComponent implements OnInit {
     return Object.keys(this.selectedElement);
   }
 
+  refreshCanvas() {
+    this.propertiesService.refreshCanvas(this.currentDiagram, this.selectedElement.id);
+  }
 }
