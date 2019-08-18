@@ -11,7 +11,7 @@ import { CanvasComponent } from './canvas/canvas.component';
 import { ToastrModule } from 'ngx-toastr';
 import { CanvasService } from './canvas/service/canvas.service';
 import { SharedModule } from '../shared/shared.module';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data-flow-diagrams.service';

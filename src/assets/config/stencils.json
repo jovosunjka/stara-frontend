@@ -40,6 +40,29 @@
                         "value": "none"
                     }
                 ]
+            },
+            {
+                "id": "ge_4",
+                "type": "trust-boundary",
+                "tag": "path",
+                "properties": [
+                    {
+                        "name": "stroke",
+                        "value": "#FF0000"
+                    },
+                    {
+                        "name": "stroke-width",
+                        "value": 10
+                    },
+                    {
+                        "name": "stroke-dasharray",
+                        "value": "10,10"
+                    },
+                    {
+                        "name": "fill", 
+                        "value": "none"
+                    }
+                ]
             }
     ]
 }

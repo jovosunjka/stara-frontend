@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentInit, Input } from '@angular/core';
+import { Component, OnInit, AfterContentInit, Input, AfterViewInit } from '@angular/core';
 import * as d3 from 'd3';
 import { ContainerElement } from 'd3';
 import { CanvasService } from '../canvas/service/canvas.service';
@@ -11,7 +11,7 @@ import { StencilsConfigService } from '../services/stencils-config/stencils-conf
   templateUrl: './elements-panel.component.html',
   styleUrls: ['./elements-panel.component.css']
 })
-export class ElementsPanelComponent implements OnInit, AfterContentInit {
+export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterContentInit*/ {
 
   @Input() currentDiagram: string;
 
@@ -29,7 +29,8 @@ export class ElementsPanelComponent implements OnInit, AfterContentInit {
   ngOnInit() {
   }
 
-  ngAfterContentInit() {
+  // ngAfterContentInit() {
+  ngAfterViewInit() {
     // https://stackoverflow.com/questions/29687217/d3-event-x-does-not-get-the-x-cursors-position
 
     const that = this;

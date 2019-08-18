@@ -12,6 +12,8 @@ import { RunLevel } from 'src/app/shared/model/enum/run-level.enum';
 import { Flow } from 'src/app/shared/model/flow';
 import { DataFlowDiagramsService } from '../data-flow-diagrams-panel/service/data-flow-diagrams.service';
 import { PropertiesService } from '../properties-panel/service/properties.service';
+import { Base } from 'src/app/shared/model/base';
+import { TrustBoundary } from 'src/app/shared/model/trust-boundary';
 
 // u fajlu angular.json, u atribut scripts ubaceno je: "node_modules/d3plus/d3plus.full.min.js"
 declare const d3plus: any;
@@ -46,9 +48,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   private nodeText: any;
   private linkText: any;
   private linkArrow: any;
+  private trustBoundary: any;
 
   private idNodeGenerator = 0;
   private idLinkGenerator = 0;
+  private idTrustBoundaryGenerator = 0;
 
   private SHAPE_SIZE = 80; // 70
   private TEXT_SIZE = 10;
@@ -95,6 +99,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.idNodeGenerator = this.diagram.graph.nodes.length;
     this.idLinkGenerator = this.diagram.graph.links.length;
+    this.idTrustBoundaryGenerator = this.diagram.graph.boundaries.length;
 
     this.dataFlowDiagramsService.newIdOfDiagram.subscribe(
       (newId: string) => {
@@ -152,7 +157,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             const idOfData: any = this.addElementData(stencil.type);
             if (idOfData) {
               action.obj.idOfData = idOfData;
-              this.addGraphicElement(action.obj, stencil.tag);
+              this.addGraphicElement(action.obj, stencil.type);
             }
         } else if (action.type === 'remove-graphic-element') {
             this.removeGraphicElement(action.obj);
@@ -270,12 +275,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       this.restart();
   }
 
-  addGraphicElement(graphicElement: GraphicElement, htmlTag: string) {
-    if (htmlTag === 'path') {
+  addGraphicElement(graphicElement: GraphicElement, type: string) {
+    if (type === 'data-flow') {
       const newLink: Link =  {
-        id: this.idLinkGenerator++,
+        id: this.diagram.id + '_id-link-' + this.idLinkGenerator++,
         stencilId: graphicElement.stencilId,
-        position: graphicElement.position,
+        // position: graphicElement.position,
         idOfData: graphicElement.idOfData,
         points: [
           { x: graphicElement.position.x, y: graphicElement.position.y },
@@ -285,15 +290,37 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         ],
         source: null,
         target: null,
-        enabledCirclesOnLink: false
+        circleForManipulation: {
+          enabled: false,
+          color: 'red'
+        }
       };
       this.diagram.graph.links.push(newLink);
-    } else {
+    } else if (type === 'trust-boundary') {
+      const newTrustBoundary: TrustBoundary =  {
+        id: this.diagram.id + '_id-trust-boundary-' + this.idTrustBoundaryGenerator++,
+        stencilId: graphicElement.stencilId,
+        idOfData: graphicElement.idOfData,
+        points: [
+          { x: graphicElement.position.x, y: graphicElement.position.y },
+          { x: (graphicElement.position.x + graphicElement.position.x + this.SHAPE_SIZE) / 2,
+            y: graphicElement.position.y },
+          { x: graphicElement.position.x + this.SHAPE_SIZE, y: graphicElement.position.y},
+        ],
+        circleForManipulation: {
+          enabled: false,
+          color: 'blue'
+        }
+      };
+      this.diagram.graph.boundaries.push(newTrustBoundary);
+    } else if (type === 'complex-process' || type === 'process') {
       // const newId = this.idNodeGenerator++;
       // graphicElement.name += ' ' + newId;
-      graphicElement.id = this.idNodeGenerator++;
+      graphicElement.id = this.diagram.id + '_id-node-' + this.idNodeGenerator++;
       graphicElement.idOfData = graphicElement.idOfData;
       this.diagram.graph.nodes.push(graphicElement);
+    } else {
+      alert('Not implemented for type: ' + type + ' (addGraphicElement method)');
     }
 
     this.restart();
@@ -307,7 +334,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       case 'process':
       case 'complex-process':
         len = this.diagram.elements.length;
-        idOfData = 'id-element-' + len;
+        idOfData = this.diagram.id + '_id-element-' + len;
         this.newElementData = {
           id: idOfData,
           name: (type === 'process' ? 'Process ' : 'Complex process ') + len,
@@ -335,7 +362,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
       case 'data-flow':
         len = this.diagram.flows.length;
-        idOfData = 'id-flow-' + len;
+        idOfData = this.diagram.id + '_id-flow-' + len;
         const newFlowData = {
           id: idOfData,
           name: 'Data flow ' + len,
@@ -352,6 +379,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           assets: []
         };
         this.diagram.flows.push(newFlowData);
+        break;
+
+      case 'trust-boundary':
+        len = this.diagram.boundaries.length;
+        idOfData = this.diagram.id + '_id-boundary-' + len;
+        const newBoundaryData = {
+          id: idOfData,
+          name: 'Trust boundary ' + len
+        };
+        this.diagram.boundaries.push(newBoundaryData);
         break;
 
       default:
@@ -466,11 +503,46 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
     this.link = svgCanvas.selectAll(this.selectSvg + ' .link');
 
-    // ostaju samo oni koji imaju definisan target
-    this.linkArrow = this.linkArrow.data(this.diagram.graph.links.filter(l => l.target));
-    // nema dodavanja novih, moglo je doci samo do brisanja linkova ili nodova,
-    // pa zato nestaju strelice (trouglici)
+    this.linkArrow = this.linkArrow.data(this.diagram.graph.links);
     this.linkArrow.exit().remove();
+    this.linkArrow = this.linkArrow.enter()
+              .append('path')
+              .merge(this.linkArrow)
+              .attr('stroke', '#ffa500')
+              .attr('stroke-width', 10)
+              .attr('fill', 'none')
+              .classed('link-arrows', true)
+              .classed('zoom-element', true)
+              .each(function(d: any, i) {
+                const self = d3.select(this);
+                const startPoint = d.points[0];
+                const endPoint = d.points[d.points.length - 1];
+                let a, b;
+
+                if (startPoint.x > endPoint.x) {
+                  a = 10;
+                } else if (startPoint.x < endPoint.x) {
+                  a = -10;
+                } else {
+                  a = 0;
+                }
+
+                if (startPoint.y > endPoint.y) {
+                  b = 10;
+                } else if (startPoint.y < endPoint.y) {
+                  b = -10;
+                } else {
+                  b = 0;
+                }
+                const points = [ // formiramo trougao
+                  [endPoint.x + a, endPoint.y + b],
+                  [endPoint.x, endPoint.y],
+                  [endPoint.x + a, endPoint.y - b],
+                  [endPoint.x + a, endPoint.y + b]
+                ];
+                const pathData = that.lineGenerator(points);
+                self.attr('d', pathData);
+              });
 
     this.linkText = this.linkText.data(this.diagram.graph.links);
     this.linkText.exit().remove();
@@ -619,24 +691,92 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
 
-    /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        return 'translate(' + that.diagram.graph.translateX + ','
-          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
-    });*/
+    this.trustBoundary = this.link.data(this.diagram.graph.boundaries);
+    this.trustBoundary.exit().remove();
+    this.trustBoundary = this.trustBoundary.enter()
+              .append('path')
+              .merge(this.trustBoundary)
+              .classed('zoom-element', true)
+              .classed('trust-boundary', true)
+              .style('cursor', 'move')
+              .call(d3.drag()
+                .on('start', function(d) {
+                  that.dragstarted(d);
+                })
+                .on('drag', function(d) {
+                  that.dragged(d, -1);
+                })
+                .on('end', function(d) {
+                  that.dragended(d);
+                }));
+
+    this.trustBoundary.on('contextmenu', function(d, i) {
+      if (d3.event.ctrlKey) {
+        that.rightClickOnLink(d);
+      } else {
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'boundary').name,
+                                      type: that.getStencil(d.stencilId).type, id: d.id});
+      }
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+    });
+
+    this.trustBoundary.on('click', function(d, i) {
+      that.clickOnElement(d);
+
+       // ovo ce prekinuti obradu ovog eventa
+       d3.event.preventDefault();
+       d3.event.stopPropagation();
+    });
+
+    this.trustBoundary.each(function(d: any, i) {
+      const self = d3.select(this);
+
+      const stencil = that.getStencil(d.stencilId);
+
+      stencil.properties.forEach(prop => {
+        self.attr(prop.name, prop.value);
+      });
+
+      if (stencil.tag === 'path') {
+            if (d.source && d.target) {
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
+                                                                d.source.position.y + that.SHAPE_SIZE / 2,
+                                                                d.target.position.x + that.SHAPE_SIZE / 2,
+                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+                                                                that.SHAPE_SIZE / 2);
+              const startPoint = startAndEndPoints.start;
+              const endPoint = startAndEndPoints.end;
+
+              d.points = [
+                startPoint,
+                // [startPoint[0], startPoint[1] - 10],
+                // startPoint,
+                // [startPoint[0], startPoint[1] + 10],
+                // startPoint,
+                { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2},
+                // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
+                endPoint
+                /*[endPoint[0], endPoint[1] - 10],
+                endPoint,
+                [endPoint[0], endPoint[1] + 10]*/
+             ];
+            }
+
+            const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
+            self.attr('d', pathData);
+      }
+
+    });
+    this.trustBoundary = svgCanvas.selectAll(this.selectSvg + ' .trust-boundary');
+
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        const self = d3.select(this);
-        let x = that.diagram.graph.translateX;
-        let y = that.diagram.graph.translateY;
-
-        if (self.classed('link-arrows')) {
-          const data: any = self.data()[0];
-          const point = data.points[data.points.length - 1];
-          x += point.x;
-          y += point.y;
-        }
-        return 'translate(' + x + ','
-          + y + ') scale(' + that.diagram.graph.scale + ')';
+        return 'translate(' + that.diagram.graph.translateX + ','
+          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });
 
     /*// Update and restart the this.simulation.
@@ -647,18 +787,18 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.simulation.restart();*/
   }
 
-  rightClickOnLink(link: any) {
+  rightClickOnLink(linkOrBoundary: any) {
     if (d3.event.defaultPrevented) {
       return;
     }
 
     const that = this;
-    const circlesOnLink = d3.select(this.selectSvg).selectAll(' circle.circle-on-link-' + link.id);
+    const circlesOnLinkOrBoundary = d3.select(this.selectSvg).selectAll(' circle.circle-on-link-or-boundary-' + linkOrBoundary.id);
 
-    link.enabledCirclesOnLink = !link.enabledCirclesOnLink;
+    linkOrBoundary.circleForManipulation.enabled = !linkOrBoundary.circleForManipulation.enabled;
 
-    if (link.enabledCirclesOnLink) {
-      circlesOnLink.data(link.points).enter()
+    if (linkOrBoundary.circleForManipulation.enabled) {
+      circlesOnLinkOrBoundary.data(linkOrBoundary.points).enter()
           .append('circle')
             .attr('cx', function(d: any) {
               return d.x;
@@ -667,27 +807,27 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               return d.y;
             })
             .attr('r', 10)
-            .attr('fill', 'red')
-            .classed('circle-on-link', true)
-            .classed('circle-on-link-' + link.id, true)
+            .attr('fill', linkOrBoundary.circleForManipulation.color)
+            .classed('circle-on-link-or-boundary', true)
+            .classed('circle-on-link-or-boundary-' + linkOrBoundary.id, true)
             .classed('zoom-element', true)
             .call(d3.drag()
                     .on('start', function(d) {
-                      that.dragstartedForCircleOnLink(d, link);
+                      that.dragstartedForCircleOnLinkOrBoundary(d, linkOrBoundary);
                     })
                     .on('drag', function(d) {
-                      that.draggedForCircleOnLink(d);
+                      that.draggedForCircleOnLinkOrBoundary(d);
                     })
                     .on('end', function(d) {
-                      that.dragendedForCircleOnLink(d);
+                      that.dragendedForCircleOnLinkOrBoundary(d);
                     }));
     } else {
-        circlesOnLink.remove();
+      circlesOnLinkOrBoundary.remove();
     }
   }
 
   clickOnSvg() {
-      d3.selectAll(this.selectSvg + ' circle.circle-on-link').remove();
+      d3.selectAll(this.selectSvg + ' circle.circle-on-link-or-boundary').remove();
       this.ticked(-1);
   }
 
@@ -767,7 +907,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   dragged(d, i) {
-    if (this.getStencil(d.stencilId).type === 'data-flow') {
+    const type = this.getStencil(d.stencilId).type;
+
+    if (type === 'data-flow' || type === 'trust-boundary') {
       d.source = null;
       d.target = null;
       const nearestPoint = this.getNearestPoint(d.points, { x: d3.event.x, y: d3.event.y });
@@ -909,7 +1051,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       // this.simulation.restart();
   }
 
-  dragstartedForCircleOnLink(d, link) {
+  dragstartedForCircleOnLinkOrBoundary(d, linkOrBoundary) {
     // Called when drag event starts. It stop the propagation of the click event
     d3.event.sourceEvent.stopPropagation();
     // d.fixed = false;
@@ -917,25 +1059,26 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // this.simulation.restart();
     // this.simulation.alpha(0.7);
     // this.simulation.alpha(0.7);
-    const indexOfPoint = link.points.indexOf(d);
-    if (indexOfPoint === 0) {
-      link.source = null;
-    } else if ( indexOfPoint === link.points.length - 1) {
-      link.target = null;
+    if (this.getStencil(linkOrBoundary.stencilId).type === 'data-flow') {
+      const indexOfPoint = linkOrBoundary.points.indexOf(d);
+      if (indexOfPoint === 0) {
+        linkOrBoundary.source = null;
+      } else if ( indexOfPoint === linkOrBoundary.points.length - 1) {
+        linkOrBoundary.target = null;
+      }
     }
-
     // d.fx = d.x;
     // d.fy = d.y;
   }
 
-  draggedForCircleOnLink(d) {
+  draggedForCircleOnLinkOrBoundary(d) {
       d.x = d3.event.x;
       d.y = d3.event.y;
 
       this.ticked(-1);
   }
 
-  dragendedForCircleOnLink(d) {
+  dragendedForCircleOnLinkOrBoundary(d) {
     const that = this;
     // d.fixed = true;
     // d.fx = null;
@@ -1049,7 +1192,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
                     // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
                     // .attr('text-anchor', 'middle')
-                    .attr('font-size', that.TEXT_SIZE * 4)
+                    .attr('font-size', that.TEXT_SIZE * 2)
                     .attr('font-family', 'sans-serif')
                     .attr('fill', 'red')
                     .attr('id', that.idSvg + '_id_text' + i)
@@ -1150,7 +1293,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
     this.link = svgCanvas.selectAll(this.selectSvg + ' .link');
 
-    const triangle = d3.symbol()
+    /*const triangle = d3.symbol()
             .type(d3.symbolTriangle)
             .size(150);
 
@@ -1161,10 +1304,53 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('d', triangle)
               .attr('transform', function(d) {
                 const point = d.points[d.points.length - 1];
-                return 'translate(' + point.x + ',' + point.y + ')'; })
+                return 'translate(' + point.x + ',' + point.y + ') scale(' + that.diagram.graph.scale + ')'; })
               .style('fill', '#585858')
               .classed('link-arrows', true)
-              .classed('zoom-element', true);
+              .classed('zoom-element', true);*/
+
+    this.linkArrow = svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
+              .data(this.diagram.graph.links)
+              .enter()
+              .append('path')
+              .attr('stroke', '#ffa500')
+              .attr('stroke-width', 10)
+              .attr('fill', 'none')
+              .classed('link-arrows', true)
+              .classed('zoom-element', true)
+              .each(function(d: any, i) {
+                const self = d3.select(this);
+                const startPoint = d.points[0];
+                const endPoint = d.points[d.points.length - 1];
+                let a, b;
+
+                if (startPoint.x > endPoint.x) {
+                  a = 10;
+                } else if (startPoint.x < endPoint.x) {
+                  a = -10;
+                } else {
+                  a = 0;
+                }
+
+                if (startPoint.y > endPoint.y) {
+                  b = 10;
+                } else if (startPoint.y < endPoint.y) {
+                  b = -10;
+                } else {
+                  b = 0;
+                }
+                const points = [ // formiramo trougao
+                  [endPoint.x + a, endPoint.y + b],
+                  [endPoint.x, endPoint.y],
+                  [endPoint.x + a, endPoint.y - b],
+                  [endPoint.x + a, endPoint.y + b]
+                ];
+                const pathData = that.lineGenerator(points);
+                self.attr('d', pathData);
+              });
+              /*.attr('transform', function(d) {
+                const point = d.points[d.points.length - 1];
+                return 'translate(' + point.x + ',' + point.y + ') scale(' + that.diagram.graph.scale + ')'; })*/
 
     this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text')
               .data(this.diagram.graph.links)
@@ -1308,6 +1494,89 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         d3.event.stopPropagation();
     });
 
+
+    this.trustBoundary = svgCanvas.selectAll(this.selectSvg + ' path.trust-boundary')
+              .data(this.diagram.graph.boundaries)
+              .enter()
+              .append('path')
+              .classed('trust-boundary', true)
+              .classed('zoom-element', true)
+              .style('cursor', 'move')
+              .call(d3.drag()
+                .on('start', function(d) {
+                    that.dragstarted(d);
+                })
+                .on('drag', function(d) {
+                    that.dragged(d, -1);
+                })
+                .on('end', function(d) {
+                    that.dragended(d);
+                }));
+
+    this.trustBoundary.on('contextmenu', function(d, i) {
+      if (d3.event.ctrlKey) {
+        that.rightClickOnLink(d);
+      } else {
+        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'boundary').name,
+                                      type: that.getStencil(d.stencilId).type, id: d.id});
+      }
+
+      // ovo ce prekinuti obradu ovog eventa
+      // i nece se prikazati browser-ov context menu
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+    });
+
+    this.trustBoundary.on('click', function(d, i) {
+        that.clickOnElement(d);
+
+        // ovo ce prekinuti obradu ovog eventa
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+    });
+
+    this.trustBoundary.each(function(d: any, i) {
+      const self = d3.select(this);
+      const stencil: Stencil = that.getStencil(d.stencilId);
+
+      stencil.properties.forEach(prop => {
+        self.attr(prop.name, prop.value);
+      });
+
+      if (stencil.tag === 'path') {
+            if (d.source && d.target) {
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
+                                                                d.source.position.y + that.SHAPE_SIZE / 2,
+                                                                d.target.position.x + that.SHAPE_SIZE / 2,
+                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+                                                                that.SHAPE_SIZE / 2);
+              const startPoint = startAndEndPoints.start;
+              const endPoint = startAndEndPoints.end;
+
+              d.points = [
+                startPoint,
+                // [startPoint[0], startPoint[1] - 10],
+                // startPoint,
+                // [startPoint[0], startPoint[1] + 10],
+                // startPoint,
+                { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2 },
+                // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
+                // endPoint,
+                // [endPoint[0], endPoint[1] - 10],
+                // endPoint,
+                // [endPoint[0], endPoint[1] + 10],
+                endPoint
+             ];
+            }
+
+            const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
+            self.attr('d', pathData);
+      }
+
+    });
+    this.trustBoundary = svgCanvas.selectAll(this.selectSvg + ' .trust-boundary');
+
+
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
         let x = that.diagram.graph.translateX;
@@ -1332,7 +1601,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });*/
   }
 
-  getNode(id: number) {
+  getNode(id: string) {
     const filtered = this.diagram.graph.nodes.filter(n => n.id === id);
     if (filtered.length > 0) {
       return filtered[0];
@@ -1349,35 +1618,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     const that = this;
 
     this.link.each(function(d: any, i) {
-        /*if (d.source && d.target) {
-          const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.x + that.SHAPE_SIZE / 2,
-                                                            d.source.y + that.SHAPE_SIZE / 2,
-                                                            d.target.x + that.SHAPE_SIZE / 2,
-                                                            d.target.y + that.SHAPE_SIZE / 2,
-                                                            that.SHAPE_SIZE / 2);
-          const startPoint = startAndEndPoints.start;
-          const endPoint = startAndEndPoints.end;
-
-          d.points = [
-            startPoint,
-            // [startPoint[0], startPoint[1] - 10],
-            // startPoint,
-            // [startPoint[0], startPoint[1] + 10],
-            // startPoint,
-            [(startPoint[0] + endPoint[0]) / 2, (startPoint[1] + endPoint[1]) / 2],
-            // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
-            endPoint,
-            [endPoint[0], endPoint[1] - 10],
-            endPoint,
-            [endPoint[0], endPoint[1] + 10]
-          ];
-        }*/
-
         const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
         const self = d3.select(this);
         self.attr('d', pathData);
 
-        d3.selectAll(that.selectSvg + ' circle.circle-on-link-' + d.id)
+        d3.selectAll(that.selectSvg + ' circle.circle-on-link-or-boundary-' + d.id)
               .attr('cx', function(point: any) {
                  return point.x;
               })
@@ -1447,24 +1692,55 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
     }
 
+    this.linkArrow.each(function(d: any, i) {
+      const self = d3.select(this);
+      const startPoint = d.points[0];
+      const endPoint = d.points[d.points.length - 1];
+      let a, b;
+
+      if (startPoint.x > endPoint.x) {
+        a = 10;
+      } else if (startPoint.x < endPoint.x) {
+        a = -10;
+      } else {
+        a = 0;
+      }
+
+      if (startPoint.y > endPoint.y) {
+        b = 10;
+      } else if (startPoint.y < endPoint.y) {
+        b = -10;
+      } else {
+        b = 0;
+      }
+      const points = [ // formiramo trougao
+        [endPoint.x + a, endPoint.y + b],
+        [endPoint.x, endPoint.y],
+        [endPoint.x + a, endPoint.y - b],
+        [endPoint.x + a, endPoint.y + b]
+      ];
+      const pathData = that.lineGenerator(points);
+      self.attr('d', pathData);
+    });
+
     /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         return 'translate(' + that.diagram.graph.translateX + ','
           + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });*/
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        const self = d3.select(this);
-        let x = that.diagram.graph.translateX;
-        let y = that.diagram.graph.translateY;
+        // const self = d3.select(this);
+        // let x = that.diagram.graph.translateX;
+        // let y = that.diagram.graph.translateY;
 
-        if (self.classed('link-arrows')) {
+        /*if (self.classed('link-arrows')) {
           const data: any = self.data()[0];
           const point = data.points[data.points.length - 1];
           x += point.x;
           y += point.y;
-        }
-        return 'translate(' + x + ','
-          + y + ') scale(' + that.diagram.graph.scale + ')';
+        }*/
+        return 'translate(' + that.diagram.graph.translateX + ','
+          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });
   }
 
@@ -1715,6 +1991,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       return this.diagram.elements.filter(e => e.id === idOfData)[0];
     } else if (type === 'link') {
       return this.diagram.flows.filter(f => f.id === idOfData)[0];
+    } else if (type === 'boundary') {
+      return this.diagram.boundaries.filter(f => f.id === idOfData)[0];
     } else {
       alert('Not implemented for type: ' + type + '(getGraphicElementName method)');
       return null;

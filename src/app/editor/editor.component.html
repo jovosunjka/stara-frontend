@@ -1,24 +1,28 @@
-<br/>
-<div class = "btn-toolbar" role = "toolbar">
-    <div class = "btn-group">
-        <button type="button" class="btn btn-default btn-lg">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
-        </button>
-        <button type="button" class="btn btn-default btn-lg">
-            <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span> Open
-        </button>
-    </div>
-    <div class = "btn-group">
-        <button type="button" class="btn btn-default btn-lg">
-            <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
-        </button>
-        <button class="btn btn-primary btn-lg" (click)="switchView()" >{{buttonText}}</button>
-    </div>
- </div>
 
-<br/><br/>
+<div class="btn-toolbar" role="toolbar">
+    <button type="button" class="btn btn-success btn-sm btn-space" (click)="createNewModel()">
+        <span class="fa fa-plus-square" aria-hidden="true"></span> Create
+    </button>
+    
+    <button type="button" class="btn btn-primary btn-sm btn-space"
+        onclick="document.getElementById('id_path_to_existing_model').click()">
+        <span class="fa fa-file-import" aria-hidden="true"></span> Open
+    </button>
+    <!--Ovaj input tag nece se videti-->
+    <input type="file" id="id_path_to_existing_model" class="btn btn-primary btn-sm btn-space"
+        style="display:none" (change)="onFileChange($event, this)" accept=".json">
 
-<div class="row">
+    <button *ngIf="model" type="button" class="btn btn-danger btn-sm btn-space" (click)="export()">
+        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+    </button>
+    <button *ngIf="!model" type="button" class="btn btn-secondary btn-sm btn-space" disabled>
+        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+    </button>
+
+    <button class="btn btn-warning btn-sm btn-space" (click)="switchView()" >{{buttonText}}</button>
+</div>
+
+<div class="row mt-2">
     <div *ngIf="isDesignView()" class="col-xl-1 ml-0 pl-1 mr-0 pr-0">
         <div class="row">
             <div class="col-xl-12">
@@ -28,8 +32,8 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-12" style="height: 500px">
-                <app-elements-panel [currentDiagram]="currentDiagram"></app-elements-panel>  
+            <div class="col-xl-12" style="height: 532px">
+                <app-elements-panel [currentDiagram]="currentDiagram"></app-elements-panel>
             </div>
         </div>
     </div>
@@ -38,13 +42,19 @@
         <div class="row">
             <div class="col-xl-12">
                 <p style="background-color: rgb(9, 89, 155); color: white; text-align: center; margin-bottom: 0.5rem">
+                    <ng-template [ngIf]="model"> <b>{{model.name}}</b>&nbsp;&nbsp;-&nbsp;&nbsp; </ng-template>
                     Data flow diagrams
                 </p>
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-12" style="height: 500px">
-                <app-data-flow-diagrams-panel (currentDiagramEvent)="setCurrentDiagram($event)"></app-data-flow-diagrams-panel>
+            <div class="col-xl-12" style="height: 532px">
+                <app-data-flow-diagrams-panel *ngIf="model" [model]="model" (currentDiagramEvent)="setCurrentDiagram($event)"></app-data-flow-diagrams-panel>
+                <div *ngIf="!model" class="border border-primary" style="width: 100%; height: 100%">
+                    <br/>
+                    <br/>
+                    <h3 align="center">The threat model was not selected!</h3>
+                </div>
             </div>
         </div>
     </div>

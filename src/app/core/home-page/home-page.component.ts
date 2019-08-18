@@ -8,7 +8,11 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 })
 export class HomePageComponent implements OnInit {
 
-  form: FormGroup;
+  constructor() { }
+
+  ngOnInit() {}
+
+  /*form: FormGroup;
 
   fileName: string;
 
@@ -31,5 +35,5 @@ export class HomePageComponent implements OnInit {
       this.fileName = file.name;
       this.form.get('model').setValue(file);
     }
-  }
+  }*/
 }

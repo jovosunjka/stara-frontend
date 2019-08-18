@@ -2,7 +2,7 @@ import { Point } from './point';
 import { Stencil } from './stencil';
 
 export interface GraphicElement {
-    id: number;
+    id: string;
     stencilId: string;
     position?: Point;
     idOfData: string;
