@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterContentInit, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import * as d3 from 'd3';
+import { lasso } from 'd3-lasso';
 import { CanvasService } from './service/canvas.service';
 import { GraphicElement } from 'src/app/shared/model/graphic-element';
 import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
@@ -25,12 +26,13 @@ declare const d3plus: any;
   styleUrls: ['./canvas.component.css']
 })
 export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit*/ {
-  static svgIdIndexGenerator = 0;
   selectSvg: string;
   idSvg: string;
 
   @Input()
   diagram: DataFlowDiagram;
+  @Input()
+  numOfElements: number;
 
   @Output() addNewDiagram: EventEmitter<string> = new EventEmitter<string>();
   @Output() removeDiagram: EventEmitter<string> = new EventEmitter<string>();
@@ -38,6 +40,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   elements: any[];
 
   dragHandler: any;
+  d3Lasso: any;
 
   // private IMAGE_SIZE = 42;
 
@@ -49,6 +52,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   private linkText: any;
   private linkArrow: any;
   private trustBoundary: any;
+
+  private selectedItems: any;
 
   private idNodeGenerator = 0;
   private idLinkGenerator = 0;
@@ -89,7 +94,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.nodeTextConfig = {
       'width': this.SHAPE_SIZE,
       'height': this.SHAPE_SIZE,
-      'resize': true
+      'resize': false
     };
   }
 
@@ -113,13 +118,6 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
   // ngAfterContentInit() {
   ngAfterViewInit() {
-    /*if (CanvasComponent.svgIdIndexGenerator === 3) {
-      CanvasComponent.svgIdIndexGenerator++; // ovo stavljamo da u sledecoj komponenti ne bi usli u ovaj if
-      let index = 0;
-      d3.selectAll('app-canvas svg').attr('id', function() {
-        return 'id_canvas_' + index++;
-      });
-    }*/
     /*this.dragHandler = d3.drag()
         .on('drag', function (d: any) {
             d3.select(this)
@@ -145,7 +143,13 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.makeGraph();
 
+    // prilikom kreiranja grafa resize ce biti inicijalno setovan na false, a nakon toga postavljamo na true
+    // realno na pocetku nema resize-ovanje, a i sprecice neko brljavljenje i ispisivanje prevelikih slova
+    this.nodeTextConfig.resize = true;
+
     this.doZoom(d3.select(this.selectSvg));
+
+    this.doLassoSelect();
 
     // dodajemo svoj eventEmitterName u mapu svih eventEmitter-a
     this.canvasService.addEventEmitterName(this.diagram.id);
@@ -161,6 +165,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             }
         } else if (action.type === 'remove-graphic-element') {
             this.removeGraphicElement(action.obj);
+        } else if (action.type === 'remove-selected-graphic-elements') {
+          this.removeSelectedGraphicElements();
+        } else if (action.type === 'changed-tab') {
+          this.changedTabChangeSelectedItems();
         } else if (action.type === 'zoom-out') {
             this.zoomOut();
         }
@@ -180,15 +188,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
                 // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
                 // .attr('text-anchor', 'middle')
-                .attr('font-size', that.TEXT_SIZE * 4)
+                // .attr('font-size', that.TEXT_SIZE)
                 .attr('font-family', 'sans-serif')
-                .attr('fill', 'red')
+                .attr('fill', 'white')
                 .attr('id', that.idSvg + '_id_text' + i)
                 // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
                 .text(that.getGraphicElement(setSelectedElementId, 'node').name)
                 .classed('wrap', true)
                 .classed('node-text', true)
                 .classed('zoom-element', true);
+
+            that.nodeTextConfig.resize = true;
 
             d3plus.textwrap()
                 .config(that.nodeTextConfig)
@@ -209,6 +219,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
   }
 
+  changedTabChangeSelectedItems() {
+    let selected: boolean;
+    if (this.selectedItems) {
+      selected = this.selectedItems.size() > 0;
+    } else {
+      selected = false;
+    }
+    this.canvasService.changeSelectedItems(selected);
+  }
+
+
   public onContextMenu($event: MouseEvent, item: any): void {
     this.contextMenuService.show.next({
       // Optional - if unspecified, all context menu components will open
@@ -218,6 +239,22 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
     // $event.preventDefault();
     // $event.stopPropagation();
+  }
+
+  removeSelectedGraphicElements() {
+    const that = this;
+    const items = [];
+    this.selectedItems.each(function (d: any) {
+      items.push(d);
+    });
+
+    this.deselectLasso();
+
+    items.forEach(
+      item => this.removeGraphicElement( { type: that.getStencil(item.stencilId).type, id: item.id } )
+    );
+
+    this.doLassoSelect(); // restart Lasso select
   }
 
   removeGraphicElement(graphicElementForRemoving: any) {
@@ -240,7 +277,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           const graphNode = this.diagram.graph.nodes.filter(n => n.id === graphicElementForRemoving.id)[0];
           this.diagram.graph.links.forEach(link => {
               let flow: Flow = null;
-              if (link.source && (link.source as GraphicElement).id === graphNode.id) {
+              if (link.source && link.source === graphNode.id) {
                 // uklanjamo referencu ka source-u u podacima o grafickom prikazu linka
                 link.source = null;
                 flow = this.diagram.flows.filter(f => f.id === link.idOfData)[0];
@@ -313,7 +350,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       };
       this.diagram.graph.boundaries.push(newTrustBoundary);
-    } else if (type === 'complex-process' || type === 'process') {
+    } else if (type === 'complex-process' || type === 'process' || type === 'external-entity') {
       // const newId = this.idNodeGenerator++;
       // graphicElement.name += ' ' + newId;
       graphicElement.id = this.diagram.id + '_id-node-' + this.idNodeGenerator++;
@@ -337,7 +374,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         idOfData = this.diagram.id + '_id-element-' + len;
         this.newElementData = {
           id: idOfData,
-          name: (type === 'process' ? 'Process ' : 'Complex process ') + len,
+          name: (type === 'process' ? 'Process ' : 'Complex process ') + this.numOfElements,
           outOfScope: false,
           outOfScopeReason: 'Out of scope reason ' + len,
           exploits: [],
@@ -391,6 +428,27 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         this.diagram.boundaries.push(newBoundaryData);
         break;
 
+      case 'external-entity':
+        len = this.diagram.elements.length;
+        idOfData = this.diagram.id + '_id-element-' + len;
+        const newExternalENtityData = {
+          id: idOfData,
+          name: 'External entity ' + len,
+          outOfScope: false,
+          outOfScopeReason: '',
+          exploits: [],
+          importAssets: [],
+          importExploits: [],
+          sanitizeInput: false,
+          sanitizeOutput: false,
+          isThreadSafe: false,
+          section: '',
+          runLevel: RunLevel.HIGH_PRIVILEGE,
+          assets: []
+        };
+        this.diagram.elements.push(newExternalENtityData);
+        break;
+
       default:
         idOfData = null;
         alert('Not implemented for type: ' + type + ' (addElementData method)');
@@ -426,6 +484,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.link = this.link.enter()
               .append('path')
               .merge(this.link)
+              .classed('graphical-element', true)
               .classed('zoom-element', true)
               .classed('link', true)
               .style('cursor', 'move')
@@ -472,11 +531,13 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });
 
       if (stencil.tag === 'path') {
-            if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
-                                                                d.source.position.y + that.SHAPE_SIZE / 2,
-                                                                d.target.position.x + that.SHAPE_SIZE / 2,
-                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+            /*if (d.source && d.target) {
+              const source = that.getNode(d.source);
+              const target = that.getNode(d.target);
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                source.position.y + that.SHAPE_SIZE / 2,
+                                                                target.position.x + that.SHAPE_SIZE / 2,
+                                                                target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -490,11 +551,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2},
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
                 endPoint
-                /*[endPoint[0], endPoint[1] - 10],
-                endPoint,
-                [endPoint[0], endPoint[1] + 10]*/
+                //[endPoint[0], endPoint[1] - 10],
+                //endPoint,
+                //[endPoint[0], endPoint[1] + 10]
              ];
-            }
+            }*/
 
             const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
@@ -503,170 +564,125 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
     this.link = svgCanvas.selectAll(this.selectSvg + ' .link');
 
-    this.linkArrow = this.linkArrow.data(this.diagram.graph.links);
-    this.linkArrow.exit().remove();
-    this.linkArrow = this.linkArrow.enter()
-              .append('path')
-              .merge(this.linkArrow)
-              .attr('stroke', '#ffa500')
-              .attr('stroke-width', 10)
-              .attr('fill', 'none')
-              .classed('link-arrows', true)
-              .classed('zoom-element', true)
-              .each(function(d: any, i) {
-                const self = d3.select(this);
-                const startPoint = d.points[0];
-                const endPoint = d.points[d.points.length - 1];
-                let a, b;
+     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
+     this.diagram.graph.nodes
+     .filter(n => this.getStencil(n.stencilId).tag === 'image')
+     .forEach(n => {
+       const imagePath = this.getStencil(n.stencilId).properties.filter(prop => prop.name === 'xlink:href')[0].value;
+       if (!this.imagesMap.has(imagePath)) {
+         const patternId = 'id-pattern-image-' + this.patternImageGenerator++;
+         this.imagesMap.set(imagePath, patternId);
 
-                if (startPoint.x > endPoint.x) {
-                  a = 10;
-                } else if (startPoint.x < endPoint.x) {
-                  a = -10;
-                } else {
-                  a = 0;
-                }
+         svgCanvas.select('defs')
+                 .append('pattern')
+                   .attr('id', patternId)
+                   // .attr('patternUnits', 'objectBoundingBox')
+                   .attr('patternContentUnits', 'objectBoundingBox')
+                   .attr('height', this.SHAPE_SIZE)
+                   .attr('width', this.SHAPE_SIZE)
+                   .append('image')
+                     .attr('x', 0)
+                     .attr('y', 0)
+                     .attr('height', this.SHAPE_SIZE)
+                     .attr('width', this.SHAPE_SIZE)
+                     .attr('xlink:href', imagePath);
+       }
+     });
 
-                if (startPoint.y > endPoint.y) {
-                  b = 10;
-                } else if (startPoint.y < endPoint.y) {
-                  b = -10;
-                } else {
-                  b = 0;
-                }
-                const points = [ // formiramo trougao
-                  [endPoint.x + a, endPoint.y + b],
-                  [endPoint.x, endPoint.y],
-                  [endPoint.x + a, endPoint.y - b],
-                  [endPoint.x + a, endPoint.y + b]
-                ];
-                const pathData = that.lineGenerator(points);
-                self.attr('d', pathData);
-              });
+    this.nodeTextConfig.resize = false;
 
-    this.linkText = this.linkText.data(this.diagram.graph.links);
-    this.linkText.exit().remove();
-    this.linkText = this.linkText.enter()
-              .append('text')
-              .merge(this.linkText)
-              .attr('x', function(d: any) {
-                  return d.points[1].x + 10;
-                  // return d3.mean(d.points.map(point => point[0]));
-              })
-              .attr('y', function(d: any) {
-                  return d.points[1].y;
-                  // return d3.mean(d.points.map(point => point[1]));
-              })
+    this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes);
+    this.gNode.exit().remove();
+    svgCanvas.selectAll(this.selectSvg + ' g.g-node .node').remove();
+    svgCanvas.selectAll(this.selectSvg + ' g.g-node text').remove();
+    this.gNode = this.gNode.enter()
+        .append('g')
+        .merge(this.gNode)
+        .classed('g-node', true)
+        .each(function(d: any, i) {
+          const stencil: Stencil = that.getStencil(d.stencilId);
+          const self = d3.select(this);
+          const nodeElement = self.append(() => {
+              let tagName;
+              if (stencil.tag === 'image') {
+                tagName = 'circle';
+              } else {
+                tagName = stencil.tag;
+              }
+              // return document.createElement(tagName);
+              // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
+              return document.createElementNS(that.SVG_NAMESPACE, tagName);
+            }
+          )
+          .classed('shape', true)
+          .classed('graphical-element', true)
+          .classed('zoom-element', true)
+          .classed('node', true)
+          .style('cursor', 'move')
+          .call(d3.drag()
+          .on('start', function() {
+            that.dragstarted(d);
+          })
+          .on('drag', function() {
+            that.dragged(d, i);
+          })
+          .on('end', function() {
+            that.dragended(d);
+          }));
+
+          let shape: string;
+          if (stencil.tag === 'circle' || stencil.tag === 'image') {
+            nodeElement.attr('r', that.SHAPE_SIZE / 2)
+                .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+                .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
+
+            if (stencil.tag === 'circle') {
+                stencil.properties.forEach(prop => {
+                  nodeElement.attr(prop.name, prop.value);
+                });
+            } else if (stencil.tag === 'image') {
+              const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+              nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
+            }
+            shape = 'circle';
+          } else if (stencil.tag === 'rect') {
+            nodeElement
+                .attr('x', d.position.x)
+                .attr('y', d.position.y)
+                .attr('width', that.SHAPE_SIZE)
+                .attr('height', that.SHAPE_SIZE * 3 / 4);
+            stencil.properties.forEach(prop => {
+              nodeElement.attr(prop.name, prop.value);
+            });
+            shape = 'square';
+          }
+
+          const name = that.getGraphicElement(d.idOfData, 'node').name;
+          self.append('text')
+              // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+              // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
               // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE * 3 / 2)
+              // .attr('font-size', that.TEXT_SIZE)
               .attr('font-family', 'sans-serif')
-              .attr('fill', 'green')
-              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
-              .text(function(d: any) {
-                  return that.getGraphicElement(d.idOfData, 'link').name;
-              })
-              .classed('link-text', true)
+              .attr('fill', 'white')
+              .attr('id', that.idSvg + '_id_text' + i)
+              // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+              .text(name)
+              .classed('wrap', true)
+              .classed('node-text', true)
               .classed('zoom-element', true);
-    this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text');
 
-    // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
-    this.diagram.graph.nodes
-      .filter(n => this.getStencil(n.stencilId).tag === 'image')
-      .forEach(n => {
-        const imagePath = this.getStencil(n.stencilId).properties.filter(prop => prop.name === 'xlink:href')[0].value;
-        if (!this.imagesMap.has(imagePath)) {
-          const patternId = 'id-pattern-image-' + this.patternImageGenerator++;
-          this.imagesMap.set(imagePath, patternId);
+          d3plus.textwrap()
+              .config(that.nodeTextConfig)
+              .container('#' + that.idSvg + '_id_text' + i)
+              .shape(shape)
+              .padding(10)
+              // .align('middle')
+              .valign('middle')
+              .draw();
+        });
 
-          svgCanvas.select('defs')
-                  .append('pattern')
-                    .attr('id', patternId)
-                    .attr('patternUnits', 'objectBoundingBox')
-                    .attr('height', this.SHAPE_SIZE)
-                    .attr('width', this.SHAPE_SIZE)
-                    .append('image')
-                      .attr('x', 0)
-                      .attr('y', 0)
-                      .attr('height', this.SHAPE_SIZE)
-                      .attr('width', this.SHAPE_SIZE)
-                      .attr('xlink:href', imagePath);
-        }
-      });
-
-      this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes);
-      this.gNode.exit().remove();
-      this.gNode.enter()
-              .append('g')
-              .merge(this.gNode)
-              .classed('g-node', true)
-              .each(function(d: any, i) {
-                const stencil: Stencil = that.getStencil(d.stencilId);
-                const self = d3.select(this);
-                const nodeElement = self.append(() => {
-                    let tagName;
-                    if (stencil.tag === 'image') {
-                      tagName = 'circle';
-                    } else {
-                      tagName = stencil.tag;
-                    }
-                    // return document.createElement(tagName);
-                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
-                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
-                  }
-                )
-                .classed('shape', true)
-                .classed('zoom-element', true)
-                .classed('node', true)
-                .style('cursor', 'move')
-                .call(d3.drag()
-                .on('start', function() {
-                  that.dragstarted(d);
-                })
-                .on('drag', function() {
-                  that.dragged(d, i);
-                })
-                .on('end', function() {
-                  that.dragended(d);
-                }));
-
-                if (stencil.tag === 'circle' || stencil.tag === 'image') {
-                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
-                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
-                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
-
-                  if (stencil.tag === 'circle') {
-                    stencil.properties.forEach(prop => {
-                      nodeElement.attr(prop.name, prop.value);
-                      });
-                  } else if (stencil.tag === 'image') {
-                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-                  }
-                }
-
-                self.append('text')
-                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
-                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
-                    // .attr('text-anchor', 'middle')
-                    .attr('font-size', that.TEXT_SIZE * 4)
-                    .attr('font-family', 'sans-serif')
-                    .attr('fill', 'red')
-                    .attr('id', that.idSvg + '_id_text' + i)
-                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-                    .text(that.getGraphicElement(d.idOfData, 'node').name)
-                    .classed('wrap', true)
-                    .classed('node-text', true)
-                    .classed('zoom-element', true);
-
-                d3plus.textwrap()
-                    .config(that.nodeTextConfig)
-                    .container('#' + that.idSvg + '_id_text' + i)
-                    .shape('circle')
-                    .padding(10)
-                    // .align('middle')
-                    .valign('middle')
-                    .draw();
-              });
+    this.nodeTextConfig.resize = true;
 
     this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node');
     this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
@@ -690,12 +706,98 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         d3.event.stopPropagation();
     });
 
+    this.linkArrow = this.linkArrow.data(this.diagram.graph.links);
+    this.linkArrow.exit().remove();
+    this.linkArrow = this.linkArrow.enter()
+              .append('path')
+              .merge(this.linkArrow)
+              .attr('stroke', '#ffa500')
+              .attr('stroke-width', 5)
+              // .attr('fill', 'none')
+              .attr('fill', '#ffa500')
+              .classed('link-arrows', true)
+              .classed('zoom-element', true)
+              .each(function(d: any, i) {
+                  const self = d3.select(this);
+                  const endPoint = d.points[d.points.length - 1];
 
-    this.trustBoundary = this.link.data(this.diagram.graph.boundaries);
+                  let a;
+                  let point;
+
+                  if (d.target) {
+                    const target = that.getNode(d.target);
+                    point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
+                  } else {
+                      point = d.points[0];
+                  }
+
+                  if (!self.attr('transform')) {
+                      a = 10;
+                  } else {
+                    if (point.x >= endPoint.x) {
+                        a = 10;
+                    } else {
+                        a = -10;
+                    }
+                  }
+
+                  const points = [ // formiramo trougao
+                    [endPoint.x, endPoint.y + 10],
+                    [endPoint.x + a, endPoint.y],
+                    [endPoint.x, endPoint.y - 10],
+                    [endPoint.x, endPoint.y + 10]
+                  ];
+
+                  const pathData = that.lineGenerator(points);
+                  self.attr('d', pathData);
+
+                  if (d.target) {
+                    const angle = that.getAngleForRotating(point, endPoint);
+                    console.log('angle: ' + angle);
+                    const firstThreePoints = points.slice(0, points.length - 1);
+                    const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+                    const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+                    // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+                    self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+                    // self.attr('transform-origin', xMean + ' ' + yMean);
+                  }
+              });
+
+    this.linkText = this.linkText.data(this.diagram.graph.links);
+    this.linkText.exit().remove();
+    this.linkText = this.linkText.enter()
+              .append('text')
+              .merge(this.linkText)
+              .attr('x', function(d: any) {
+                  return d.points[1].x + 10;
+                  // return d3.mean(d.points.map(point => point[0]));
+              })
+              .attr('y', function(d: any) {
+                  return d.points[1].y;
+                  // return d3.mean(d.points.map(point => point[1]));
+              })
+              // .attr('text-anchor', 'middle')
+              .attr('font-size', that.TEXT_SIZE * 3 / 2)
+              .attr('font-family', 'sans-serif')
+              .attr('fill', 'white')
+              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
+              .text(function(d: any) {
+                  return that.getGraphicElement(d.idOfData, 'link').name;
+              })
+              .classed('link-text', true)
+              .classed('zoom-element', true);
+    this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text');
+
+
+    // ovde je bio node
+
+
+    this.trustBoundary = this.trustBoundary.data(this.diagram.graph.boundaries);
     this.trustBoundary.exit().remove();
     this.trustBoundary = this.trustBoundary.enter()
               .append('path')
               .merge(this.trustBoundary)
+              .classed('graphical-element', true)
               .classed('zoom-element', true)
               .classed('trust-boundary', true)
               .style('cursor', 'move')
@@ -743,10 +845,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
       if (stencil.tag === 'path') {
             if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
-                                                                d.source.position.y + that.SHAPE_SIZE / 2,
-                                                                d.target.position.x + that.SHAPE_SIZE / 2,
-                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+              const source = that.getNode(d.source);
+              const target = that.getNode(d.target);
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                source.position.y + that.SHAPE_SIZE / 2,
+                                                                target.position.x + that.SHAPE_SIZE / 2,
+                                                                target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -775,8 +879,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        return 'translate(' + that.diagram.graph.translateX + ','
-          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
+      const self = d3.select(this);
+      let transformAttribute = 'translate(' + that.diagram.graph.translateX + ','
+      + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
+      if (self.classed('link-arrows')) {
+        const rotate = self.attr('transform');
+        if (rotate) {
+          transformAttribute += ' ' + rotate;
+        }
+      }
+      return transformAttribute;
     });
 
     /*// Update and restart the this.simulation.
@@ -808,6 +920,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             })
             .attr('r', 10)
             .attr('fill', linkOrBoundary.circleForManipulation.color)
+            .attr('transform', 'translate(' + that.diagram.graph.translateX + ','
+              + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')')
             .classed('circle-on-link-or-boundary', true)
             .classed('circle-on-link-or-boundary-' + linkOrBoundary.id, true)
             .classed('zoom-element', true)
@@ -831,20 +945,103 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       this.ticked(-1);
   }
 
+  doLassoSelect() {
+    const that = this;
+
+    const svgCanvas = d3.select(this.selectSvg);
+
+
+    // bez ovog ne radi, jer lasso nije video d3.drag() funkciju
+    window['d3'] = d3;
+
+    this.d3Lasso = lasso()
+        .closePathSelect(true)
+        .closePathDistance(100)
+        .items(svgCanvas.selectAll('.graphical-element'))
+        .targetArea(svgCanvas)
+        .on('start', function() {
+           that.lassoStart();
+        })
+        .on('draw', function() {
+          that.lassoDraw();
+        })
+        .on('end', function() {
+          that.lassoEnd();
+        });
+
+    svgCanvas.call(this.d3Lasso);
+  }
+
+  lassoStart() {
+    this.d3Lasso.items()
+        // .attr('r', 3.5) // reset size
+        .classed('not_possible', true)
+        .classed('selected', false);
+  }
+
+  lassoDraw() {
+
+    // Style the possible dots
+    this.d3Lasso.possibleItems()
+        .classed('not_possible', false)
+        .classed('possible', true);
+
+    // Style the not possible dot
+    this.d3Lasso.notPossibleItems()
+        .classed('not_possible', true)
+        .classed('possible', false);
+  }
+
+  lassoEnd() {
+    // Reset the color of all dots
+    this.d3Lasso.items()
+        .classed('not_possible', false)
+        .classed('possible', false);
+
+    // Style the selected dots
+    this.selectedItems = this.d3Lasso.selectedItems()
+        .classed('selected', true);
+        // .attr('r', 7);
+
+    this.changedTabChangeSelectedItems();
+
+    // Reset the style of the not selected dots
+    // d3Lasso.notSelectedItems()
+        // .attr('r', 3.5);
+  }
+
+  deselectLasso() {
+     // Reset the color of all dots
+     this.d3Lasso.items()
+     .classed('not_possible', false)
+     .classed('possible', false);
+
+    // Style the selected dots
+    this.selectedItems = this.d3Lasso.selectedItems()
+        .classed('selected', false);
+        // .attr('r', 7);
+
+    this.selectedItems = null;
+    this.changedTabChangeSelectedItems();
+  }
+
   doZoom(areaForZoom) {
     const that = this;
 
     this.zoom = d3.zoom()
+    .filter(function () {
+      return d3.event.ctrlKey; // zoom ce raditi samo ako je pritisnuta CTRL tipka
+    })
     .scaleExtent([that.MAX_ZOOM_OUT, that.MAX_ZOOM_IN])
     .on('zoom', function () {
         // console.log(d3.event);
         // simp.attr('transform', 'translate(' + d3.event.translate + ')' + ' scale(' + d3.event.diagram.graph.scale + ')');
-        d3.selectAll(that.selectSvg + ' .zoom-element')
-            .each(function(d: any, i) {
-                that.diagram.graph.translateX = d3.event.transform.x;
-                that.diagram.graph.translateY = d3.event.transform.y;
-                that.diagram.graph.scale = d3.event.transform.k;
-            });
+        // d3.selectAll(that.selectSvg + ' .zoom-element')
+            // .each(function(d: any, i) {
+        that.diagram.graph.translateX = d3.event.transform.x;
+        that.diagram.graph.translateY = d3.event.transform.y;
+        that.diagram.graph.scale = d3.event.transform.k;
+            // });
         that.ticked(-1);
             /*
             .attr('transform', function(d: any) {
@@ -912,9 +1109,13 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     if (type === 'data-flow' || type === 'trust-boundary') {
       d.source = null;
       d.target = null;
-      const nearestPoint = this.getNearestPoint(d.points, { x: d3.event.x, y: d3.event.y });
-      const dx = d3.event.x - nearestPoint.x;
-      const dy = d3.event.y - nearestPoint.y;
+      const eventX = d3.event.x / this.diagram.graph.scale - this.diagram.graph.translateX;
+      const eventY = d3.event.y / this.diagram.graph.scale - this.diagram.graph.translateY;
+      const nearestPoint = this.getNearestPoint(d.points, { x: eventX, y: eventY } );
+      // const dx = d3.event.x - nearestPoint.x;
+      const dx = eventX - nearestPoint.x;
+      // const dy = d3.event.y - nearestPoint.y;
+      const dy = eventY - nearestPoint.y;
       d.points.forEach(point => {
         point.x = point.x + dx;
         point.y = point.y + dy;
@@ -923,12 +1124,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       // d.position.x = d3.event.x;
       // d.position.y = d3.event.y;
       // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
-      d.position.x = d3.event.x - this.SHAPE_SIZE / 2;
+      const newX = (d3.event.x - this.SHAPE_SIZE / 2 - this.diagram.graph.translateX) / this.diagram.graph.scale;
+      const dx = newX - d.position.x;
+      d.position.x = newX;
       // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
-      d.position.y = d3.event.y - this.SHAPE_SIZE / 2;
+      const newY = (d3.event.y - this.SHAPE_SIZE / 2 - this.diagram.graph.translateY) / this.diagram.graph.scale;
+      const dy = newY - d.position.y;
+      d.position.y = newY;
       const that = this;
       this.link.each(function (l: any) {
-            if (l.source && l.source.id === d.id) {
+            if (l.source && l.source === d.id) {
                 /*const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(l.source.x + that.SHAPE_SIZE / 2,
                                                                   l.source.y + that.SHAPE_SIZE / 2,
                                                                   l.target.x + that.SHAPE_SIZE / 2,
@@ -952,16 +1157,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 ];*/
 
 
-                // TODO ovde nesto ne valja, pokreni program pa ces videiti, baca undefined
-                const point = that.getNearestPointOnCircle(l.source.position.x + that.SHAPE_SIZE / 2,
-                                                                    l.source.position.y + that.SHAPE_SIZE / 2,
+                /*const source = that.getNode(l.source);
+                const point = that.getNearestPointOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                    source.position.y + that.SHAPE_SIZE / 2,
                                                                     l.points[0].x,
                                                                     l.points[0].y,
                                                                     that.SHAPE_SIZE / 2);
+                */
 
                 // menjamo prvu i srednju tacku
-                l.points[0].x = point.x;
-                l.points[0].y = point.y;
+                l.points[0].x = l.points[0].x + dx; // d.position.x;
+                l.points[0].y = l.points[0].y + dy; // d.position.y;
                 l.points[1].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
                 l.points[1].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
                 /*l.points = [
@@ -979,16 +1185,18 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 );*/
               }
 
-              if (l.target && l.target.id === d.id) {
-                const point = that.getNearestPointOnCircle(l.target.position.x + that.SHAPE_SIZE / 2,
-                                                          l.target.position.y + that.SHAPE_SIZE / 2,
+              if (l.target && l.target === d.id) {
+                /*const target = that.getNode(l.target);
+                const point = that.getNearestPointOnCircle(target.position.x + that.SHAPE_SIZE / 2,
+                                                          target.position.y + that.SHAPE_SIZE / 2,
                                                           l.points[l.points.length - 1].x,
                                                           l.points[l.points.length - 1].y,
                                                           that.SHAPE_SIZE / 2);
+                */
 
                 // menjamo poslednju i srednju tacku
-                l.points[l.points.length - 1].x = point.x;
-                l.points[l.points.length - 1].y = point.y;
+                l.points[l.points.length - 1].x = l.points[l.points.length - 1].x + dx; // point.x;
+                l.points[l.points.length - 1].y = l.points[l.points.length - 1].y + dy; // point.y;
                 l.points[l.points.length - 2].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
                 l.points[l.points.length - 2].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
                 /*l.points = l.points.slice(0, 5).concat(
@@ -1029,7 +1237,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           if (nearestPointToLinkStart.distance <= 25 ) {
               d.points[0].x = nearestPointToLinkStart.x;
               d.points[0].y = nearestPointToLinkStart.y;
-              d.source = that.node.data()[nearestPointToLinkStart.index];
+              d.source = that.node.data()[nearestPointToLinkStart.index].id;
           }
 
           const indexOfLastPoint = d.points.length - 1;
@@ -1039,7 +1247,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           if (nearestPointToLinkEnd.distance <= 25 ) {
               d.points[indexOfLastPoint].x = nearestPointToLinkEnd.x;
               d.points[indexOfLastPoint].y = nearestPointToLinkEnd.y;
-              d.target = that.node.data()[nearestPointToLinkEnd.index];
+              d.target = that.node.data()[nearestPointToLinkEnd.index].id;
           }
           console.log(this.link.data());
           that.ticked(-1);
@@ -1096,9 +1304,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             d.x = nearestPoint.x;
             d.y = nearestPoint.y;
             if (el.points[0] === d) {
-              el.source = that.node.data()[nearestPoint.index];
+              el.source = that.node.data()[nearestPoint.index].id;
             } else if (el.points[el.points.length - 1] === d) {
-              el.target = that.node.data()[nearestPoint.index];
+              el.target = that.node.data()[nearestPoint.index].id;
             }
             that.ticked(-1);
             return;
@@ -1119,10 +1327,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     const svgCanvas = d3.select(this.selectSvg);
 
-    this.diagram.graph.links.forEach((l: any) => {
+    /*this.diagram.graph.links.forEach((l: any) => {
       l.source = this.getNode(l.source);
       l.target = this.getNode(l.target);
-    });
+    });*/
 
     /*const linkForce  = d3.forceLink(this.diagram.graph.links)
                           // .id(function(d: any) { return d.id; })
@@ -1139,84 +1347,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     const that = this;
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
-    svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes)
-              .enter()
-              .append('g')
-              .classed('g-node', true)
-              .each(function(d: any, i) {
-                const stencil: Stencil = that.getStencil(d.stencilId);
-                const self = d3.select(this);
-                const nodeElement = self.append(() => {
-                    let tagName;
-                    if (stencil.tag === 'image') {
-                      tagName = 'circle';
-                    } else {
-                      tagName = stencil.tag;
-                    }
-                    // return document.createElement(tagName);
-                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
-                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
-                  }
-                )
-                .classed('shape', true)
-                .classed('zoom-element', true)
-                .classed('node', true)
-                .style('cursor', 'move')
-                .call(d3.drag()
-                .on('start', function() {
-                  that.dragstarted(d);
-                })
-                .on('drag', function() {
-                  that.dragged(d, i);
-                })
-                .on('end', function() {
-                  that.dragended(d);
-                }));
-
-                if (stencil.tag === 'circle' || stencil.tag === 'image') {
-                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
-                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
-                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
-
-                  if (stencil.tag === 'circle') {
-                    stencil.properties.forEach(prop => {
-                      nodeElement.attr(prop.name, prop.value);
-                      });
-                  } else if (stencil.tag === 'image') {
-                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-                  }
-                }
-
-                self.append('text')
-                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
-                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
-                    // .attr('text-anchor', 'middle')
-                    .attr('font-size', that.TEXT_SIZE * 2)
-                    .attr('font-family', 'sans-serif')
-                    .attr('fill', 'red')
-                    .attr('id', that.idSvg + '_id_text' + i)
-                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-                    .text(that.getGraphicElement(d.idOfData, 'node').name)
-                    .classed('wrap', true)
-                    .classed('node-text', true)
-                    .classed('zoom-element', true);
-
-                d3plus.textwrap()
-                    .config(that.nodeTextConfig)
-                    .container('#' + that.idSvg + '_id_text' + i)
-                    .shape('circle')
-                    .padding(10)
-                    // .align('middle')
-                    .valign('middle')
-                    .draw();
-              });
-
     this.link = svgCanvas.selectAll(this.selectSvg + ' path.link')
               .data(this.diagram.graph.links)
               .enter()
               .append('path')
               .classed('link', true)
+              .classed('graphical-element', true)
               .classed('zoom-element', true)
               .style('cursor', 'move')
               .call(d3.drag()
@@ -1261,11 +1397,13 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });
 
       if (stencil.tag === 'path') {
-            if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
-                                                                d.source.position.y + that.SHAPE_SIZE / 2,
-                                                                d.target.position.x + that.SHAPE_SIZE / 2,
-                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+            /*if (d.source && d.target) {
+              const source = that.getNode(d.source);
+              const target = that.getNode(d.target);
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                source.position.y + that.SHAPE_SIZE / 2,
+                                                                target.position.x + that.SHAPE_SIZE / 2,
+                                                                target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -1284,7 +1422,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 // [endPoint[0], endPoint[1] + 10],
                 endPoint
              ];
-            }
+            }*/
 
             const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
@@ -1308,72 +1446,6 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .style('fill', '#585858')
               .classed('link-arrows', true)
               .classed('zoom-element', true);*/
-
-    this.linkArrow = svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
-              .data(this.diagram.graph.links)
-              .enter()
-              .append('path')
-              .attr('stroke', '#ffa500')
-              .attr('stroke-width', 10)
-              .attr('fill', 'none')
-              .classed('link-arrows', true)
-              .classed('zoom-element', true)
-              .each(function(d: any, i) {
-                const self = d3.select(this);
-                const startPoint = d.points[0];
-                const endPoint = d.points[d.points.length - 1];
-                let a, b;
-
-                if (startPoint.x > endPoint.x) {
-                  a = 10;
-                } else if (startPoint.x < endPoint.x) {
-                  a = -10;
-                } else {
-                  a = 0;
-                }
-
-                if (startPoint.y > endPoint.y) {
-                  b = 10;
-                } else if (startPoint.y < endPoint.y) {
-                  b = -10;
-                } else {
-                  b = 0;
-                }
-                const points = [ // formiramo trougao
-                  [endPoint.x + a, endPoint.y + b],
-                  [endPoint.x, endPoint.y],
-                  [endPoint.x + a, endPoint.y - b],
-                  [endPoint.x + a, endPoint.y + b]
-                ];
-                const pathData = that.lineGenerator(points);
-                self.attr('d', pathData);
-              });
-              /*.attr('transform', function(d) {
-                const point = d.points[d.points.length - 1];
-                return 'translate(' + point.x + ',' + point.y + ') scale(' + that.diagram.graph.scale + ')'; })*/
-
-    this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text')
-              .data(this.diagram.graph.links)
-              .enter()
-              .append('text')
-              .attr('x', function(d: any) {
-                  return d.points[1].x + 10;
-                  // return d3.mean(d.points.map(point => point[0]));
-              })
-              .attr('y', function(d: any) {
-                  return d.points[1].y;
-                  // return d3.mean(d.points.map(point => point[1]));
-              })
-              // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE * 3 / 2)
-              .attr('font-family', 'sans-serif')
-              .attr('fill', 'green')
-              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
-              .text(function(d: any) {
-                  return that.getGraphicElement(d.idOfData, 'link').name;
-              })
-              .classed('link-text', true)
-              .classed('zoom-element', true);
 
     // prvo iscrtavamo link-ove, pa onda node-ove da bi node-ovi bili iznad link-ova (lepse je ovako)
     this.diagram.graph.nodes
@@ -1399,78 +1471,91 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       });
 
-      this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes)
-              .enter()
-              .append('g')
-              .classed('g-node', true)
-              .each(function(d: any, i) {
-                const stencil: Stencil = that.getStencil(d.stencilId);
-                const self = d3.select(this);
-                const nodeElement = self.append(() => {
-                    let tagName;
-                    if (stencil.tag === 'image') {
-                      tagName = 'circle';
-                    } else {
-                      tagName = stencil.tag;
-                    }
-                    // return document.createElement(tagName);
-                    // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
-                    return document.createElementNS(that.SVG_NAMESPACE, tagName);
-                  }
-                )
-                .classed('shape', true)
-                .classed('zoom-element', true)
-                .classed('node', true)
-                .style('cursor', 'move')
-                .call(d3.drag()
-                .on('start', function() {
-                  that.dragstarted(d);
-                })
-                .on('drag', function() {
-                  that.dragged(d, i);
-                })
-                .on('end', function() {
-                  that.dragended(d);
-                }));
+    this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes)
+    .enter()
+    .append('g')
+    .classed('g-node', true)
+    .each(function(d: any, i) {
+      const stencil: Stencil = that.getStencil(d.stencilId);
+      const self = d3.select(this);
+      const nodeElement = self.append(() => {
+          let tagName;
+          if (stencil.tag === 'image') {
+            tagName = 'circle';
+          } else {
+            tagName = stencil.tag;
+          }
+          // return document.createElement(tagName);
+          // bez SVG_NAMESPACE kreira elemente u DOM stablu, ali iz nekog razloga ne budu vidljivi
+          return document.createElementNS(that.SVG_NAMESPACE, tagName);
+        }
+      )
+      .classed('shape', true)
+      .classed('graphical-element', true)
+      .classed('zoom-element', true)
+      .classed('node', true)
+      .style('cursor', 'move')
+      .call(d3.drag()
+      .on('start', function() {
+        that.dragstarted(d);
+      })
+      .on('drag', function() {
+        that.dragged(d, i);
+      })
+      .on('end', function() {
+        that.dragended(d);
+      }));
 
-                if (stencil.tag === 'circle' || stencil.tag === 'image') {
-                  nodeElement.attr('r', that.SHAPE_SIZE / 2)
-                      .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
-                      .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
+      let shape: string;
+      if (stencil.tag === 'circle' || stencil.tag === 'image') {
+        nodeElement.attr('r', that.SHAPE_SIZE / 2)
+            .attr('cx', d.position.x + that.SHAPE_SIZE / 2)
+            .attr('cy', d.position.y + that.SHAPE_SIZE / 2);
 
-                  if (stencil.tag === 'circle') {
-                    stencil.properties.forEach(prop => {
-                      nodeElement.attr(prop.name, prop.value);
-                      });
-                  } else if (stencil.tag === 'image') {
-                    const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
-                    nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
-                  }
-                }
+        if (stencil.tag === 'circle') {
+          stencil.properties.forEach(prop => {
+            nodeElement.attr(prop.name, prop.value);
+            });
+        } else if (stencil.tag === 'image') {
+          const imagePath = stencil.properties.filter(prop => prop.name === 'xlink:href')[0].value;
+          nodeElement.attr('fill', 'url(#' + that.imagesMap.get(imagePath) + ')');
+        }
+        shape = 'circle';
+      } else if (stencil.tag === 'rect') {
+        nodeElement
+            .attr('x', d.position.x)
+            .attr('y', d.position.y)
+            .attr('width', that.SHAPE_SIZE)
+            .attr('height', that.SHAPE_SIZE * 3 / 4);
+        stencil.properties.forEach(prop => {
+          nodeElement.attr(prop.name, prop.value);
+        });
+        shape = 'square';
+      }
 
-                self.append('text')
-                    // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
-                    // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
-                    // .attr('text-anchor', 'middle')
-                    .attr('font-size', that.TEXT_SIZE * 4)
-                    .attr('font-family', 'sans-serif')
-                    .attr('fill', 'red')
-                    .attr('id', that.idSvg + '_id_text' + i)
-                    // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-                    .text(that.getGraphicElement(d.idOfData, 'node').name)
-                    .classed('wrap', true)
-                    .classed('node-text', true)
-                    .classed('zoom-element', true);
+      self.append('text')
+          // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+          // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+          // .attr('text-anchor', 'middle')
+          // .attr('font-size', that.TEXT_SIZE)
+          .attr('font-family', 'sans-serif')
+          .attr('fill', 'white')
+          .attr('id', that.idSvg + '_id_text' + i)
+          // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
+          .text(that.getGraphicElement(d.idOfData, 'node').name)
+          .classed('wrap', true)
+          .classed('node-text', true)
+          .classed('zoom-element', true);
 
-                d3plus.textwrap()
-                    .config(that.nodeTextConfig)
-                    .container('#' + that.idSvg + '_id_text' + i)
-                    .shape('circle')
-                    .padding(10)
-                    // .align('middle')
-                    .valign('middle')
-                    .draw();
-              });
+      d3plus.textwrap()
+          .config(that.nodeTextConfig)
+          .container('#' + that.idSvg + '_id_text' + i)
+          .shape(shape)
+          .padding(10)
+          // .align('middle')
+          .valign('middle')
+          .draw();
+    });
 
     this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node');
     this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
@@ -1495,11 +1580,91 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
 
+    this.linkArrow = svgCanvas.selectAll(this.selectSvg + ' path.link-arrows')
+              .data(this.diagram.graph.links)
+              .enter()
+              .append('path')
+              .attr('stroke', '#ffa500')
+              .attr('stroke-width', 5)
+              // .attr('fill', 'none')
+              .attr('fill', '#ffa500')
+              .classed('link-arrows', true)
+              .classed('zoom-element', true)
+              .each(function(d: any, i) {
+                const self = d3.select(this);
+                const endPoint = d.points[d.points.length - 1];
+                let a;
+                let point;
+
+                if (d.target) {
+                  const target = that.getNode(d.target);
+                  point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
+                } else {
+                    point = d.points[0];
+                }
+
+                if (point.x >= endPoint.x) {
+                    a = 10;
+                } else {
+                    a = -10;
+                }
+
+                const points = [ // formiramo trougao
+                  [endPoint.x, endPoint.y + 10],
+                  [endPoint.x + a, endPoint.y],
+                  [endPoint.x, endPoint.y - 10],
+                  [endPoint.x, endPoint.y + 10]
+                ];
+
+                const pathData = that.lineGenerator(points);
+                self.attr('d', pathData);
+
+                if (d.target) {
+                  const angle = that.getAngleForRotating(point, endPoint);
+                  console.log('angle: ' + angle);
+                  const firstThreePoints = points.slice(0, points.length - 1);
+                  const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+                  const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+                  // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+                  self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+                  // self.attr('transform-origin', xMean + ' ' + yMean);
+                }
+              });
+              /*.attr('transform', function(d) {
+                const point = d.points[d.points.length - 1];
+                return 'translate(' + point.x + ',' + point.y + ') scale(' + that.diagram.graph.scale + ')'; })*/
+
+    this.linkText = svgCanvas.selectAll(this.selectSvg + ' text.link-text')
+              .data(this.diagram.graph.links)
+              .enter()
+              .append('text')
+              .attr('x', function(d: any) {
+                  return d.points[1].x + 10;
+                  // return d3.mean(d.points.map(point => point[0]));
+              })
+              .attr('y', function(d: any) {
+                  return d.points[1].y;
+                  // return d3.mean(d.points.map(point => point[1]));
+              })
+              // .attr('text-anchor', 'middle')
+              .attr('font-size', that.TEXT_SIZE * 3 / 2)
+              .attr('font-family', 'sans-serif')
+              .attr('fill', 'white')
+              .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
+              .text(function(d: any) {
+                  return that.getGraphicElement(d.idOfData, 'link').name;
+              })
+              .classed('link-text', true)
+              .classed('zoom-element', true);
+
+      // ovde je bio node
+
     this.trustBoundary = svgCanvas.selectAll(this.selectSvg + ' path.trust-boundary')
               .data(this.diagram.graph.boundaries)
               .enter()
               .append('path')
               .classed('trust-boundary', true)
+              .classed('graphical-element', true)
               .classed('zoom-element', true)
               .style('cursor', 'move')
               .call(d3.drag()
@@ -1545,10 +1710,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
       if (stencil.tag === 'path') {
             if (d.source && d.target) {
-              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(d.source.position.x + that.SHAPE_SIZE / 2,
-                                                                d.source.position.y + that.SHAPE_SIZE / 2,
-                                                                d.target.position.x + that.SHAPE_SIZE / 2,
-                                                                d.target.position.y + that.SHAPE_SIZE / 2,
+              const source = that.getNode(d.source);
+              const target = that.getNode(d.target);
+              const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                source.position.y + that.SHAPE_SIZE / 2,
+                                                                target.position.x + that.SHAPE_SIZE / 2,
+                                                                target.position.y + that.SHAPE_SIZE / 2,
                                                                 that.SHAPE_SIZE / 2);
               const startPoint = startAndEndPoints.start;
               const endPoint = startAndEndPoints.end;
@@ -1576,7 +1743,25 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
     this.trustBoundary = svgCanvas.selectAll(this.selectSvg + ' .trust-boundary');
 
+    d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
+      const self = d3.select(this);
+      let transformAttribute = 'translate(' + that.diagram.graph.translateX + ','
+      + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
+      if (self.classed('link-arrows')) {
+        const rotate = self.attr('transform');
+        if (rotate) {
+          transformAttribute += ' ' + rotate;
+        }
+      }
+      return transformAttribute;
+    });
 
+    /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
+      return 'translate(' + that.diagram.graph.translateX + ','
+        + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
+    });*/
+
+    /*
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
         const self = d3.select(this);
         let x = that.diagram.graph.translateX;
@@ -1591,6 +1776,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         return 'translate(' + x + ','
           + y + ') scale(' + that.diagram.graph.scale + ')';
     });
+    */
 
     /*this.simulation
       .on('tick', function() {
@@ -1599,6 +1785,31 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       .on('end', function() {
         that.ticked();
       });*/
+  }
+
+  radiansToDegrees(radians) {
+    return radians * (180 / Math.PI);
+  }
+
+  getAngleForRotating(centerOrStartPoint: Point, pointOnCircle: Point) {
+    const hypotenuse = this.getDistance(centerOrStartPoint, pointOnCircle); // this.SHAPE_SIZE / 2;
+    const cos = Math.abs(centerOrStartPoint.x - pointOnCircle.x) / hypotenuse;
+    const angle = Math.acos(cos);
+    let coef;
+    if (centerOrStartPoint.x >= pointOnCircle.x) {
+      if (centerOrStartPoint.y >= pointOnCircle.y) {
+        coef = 1;
+      } else {
+        coef = -1;
+      }
+    } else {
+      if (centerOrStartPoint.y >= pointOnCircle.y) {
+        coef = -1;
+      } else {
+        coef = 1;
+      }
+    }
+    return coef * this.radiansToDegrees(angle);
   }
 
   getNode(id: string) {
@@ -1631,6 +1842,20 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               });
     });
 
+    this.trustBoundary.each(function(d: any, i) {
+        const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
+        const self = d3.select(this);
+        self.attr('d', pathData);
+
+        d3.selectAll(that.selectSvg + ' circle.circle-on-link-or-boundary-' + d.id)
+              .attr('cx', function(point: any) {
+                return point.x;
+              })
+              .attr('cy', function(point: any) {
+                return point.y;
+              });
+    });
+
     this.linkText
         .attr('x', function(d: any) {
             return d.points[1].x + 10;
@@ -1649,6 +1874,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }*/
         const stencil: Stencil = that.getStencil(d.stencilId);
         if (stencil.tag === 'circle' || stencil.tag === 'image') {
+          /*self.attr('transform', function(el: any) {
+            return 'translate(' + (el.position.x - +self.attr('cx') + that.diagram.graph.translateX) + ','
+            + (el.position.y - +self.attr('cy') + that.diagram.graph.translateY) + ') scale(' + that.diagram.graph.scale + ')';
+          });*/
+          /*self.attr('cx', function(el: any) { return el.position.x + that.SHAPE_SIZE / 2 + that.diagram.graph.translateX; })
+              .attr('cy', function(el: any) { return el.position.y + that.SHAPE_SIZE / 2 + that.diagram.graph.translateY; });*/
           self.attr('cx', function(el: any) { return el.position.x + that.SHAPE_SIZE / 2; })
               .attr('cy', function(el: any) { return el.position.y + that.SHAPE_SIZE / 2; });
         }
@@ -1669,15 +1900,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                         // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
                         // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
                         // .attr('text-anchor', 'middle')
-                        .attr('font-size', that.TEXT_SIZE * 4)
+                        // .attr('font-size', that.TEXT_SIZE)
                         .attr('font-family', 'sans-serif')
-                        .attr('fill', 'red')
+                        .attr('fill', 'white')
                         .attr('id', that.idSvg + '_id_text' + i)
                         // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
                         .text(that.getGraphicElement(d.idOfData, 'node').name)
                         .classed('wrap', true)
                         .classed('node-text', true)
                         .classed('zoom-element', true);
+
+                    that.nodeTextConfig = false;
 
                     d3plus.textwrap()
                         .config(that.nodeTextConfig)
@@ -1687,6 +1920,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                         // .align('middle')
                         .valign('middle')
                         .draw();
+
+                    that.nodeTextConfig = true;
                   }
                 });
       this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
@@ -1694,54 +1929,78 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
 
     this.linkArrow.each(function(d: any, i) {
       const self = d3.select(this);
-      const startPoint = d.points[0];
       const endPoint = d.points[d.points.length - 1];
-      let a, b;
+      let a;
+      let point;
 
-      if (startPoint.x > endPoint.x) {
-        a = 10;
-      } else if (startPoint.x < endPoint.x) {
-        a = -10;
+      if (d.target) {
+        const target = that.getNode(d.target);
+        point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
       } else {
-        a = 0;
+          point = d.points[0];
       }
 
-      if (startPoint.y > endPoint.y) {
-        b = 10;
-      } else if (startPoint.y < endPoint.y) {
-        b = -10;
+      if (!self.attr('transform')) {
+          a = 10;
       } else {
-        b = 0;
+        if (point.x >= endPoint.x) {
+            a = 10;
+        } else {
+            a = -10;
+        }
       }
+
       const points = [ // formiramo trougao
-        [endPoint.x + a, endPoint.y + b],
-        [endPoint.x, endPoint.y],
-        [endPoint.x + a, endPoint.y - b],
-        [endPoint.x + a, endPoint.y + b]
+        [endPoint.x, endPoint.y + 10],
+        [endPoint.x + a, endPoint.y],
+        [endPoint.x, endPoint.y - 10],
+        [endPoint.x, endPoint.y + 10]
       ];
+
       const pathData = that.lineGenerator(points);
       self.attr('d', pathData);
+
+      if (d.target) {
+        const angle = that.getAngleForRotating(point, endPoint);
+        console.log('angle: ' + angle);
+        const firstThreePoints = points.slice(0, points.length - 1);
+        const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+        const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+        // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+        self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+        // self.attr('transform-origin', xMean + ' ' + yMean);
+      }
     });
 
-    /*d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        return 'translate(' + that.diagram.graph.translateX + ','
-          + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
-    });*/
-
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
-        // const self = d3.select(this);
-        // let x = that.diagram.graph.translateX;
-        // let y = that.diagram.graph.translateY;
+      const self = d3.select(this);
+      let transformAttribute = 'translate(' + that.diagram.graph.translateX + ','
+      + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
+      if (self.classed('link-arrows')) {
+        const rotate = self.attr('transform');
+        if (rotate) {
+          transformAttribute += ' ' + rotate;
+        }
+      }
+      return transformAttribute;
+    });
 
-        /*if (self.classed('link-arrows')) {
+    /*
+    d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
+        const self = d3.select(this);
+        let x = that.diagram.graph.translateX;
+        let y = that.diagram.graph.translateY;
+
+        if (self.classed('link-arrows')) {
           const data: any = self.data()[0];
           const point = data.points[data.points.length - 1];
           x += point.x;
           y += point.y;
-        }*/
+        }
         return 'translate(' + that.diagram.graph.translateX + ','
           + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });
+    */
   }
 
   groupBy(list) {

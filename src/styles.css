@@ -1,1 +1,72 @@
 /* You can add global styles to this file, and also import other style files */
+
+
+/* disable-ujemo selektovanje teksta*/
+svg text, p, h3, b/*, a*/, br {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* disable-ujemo selektovanje teksta*/
+a {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+/* Ovde su stavljeni css-ovi za lasso select, jer css-ovi stavljeni u .css fajl
+   neke komponente (konkretno canvas) ne rade za elemente u svg. */
+
+/*circle {
+    fill-opacity: 0.5;
+}*/
+
+.lasso path {
+    stroke: rgb(80,80,80);
+    stroke-width:2px;
+}
+
+.lasso .drawn {
+    fill-opacity:.05 ;
+}
+
+.lasso .loop_close {
+    fill:none;
+    stroke-dasharray: 4,4;
+}
+
+.lasso .origin {
+    fill:#3399FF;
+    fill-opacity:.5;
+}
+
+.node.not_possible {
+    fill: rgb(200,200,200);
+}
+
+.link.not_possible, .trust-boundary.selected {
+    stroke: rgb(200,200,200);
+}
+
+.node.possible {
+    fill: #EC888C;
+}
+
+.link.possible, .trust-boundary.selected {
+    stroke: #EC888C;
+}
+
+.node.selected {
+    /*fill: steelblue;*/
+    fill: #EC888C;
+}
+
+.link.selected, .trust-boundary.selected {
+    /*stroke: steelblue;*/
+    stroke: #EC888C;
+}

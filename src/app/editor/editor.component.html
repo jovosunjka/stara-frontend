@@ -1,25 +1,47 @@
 
 <div class="btn-toolbar" role="toolbar">
     <button type="button" class="btn btn-success btn-sm btn-space" (click)="createNewModel()">
-        <span class="fa fa-plus-square" aria-hidden="true"></span> Create
+        <span class="fa fa-plus-square" aria-hidden="true"></span> Create Model
     </button>
     
     <button type="button" class="btn btn-primary btn-sm btn-space"
         onclick="document.getElementById('id_path_to_existing_model').click()">
-        <span class="fa fa-file-import" aria-hidden="true"></span> Open
+        <span class="fa fa-file-import" aria-hidden="true"></span> Open Model
     </button>
     <!--Ovaj input tag nece se videti-->
     <input type="file" id="id_path_to_existing_model" class="btn btn-primary btn-sm btn-space"
         style="display:none" (change)="onFileChange($event, this)" accept=".json">
 
-    <button *ngIf="model" type="button" class="btn btn-danger btn-sm btn-space" (click)="export()">
-        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+    <button *ngIf="model" type="button" class="btn btn-primary btn-sm btn-space" (click)="export()">
+        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export Model
     </button>
     <button *ngIf="!model" type="button" class="btn btn-secondary btn-sm btn-space" disabled>
-        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export Model
     </button>
 
-    <button class="btn btn-warning btn-sm btn-space" (click)="switchView()" >{{buttonText}}</button>
+    <button *ngIf="model" type="button" class="btn btn-danger btn-sm btn-group-space" (click)="analyze()">
+        Analyze Model
+    </button>
+    <button *ngIf="!model" type="button" class="btn btn-secondary btn-sm btn-group-space" disabled>
+        Analyze Model
+    </button>
+
+
+    <button *ngIf="model" type="button" class="btn btn-success btn-sm btn-space" (click)="createNewDiagram()">
+        Create Diagram
+    </button>
+    <button *ngIf="!model" type="button" class="btn btn-secondary btn-sm btn-space" disabled>
+        Create Diagram
+    </button>
+
+    <button class="btn btn-primary btn-sm btn-space" type="button" (click)="switchView()" >{{buttonText}}</button>
+
+    <button *ngIf="selectedItems" type="button" class="btn btn-danger btn-sm btn-space" (click)="deleteSelectedItems()">
+        Delete Selected Items
+    </button>
+    <button *ngIf="!selectedItems" type="button" class="btn btn-secondary btn-sm btn-space" disabled>
+        Delete Selected Items
+    </button>
 </div>
 
 <div class="row mt-2">
@@ -49,11 +71,12 @@
         </div>
         <div class="row">
             <div class="col-xl-12" style="height: 532px">
-                <app-data-flow-diagrams-panel *ngIf="model" [model]="model" (currentDiagramEvent)="setCurrentDiagram($event)"></app-data-flow-diagrams-panel>
+                <app-data-flow-diagrams-panel *ngIf="model" [model]="model" [diagramsTabMaxLength]="diagramsTabMaxLength"
+                 (currentDiagramEvent)="setCurrentDiagram($event)"></app-data-flow-diagrams-panel>
                 <div *ngIf="!model" class="border border-primary" style="width: 100%; height: 100%">
                     <br/>
                     <br/>
-                    <h3 align="center">The threat model was not selected!</h3>
+                    <h3 align="center">The threat model is not selected!</h3>
                 </div>
             </div>
         </div>

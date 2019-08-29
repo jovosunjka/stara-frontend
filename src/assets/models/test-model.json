@@ -2,1283 +2,1559 @@
     "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8",
     "name": "Test model",
     "diagrams": [
-        {
-            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0",
-            "name": "Context",
-            "graph": {
-                "nodes": [
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 20,
-                            "y": 20
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-0"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 100,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-1"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 200,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-2"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 50,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-3"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 350,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-4"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 100,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-5"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 300,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-6"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 300,
-                            "y": 250
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-7",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-7"
-                    }
-                ],
-                "links": [
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-0"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-1"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-2"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-3"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-4"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-5"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-6"
-                    }
-                ],
-                "boundaries": [],
-                "sections": [],
-                "translateX": 0,
-                "translateY": 0,
-                "scale": 1
+      {
+        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0",
+        "name": "Context",
+        "graph": {
+          "nodes": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-0"
             },
-            "elements": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 173.59375,
+                "y": 218
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-1"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 346.59375,
+                "y": 16
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-2"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 355.59375,
+                "y": 251
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-3"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 756.59375,
+                "y": 75
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-4"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 480.59375,
+                "y": 361
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-5"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 40.59375,
+                "y": 345
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-6"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 751.59375,
+                "y": 301
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-7",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-7"
+            }
+          ],
+          "links": [
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-0",
-                    "name": "Process 0",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 0",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 84.51719968887937,
+                  "y": 91.60548875457573
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-1",
-                    "name": "Process 1",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 1",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 136.796875,
+                  "y": 159
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-2",
-                    "name": "Process 2",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 2",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-3",
-                    "name": "Process 3",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 3",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-4",
-                    "name": "Process 4",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 4",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-5",
-                    "name": "Process 5",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 5",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-6",
-                    "name": "Process 6",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 6",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-7",
-                    "name": "Process 7",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 7",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 7",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 189.07655031112063,
+                  "y": 226.39451124542427
                 }
-            ],
-            "flows": [
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
+              "circleForManipulation": {
+                "enabled": true,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-0"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-0",
-                    "name": "Data flow 0",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-0",
-                    "destination": "id-element-1",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 239.61301685919403,
+                  "y": 227.6191219331954
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-1",
-                    "name": "Data flow 1",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-1",
-                    "destination": "id-element-2",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 300.09375,
+                  "y": 157
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-2",
-                    "name": "Data flow 2",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-2",
-                    "destination": "id-element-3",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-3",
-                    "name": "Data flow 3",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-3",
-                    "destination": "id-element-4",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-4",
-                    "name": "Data flow 4",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-4",
-                    "destination": "id-element-5",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-5",
-                    "name": "Data flow 5",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-5",
-                    "destination": "id-element-6",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-6",
-                    "name": "Data flow 6",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-6",
-                    "destination": "id-element-0",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 360.57448314080597,
+                  "y": 86.38087806680458
                 }
-            ],
-            "boundaries": [],
-            "sections": []
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-1",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
+              "circleForManipulation": {
+                "enabled": true,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-1"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 388.12454267746693,
+                  "y": 95.97069768941509
+                },
+                {
+                  "x": 391.09375,
+                  "y": 173.5
+                },
+                {
+                  "x": 394.06295732253307,
+                  "y": 251.0293023105849
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-2",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-2"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 432.22115103982986,
+                  "y": 274.9241332094512
+                },
+                {
+                  "x": 596.09375,
+                  "y": 203
+                },
+                {
+                  "x": 759.9663489601701,
+                  "y": 131.0758667905488
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-3",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
+              "circleForManipulation": {
+                "enabled": true,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-3"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 768.8171544540724,
+                  "y": 143.78299393527283
+                },
+                {
+                  "x": 658.59375,
+                  "y": 258
+                },
+                {
+                  "x": 548.3703455459276,
+                  "y": 372.2170060647272
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-4",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
+              "circleForManipulation": {
+                "enabled": true,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-4"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 480.6201700821427,
+                  "y": 399.54641527571437
+                },
+                {
+                  "x": 300.59375,
+                  "y": 393
+                },
+                {
+                  "x": 120.56732991785728,
+                  "y": 386.45358472428563
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-5",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-5"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 78.06420780152035,
+                  "y": 345.08006242156546
+                },
+                {
+                  "x": 70.296875,
+                  "y": 222.5
+                },
+                {
+                  "x": 62.52954219847965,
+                  "y": 99.91993757843454
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-6",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-node-0",
+              "circleForManipulation": {
+                "enabled": true,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-link-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-6"
+            }
+          ],
+          "boundaries": [],
+          "sections": [],
+          "translateX": 0,
+          "translateY": 0,
+          "scale": 1
         },
-        {
-            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1",
-            "name": "MT Public",
-            "graph": {
-                "nodes": [
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 20,
-                            "y": 20
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-0"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 100,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-1"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 200,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-2"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 50,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-3"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 350,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-4"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 100,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-5"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 300,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-6"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 300,
-                            "y": 250
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-7",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-7"
-                    }
-                ],
-                "links": [
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-0"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-1"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-2"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-3"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-4"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-5"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-6"
-                    }
-                ],
-                "boundaries": [],
-                "sections": [],
-                "translateX": 0,
-                "translateY": 0,
-                "scale": 1
+        "elements": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-0",
+            "name": "Process 0",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 0",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-1",
+            "name": "Process 1",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 1",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-2",
+            "name": "Process 2",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 2",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-3",
+            "name": "Process 3",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 3",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-4",
+            "name": "Process 4",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 4",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-5",
+            "name": "Process 5",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 5",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-6",
+            "name": "Process 6",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 6",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-element-7",
+            "name": "Process 7",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 7",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 7",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          }
+        ],
+        "flows": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-0",
+            "name": "Data flow 0",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-0",
+            "destination": "id-element-1",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-1",
+            "name": "Data flow 1",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-1",
+            "destination": "id-element-2",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-2",
+            "name": "Data flow 2",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-2",
+            "destination": "id-element-3",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-3",
+            "name": "Data flow 3",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-3",
+            "destination": "id-element-4",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-4",
+            "name": "Data flow 4",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-4",
+            "destination": "id-element-5",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-5",
+            "name": "Data flow 5",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-5",
+            "destination": "id-element-6",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-0_id-flow-6",
+            "name": "Data flow 6",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-6",
+            "destination": "id-element-0",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          }
+        ],
+        "boundaries": [],
+        "sections": [],
+        "complexProcess": false
+      },
+      {
+        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1",
+        "name": "MT Public",
+        "graph": {
+          "nodes": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-0"
             },
-            "elements": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 100,
+                "y": 100
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-1"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 200,
+                "y": 100
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-2"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 50,
+                "y": 200
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-3"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 350,
+                "y": 200
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-4"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 100,
+                "y": 300
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-5"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 300,
+                "y": 300
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-6"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 300,
+                "y": 250
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-7",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-7"
+            }
+          ],
+          "links": [
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-0",
-                    "name": "Process 0",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 0",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 88.2842712474619,
+                  "y": 88.2842712474619
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-1",
-                    "name": "Process 1",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 1",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 100,
+                  "y": 100
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-2",
-                    "name": "Process 2",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 2",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-3",
-                    "name": "Process 3",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 3",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-4",
-                    "name": "Process 4",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 4",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-5",
-                    "name": "Process 5",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 5",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-6",
-                    "name": "Process 6",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 6",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-7",
-                    "name": "Process 7",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 7",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 7",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 111.7157287525381,
+                  "y": 111.7157287525381
                 }
-            ],
-            "flows": [
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-0"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-0",
-                    "name": "Data flow 0",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-0",
-                    "destination": "id-element-1",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 180,
+                  "y": 140
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-1",
-                    "name": "Data flow 1",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-1",
-                    "destination": "id-element-2",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 190,
+                  "y": 140
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-2",
-                    "name": "Data flow 2",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-2",
-                    "destination": "id-element-3",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-3",
-                    "name": "Data flow 3",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-3",
-                    "destination": "id-element-4",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-4",
-                    "name": "Data flow 4",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-4",
-                    "destination": "id-element-5",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-5",
-                    "name": "Data flow 5",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-5",
-                    "destination": "id-element-6",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-6",
-                    "name": "Data flow 6",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-6",
-                    "destination": "id-element-0",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 200,
+                  "y": 140
                 }
-            ],
-            "boundaries": [],
-            "sections": []
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-1",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-1"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 206.71798822648626,
+                  "y": 162.18800784900915
+                },
+                {
+                  "x": 165,
+                  "y": 190
+                },
+                {
+                  "x": 123.28201177351374,
+                  "y": 217.81199215099085
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-2",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-2"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 130,
+                  "y": 240
+                },
+                {
+                  "x": 240,
+                  "y": 240
+                },
+                {
+                  "x": 350,
+                  "y": 240
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-3",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-3"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 352.86093236458964,
+                  "y": 254.85562705416416
+                },
+                {
+                  "x": 265,
+                  "y": 290
+                },
+                {
+                  "x": 177.13906763541036,
+                  "y": 325.14437294583587
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-4",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-4"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 180,
+                  "y": 340
+                },
+                {
+                  "x": 240,
+                  "y": 340
+                },
+                {
+                  "x": 300,
+                  "y": 340
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-5",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-5"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 311.7157287525381,
+                  "y": 311.7157287525381
+                },
+                {
+                  "x": 200,
+                  "y": 200
+                },
+                {
+                  "x": 88.2842712474619,
+                  "y": 88.2842712474619
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-6",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-node-0",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-link-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-6"
+            }
+          ],
+          "boundaries": [],
+          "sections": [],
+          "translateX": 0,
+          "translateY": 0,
+          "scale": 1
         },
-        {
-            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2",
-            "name": "MT Internal",
-            "graph": {
-                "nodes": [
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 20,
-                            "y": 20
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-0"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 100,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-1"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 200,
-                            "y": 100
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-2"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 50,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-3"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 350,
-                            "y": 200
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-4"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 100,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-5"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position": {
-                            "x": 300,
-                            "y": 300
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-6"
-                    },
-                    {
-                        "stencilId": "ge_1",
-                        "position" : {
-                            "x": 300,
-                            "y": 250
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-7",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-7"
-                    }
-                ],
-                "links": [
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-0",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-0"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-1",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-1"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-2",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-2"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-3",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-3"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-4",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-4"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-5",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-5"
-                    },
-                    {
-                        "stencilId": "ge_3",
-                        "points": null,
-                        "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
-                        "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
-                        "circleForManipulation": {
-                            "enabled": false,
-                            "color": "red"
-                        },
-                        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-6",
-                        "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-6"
-                    }
-                ],
-                "boundaries": [],
-                "sections": [],
-                "translateX": 0,
-                "translateY": 0,
-                "scale": 1
+        "elements": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-0",
+            "name": "Process 0",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 0",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-1",
+            "name": "Process 1",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 1",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-2",
+            "name": "Process 2",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 2",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-3",
+            "name": "Process 3",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 3",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-4",
+            "name": "Process 4",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 4",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-5",
+            "name": "Process 5",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 5",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-6",
+            "name": "Process 6",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 6",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-element-7",
+            "name": "Process 7",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 7",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 7",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          }
+        ],
+        "flows": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-0",
+            "name": "Data flow 0",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-0",
+            "destination": "id-element-1",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-1",
+            "name": "Data flow 1",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-1",
+            "destination": "id-element-2",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-2",
+            "name": "Data flow 2",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-2",
+            "destination": "id-element-3",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-3",
+            "name": "Data flow 3",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-3",
+            "destination": "id-element-4",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-4",
+            "name": "Data flow 4",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-4",
+            "destination": "id-element-5",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-5",
+            "name": "Data flow 5",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-5",
+            "destination": "id-element-6",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-1_id-flow-6",
+            "name": "Data flow 6",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-6",
+            "destination": "id-element-0",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          }
+        ],
+        "boundaries": [],
+        "sections": [],
+        "complexProcess": false
+      },
+      {
+        "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2",
+        "name": "MT Internal",
+        "graph": {
+          "nodes": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-0"
             },
-            "elements": [
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 100,
+                "y": 100
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-1"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 200,
+                "y": 100
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-2"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 50,
+                "y": 200
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-3"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 350,
+                "y": 200
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-4"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 100,
+                "y": 300
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-5"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 300,
+                "y": 300
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-6"
+            },
+            {
+              "stencilId": "ge_1",
+              "position": {
+                "x": 300,
+                "y": 250
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-7",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-7"
+            }
+          ],
+          "links": [
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-0",
-                    "name": "Process 0",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 0",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 88.2842712474619,
+                  "y": 88.2842712474619
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-1",
-                    "name": "Process 1",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 1",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 100,
+                  "y": 100
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-2",
-                    "name": "Process 2",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 2",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-3",
-                    "name": "Process 3",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 3",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-4",
-                    "name": "Process 4",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 4",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-5",
-                    "name": "Process 5",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 5",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-6",
-                    "name": "Process 6",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 6",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-7",
-                    "name": "Process 7",
-                    "outOfScope": false,
-                    "outOfScopeReason": "Out of scope reason 7",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "section": "section 7",
-                    "runLevel": "HIGH_PRIVILEGE",
-                    "assets": [],
-                    "sanitizeInput": false,
-                    "sanitizeOutput": true,
-                    "hasForgeryProtection": false,
-                    "sessionHasTimeouts": true,
-                    "requiresAuthentication": false,
-                    "requiresAuthorization": true
+                  "x": 111.7157287525381,
+                  "y": 111.7157287525381
                 }
-            ],
-            "flows": [
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-0",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-0"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-0",
-                    "name": "Data flow 0",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 0",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-0",
-                    "destination": "id-element-1",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 180,
+                  "y": 140
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-1",
-                    "name": "Data flow 1",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 1",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-1",
-                    "destination": "id-element-2",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 190,
+                  "y": 140
                 },
                 {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-2",
-                    "name": "Data flow 2",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 2",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-2",
-                    "destination": "id-element-3",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-3",
-                    "name": "Data flow 3",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 3",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-3",
-                    "destination": "id-element-4",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-4",
-                    "name": "Data flow 4",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 4",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-4",
-                    "destination": "id-element-5",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-5",
-                    "name": "Data flow 5",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 5",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-5",
-                    "destination": "id-element-6",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
-                },
-                {
-                    "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-6",
-                    "name": "Data flow 6",
-                    "outOfScope": true,
-                    "outOfScopeReason": "Out of scope reason 6",
-                    "exploits": [],
-                    "importAssets": [],
-                    "importExploits": [],
-                    "source": "id-element-6",
-                    "destination": "id-element-0",
-                    "containsCookies": true,
-                    "containsXML": false,
-                    "boundariesCrossed": [],
-                    "assets": []
+                  "x": 200,
+                  "y": 140
                 }
-            ],
-            "boundaries": [],
-            "sections": []
-        }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-1",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-1",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-1"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 206.71798822648626,
+                  "y": 162.18800784900915
+                },
+                {
+                  "x": 165,
+                  "y": 190
+                },
+                {
+                  "x": 123.28201177351374,
+                  "y": 217.81199215099085
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-2",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-2",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-2"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 130,
+                  "y": 240
+                },
+                {
+                  "x": 240,
+                  "y": 240
+                },
+                {
+                  "x": 350,
+                  "y": 240
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-3",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-3",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-3"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 352.86093236458964,
+                  "y": 254.85562705416416
+                },
+                {
+                  "x": 265,
+                  "y": 290
+                },
+                {
+                  "x": 177.13906763541036,
+                  "y": 325.14437294583587
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-4",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-4",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-4"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 180,
+                  "y": 340
+                },
+                {
+                  "x": 240,
+                  "y": 340
+                },
+                {
+                  "x": 300,
+                  "y": 340
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-5",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-5",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-5"
+            },
+            {
+              "stencilId": "ge_3",
+              "points": [
+                {
+                  "x": 311.7157287525381,
+                  "y": 311.7157287525381
+                },
+                {
+                  "x": 200,
+                  "y": 200
+                },
+                {
+                  "x": 88.2842712474619,
+                  "y": 88.2842712474619
+                }
+              ],
+              "source": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-6",
+              "target": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-node-0",
+              "circleForManipulation": {
+                "enabled": false,
+                "color": "red"
+              },
+              "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-link-6",
+              "idOfData": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-6"
+            }
+          ],
+          "boundaries": [],
+          "sections": [],
+          "translateX": 0,
+          "translateY": 0,
+          "scale": 1
+        },
+        "elements": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-0",
+            "name": "Process 0",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 0",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-1",
+            "name": "Process 1",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 1",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-2",
+            "name": "Process 2",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 2",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-3",
+            "name": "Process 3",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 3",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-4",
+            "name": "Process 4",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 4",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-5",
+            "name": "Process 5",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 5",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-6",
+            "name": "Process 6",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 6",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-element-7",
+            "name": "Process 7",
+            "outOfScope": false,
+            "outOfScopeReason": "Out of scope reason 7",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "section": "section 7",
+            "runLevel": "HIGH_PRIVILEGE",
+            "assets": [],
+            "sanitizeInput": false,
+            "sanitizeOutput": true,
+            "hasForgeryProtection": false,
+            "sessionHasTimeouts": true,
+            "requiresAuthentication": false,
+            "requiresAuthorization": true
+          }
+        ],
+        "flows": [
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-0",
+            "name": "Data flow 0",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 0",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-0",
+            "destination": "id-element-1",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-1",
+            "name": "Data flow 1",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 1",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-1",
+            "destination": "id-element-2",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-2",
+            "name": "Data flow 2",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 2",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-2",
+            "destination": "id-element-3",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-3",
+            "name": "Data flow 3",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 3",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-3",
+            "destination": "id-element-4",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-4",
+            "name": "Data flow 4",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 4",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-4",
+            "destination": "id-element-5",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-5",
+            "name": "Data flow 5",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 5",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-5",
+            "destination": "id-element-6",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          },
+          {
+            "id": "id-35735e5a-99bb-cad9-06e6-ca8f2bd401f8_id-diagram-2_id-flow-6",
+            "name": "Data flow 6",
+            "outOfScope": true,
+            "outOfScopeReason": "Out of scope reason 6",
+            "exploits": [],
+            "importAssets": [],
+            "importExploits": [],
+            "source": "id-element-6",
+            "destination": "id-element-0",
+            "containsCookies": true,
+            "containsXML": false,
+            "boundariesCrossed": [],
+            "assets": []
+          }
+        ],
+        "boundaries": [],
+        "sections": [],
+        "complexProcess": false
+      }
     ]
-}
+  }

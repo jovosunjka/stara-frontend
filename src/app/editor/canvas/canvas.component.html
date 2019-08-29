@@ -3,17 +3,23 @@
         border:3px solid blue; position: relative; z-index: 900"> 
         <defs>
             <filter x="0" y="0" width="1" height="1" id="{{idSvg}}_id_yellow_color">
-                <feFlood flood-color="yellow"/>
+                <feFlood flood-color="#ffa500"/>
                 <feComposite in="SourceGraphic" operator="over" />
             </filter>
             <filter x="0" y="0" width="1" height="1" id="{{idSvg}}_id_orange_color">
                 <feFlood flood-color="orange"/>
                 <feComposite in="SourceGraphic" operator="over" />
             </filter>
+            <!--<filter id="clippy" x="0" y="1" height="248" width="356">
+                <feColorMatrix type="matrix"/>
+            </filter>-->
             <!--<pattern id="image" patternUnits="objectBoundingBox" height="50" width="50">
                 <image x="0" y="0" height="50" width="50" xlink:href="assets/images/complex-process.png"/>
             </pattern>-->
         </defs>
+        
+         <!--<rect filter="url(#clippy)" class="extent" width="356" height="250"
+               style="cursor: move;opacity: 0.2; fill: #FF9000;" x="578"></rect>-->
         <!--<circle id="top" transform="translate(200,200)" r="25" fill="url(#image)"/>-->
 </svg>
 

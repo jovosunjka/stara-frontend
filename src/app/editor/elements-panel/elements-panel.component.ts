@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentInit, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterContentInit, Input, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import { ContainerElement } from 'd3';
 import { CanvasService } from '../canvas/service/canvas.service';
@@ -11,7 +11,7 @@ import { StencilsConfigService } from '../services/stencils-config/stencils-conf
   templateUrl: './elements-panel.component.html',
   styleUrls: ['./elements-panel.component.css']
 })
-export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterContentInit*/ {
+export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges /*AfterContentInit*/ {
 
   @Input() currentDiagram: string;
 
@@ -27,6 +27,15 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
               private stencilsConfigService: StencilsConfigService) {}
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!changes.currentDiagram.firstChange) {
+      if (this.currentDiagram) {
+        const elements = this.svg.selectAll('g');
+        elements.style('cursor', 'copy');
+      }
+    }
   }
 
   // ngAfterContentInit() {
@@ -51,10 +60,12 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
          d.y = that.coordinates.y;
          that.coordinates.y += that.SHAPE_SIZE + that.SPACE_BETWEEN_SHAPES;
          return 'translate(' + d.x + ' ' + d.y + ')'; })
-      .classed('graphic-element', true)
+      .classed('graphic-element', true);
       // .style('stroke', '#0000ff')
       // .style('stroke-width', '4px')
-      .style('cursor', 'copy');
+    if (this.currentDiagram) {
+      elements.style('cursor', 'copy');
+    }
 
     elements.each(function(element: any, i ) {
       const self = d3.select(this);
@@ -100,6 +111,12 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
                       .attr('xlink:href', imagePath);
           tag.attr('fill', 'url(#' + patternId + ')');
         }
+      } else if (element.tag === 'rect') {
+          tag.attr('x', 10)
+            .attr('y', 235)
+            .attr('height', that.SHAPE_SIZE / 2)
+            .attr('width', that.SHAPE_SIZE);
+
       } else if (element.tag === 'path') {
         /*tag.attr('x1', that.coordinates.x)
             .attr('y1', that.coordinates.y)
@@ -127,6 +144,22 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
 
             // self.select('path')
             tag.attr('d', pathData);
+
+            if (element.type === 'data-flow') {
+                const linkArrow = self.append('path');
+                linkArrow.attr('stroke', '#ffa500')
+                          .attr('stroke-width', 5)
+                          // .attr('fill', 'none')
+                          .attr('fill', '#ffa500');
+                const pointsLinkArrow: any[] = [
+                  [element.x + that.SHAPE_SIZE, element.y + 10],
+                  [element.x + that.SHAPE_SIZE, element.y - 10],
+                  [element.x + 10 + that.SHAPE_SIZE, element.y],
+                  [element.x + that.SHAPE_SIZE, element.y + 10]
+                ];
+                const pathDataLinkArrow = lineGenerator(pointsLinkArrow);
+                linkArrow.attr('d', pathDataLinkArrow);
+            }
 
             // Also draw points for reference
             /*svg
@@ -226,19 +259,20 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
 
     const dragHandlerSvgElements = d3.drag()
         .on('start', function(d: any) {
-          // gasimo zoom (vracamo sve u normalu pre dodavanja novo elementa na canvas)
-          that.canvasService.doAction(that.currentDiagram, 'zoom-out', null);
+          if (that.currentDiagram) {
+            // gasimo zoom (vracamo sve u normalu pre dodavanja novo elementa na canvas)
+            that.canvasService.doAction(that.currentDiagram, 'zoom-out', null);
 
-            oldPosition = { x: d.x, y: d.y };
-            currentElement = d3.select(this).clone(true)
-                              .classed('current-element', true)
-                              .style('position', 'absolute')
-                              .style('z-index', 999);
-            currentElement.select('text').remove();
-
+              oldPosition = { x: d.x, y: d.y };
+              currentElement = d3.select(this).clone(true)
+                                .classed('current-element', true)
+                                .style('position', 'absolute')
+                                .style('z-index', 999);
+              currentElement.select('text').remove();
+          }
         })
         .on('drag', function (d: any) {
-            // d3.select(this)
+          if (that.currentDiagram) {
             if (currentElement) {
               const svgElements: any = document.getElementById('id_elements');
               const pointInSvgElements = svgElements.createSVGPoint();
@@ -290,8 +324,10 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
                 return 'translate(' + [ el.x, el.y ] + ')';
               });
             }
+          }
         })
         .on('end', function(d: any) {
+          if (that.currentDiagram) {
             const svgElements: any = document.getElementById('id_elements');
             const pointInSvgElements = svgElements.createSVGPoint();
             /*pointInSvgElements.x = currentElement.attr('x');
@@ -375,6 +411,7 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit /*AfterCont
             currentElement.remove();
             oldPosition = null;
             currentElement = null;
+          }
         });
 
     dragHandlerSvgElements(d3.selectAll('.graphic-element'));

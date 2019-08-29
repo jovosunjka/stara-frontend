@@ -1,4 +1,3 @@
-import { BlockElement } from './block-element';
 import { Flow } from './flow';
 import { Base } from './base';
 import { Graph } from './graph';
@@ -14,4 +13,5 @@ export interface DataFlowDiagram {
     flows: Flow[];
     boundaries: Base[]; // za sada neka stoji ovaj tip (Base)
     sections: Base[]; // za sada neka stoji ovaj tip (Base)
+    complexProcess: boolean;
 }

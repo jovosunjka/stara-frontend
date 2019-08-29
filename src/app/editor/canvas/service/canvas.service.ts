@@ -5,7 +5,8 @@ import { Injectable, Output, EventEmitter } from '@angular/core';
 })
 export class CanvasService {
 
-  // @Output() add: EventEmitter<GraphicElement> = new EventEmitter<GraphicElement>();
+  @Output() changeSelectedItemsEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
+
   private eventEmitters: Map<string, EventEmitter<Object>>;
 
   constructor() {
@@ -25,11 +26,19 @@ export class CanvasService {
   }*/
 
   doAction(diagramId: string, type: string, obj: any) {
-    this.eventEmitters.get(diagramId).emit( {type: type, obj: obj} );
+    const eventEmitter = this.eventEmitters.get(diagramId);
+    if (eventEmitter) {
+        eventEmitter.emit( {type: type, obj: obj} );
+    }
   }
 
   @Output()
   getEventEmitter(diagramId: string): EventEmitter<Object> {
       return this.eventEmitters.get(diagramId);
   }
+
+  changeSelectedItems(selected: boolean) {
+    this.changeSelectedItemsEvent.emit(selected);
+  }
+
 }

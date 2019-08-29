@@ -1,0 +1,5 @@
+
+
+/* Css-ovi za lasso select su stavljeni u globalni styles.css, jer css-ovi stavljeni u .css fajl
+   neke komponente (konkretno canvas) ne rade za elemente u svg. */
+

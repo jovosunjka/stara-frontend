@@ -3,6 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DataFlowDiagram } from 'src/app/shared/model/data-flow-diagram';
 import { DataFlowDiagramsService } from './service/data-flow-diagrams.service';
 import { ThreatModel } from 'src/app/shared/model/threat-model';
+import { CanvasService } from '../canvas/service/canvas.service';
 
 
 
@@ -17,7 +18,7 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
   @Input() model: ThreatModel;
 
   diagramsTab: DataFlowDiagram[];
-  private DIAGRAMS_TAB_MAX_LENGTH = 5;
+  @Input() diagramsTabMaxLength: number;
 
   currentDiagram: string;
 
@@ -26,21 +27,26 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
 
   @Output() currentDiagramEvent = new EventEmitter<string>();
 
-  constructor(private dataFlowDiagramsService: DataFlowDiagramsService,
+  constructor(private dataFlowDiagramsService: DataFlowDiagramsService, private canvasService: CanvasService,
                 private toastr: ToastrService) {
   }
 
   ngOnInit() {
     if (this.model.diagrams && this.model.diagrams.length > 0) {
-      this.diagramsTab = this.model.diagrams.slice(0, this.DIAGRAMS_TAB_MAX_LENGTH);
+      this.diagramsTab = this.model.diagrams.slice(0, this.diagramsTabMaxLength);
 
-      this.currentDiagram = this.model.diagrams[0].id;
-      this.currentDiagramEvent.emit(this.currentDiagram);
+      // this.currentDiagram = this.model.diagrams[0].id;
+      // this.currentDiagramEvent.emit(this.currentDiagram);
+      this.changeDiagram(this.model.diagrams[0].id);
 
       this.idDiagramGenerator = this.model.diagrams.length;
     } else {
       this.toastr.error('There are currently no diagrams in this model!');
     }
+
+    this.dataFlowDiagramsService.addNewDiagram.subscribe(
+      (diagramName: string) => this.makePlainNewDiagram(diagramName)
+    );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -50,17 +56,32 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
     this._name = name.currentValue.toUpperCase();*/
 
     // model je @Input() atribut
-    if (!changes.model.firstChange) {
-      this.diagramsTab = this.model.diagrams.slice(0, this.DIAGRAMS_TAB_MAX_LENGTH);
+    if (changes.model && !changes.model.firstChange) {
+      this.diagramsTab = this.model.diagrams.slice(0, this.diagramsTabMaxLength);
 
-      this.currentDiagram = this.model.diagrams[0].id;
-      this.currentDiagramEvent.emit(this.currentDiagram);
+      // this.currentDiagram = this.model.diagrams[0].id;
+      // this.currentDiagramEvent.emit(this.currentDiagram);
+      this.changeDiagram(this.model.diagrams[0].id);
 
       this.idDiagramGenerator = this.model.diagrams.length;
     }
+
+    if (changes.diagramsTabMaxLength && !changes.diagramsTabMaxLength.firstChange) {
+      this.diagramsTab = this.model.diagrams.slice(0, this.diagramsTabMaxLength);
+
+      this.setTabOnFirstPlace(this.currentDiagram);
+    }
   }
 
-  makeNewDiagram(diagramName: string) {
+  makeNewDiagramForComplexProcess(diagramName: string) {
+      this.makeNewDiagram(diagramName, true);
+  }
+
+  makePlainNewDiagram(diagramName: string) {
+    this.makeNewDiagram(diagramName, false);
+  }
+
+  makeNewDiagram(diagramName: string, complexProcess: boolean) {
     this.removeAllActiveClasses();
 
     const newId =  this.model.id + '_id-diagram-' + this.idDiagramGenerator++;
@@ -79,18 +100,22 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
       elements: [],
       flows: [],
       boundaries: [],
-      sections: []
+      sections: [],
+      complexProcess: complexProcess
     };
     this.model.diagrams.push(newDiagram);
     this.diagramsTab.splice(0, 0, newDiagram); // insert on index 0
-    if (this.diagramsTab.length > this.DIAGRAMS_TAB_MAX_LENGTH) {
-      this.diagramsTab.slice(0, this.DIAGRAMS_TAB_MAX_LENGTH);
+    if (this.diagramsTab.length > this.diagramsTabMaxLength) {
+      this.diagramsTab = this.diagramsTab.slice(0, this.diagramsTabMaxLength);
     }
     this.dataFlowDiagramsService.returnNewIdOfDiagram(newId);
 
     this.changeDiagram(newDiagram.id);
-
-    this.toastr.success('A new diagram is created for the complex process: diagramName');
+    if (complexProcess) {
+      this.toastr.success('A new diagram is created for the complex process: ' + diagramName);
+    } else {
+      this.toastr.success('You have successfully created a new diagram: ' + diagramName);
+    }
   }
 
   removeComplexProcessDiagram(id: string) {
@@ -133,6 +158,7 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
     if (this.currentDiagram !== newDiagram) {
       this.currentDiagram = newDiagram;
       this.currentDiagramEvent.emit(this.currentDiagram);
+      this.canvasService.doAction(this.currentDiagram, 'changed-tab', null);
     }
   }
 
@@ -146,8 +172,8 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
         this.addActiveClass(index);
     } else {
       this.diagramsTab.splice(0, 0, newFirstDiagram); // insert on index 0
-      if (this.diagramsTab.length > this.DIAGRAMS_TAB_MAX_LENGTH) {
-        this.diagramsTab.slice(0, this.DIAGRAMS_TAB_MAX_LENGTH);
+      if (this.diagramsTab.length > this.diagramsTabMaxLength) {
+        this.diagramsTab = this.diagramsTab.slice(0, this.diagramsTabMaxLength);
       }
     }
 
@@ -172,6 +198,12 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
     const t = document.querySelectorAll('.tab-content div');
     const tabContent = t[index];
     tabContent.classList.add('active');
+  }
+
+  getNumOfElements() {
+    let numOfElements = 0;
+    this.model.diagrams.forEach(diagram => numOfElements += diagram.elements.length);
+    return numOfElements;
   }
 
 }

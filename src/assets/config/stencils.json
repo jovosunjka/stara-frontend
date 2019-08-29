@@ -29,7 +29,7 @@
                 "properties": [
                     {
                         "name": "stroke",
-                        "value": "#aaa"
+                        "value": "#524f4f"
                     },
                     {
                         "name": "stroke-width",
@@ -61,6 +61,17 @@
                     {
                         "name": "fill", 
                         "value": "none"
+                    }
+                ]
+            },
+            {
+                "id": "ge_5",
+                "type": "external-entity",
+                "tag": "rect",
+                "properties": [
+                    {
+                        "name": "fill",
+                        "value": "blue"
                     }
                 ]
             }

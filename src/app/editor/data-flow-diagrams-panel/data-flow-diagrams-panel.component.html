@@ -9,7 +9,7 @@
                         <!--Da bi se koristile {{}} (angular  expression) u atributima koji su nepoznati tagu, 
                         mora se dodati attr. ispred naziva atributa-->
                         <a *ngFor="let diagram of diagramsTab; let i = index" (click)="changeDiagram(diagram.id)"
-                            class="nav-item nav-link {{i==0 ? 'active' : ''}}"
+                            class="nav-item nav-link {{i==0 ? 'active' : ''}} {{diagram.complexProcess ? 'complex-process' : ''}}"
                             id="nav-{{diagram.id}}-tab" data-toggle="tab" href="#nav-{{diagram.id}}" role="tab"
                             attr.aria-controls="nav-{{diagram.id}}" attr.aria-selected="{{i==0 ? 'true' : 'false'}}">
                             {{diagram.name}}
@@ -40,8 +40,8 @@
                          id="nav-{{diagram.id}}" role="tabpanel" attr.aria-labelledby="nav-{{diagram.id}}-tab"
                          style="width: 100%; height: 90%">
                         <!--<app-canvas [selectSvg]="selectSvgs[i]" [eventEmitterName]="diagram.name"></app-canvas>-->
-                        <app-canvas (addNewDiagram)="makeNewDiagram($event)" (removeDiagram)="removeComplexProcessDiagram($event)"
-                                 [diagram]="diagram"></app-canvas>
+                        <app-canvas (addNewDiagram)="makeNewDiagramForComplexProcess($event)" (removeDiagram)="removeComplexProcessDiagram($event)"
+                         [diagram]="diagram" [numOfElements]="getNumOfElements()"></app-canvas>
                     </div>
                 <!--</ng-template>-->
             </div>
