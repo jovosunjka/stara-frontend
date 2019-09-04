@@ -1,6 +1,5 @@
 import { Component, OnInit, AfterContentInit, Input, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
-import { ContainerElement } from 'd3';
 import { CanvasService } from '../canvas/service/canvas.service';
 import { Stencil } from 'src/app/shared/model/stencil';
 import { StencilsConfigService } from '../services/stencils-config/stencils-config.service';
@@ -112,9 +111,9 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
           tag.attr('fill', 'url(#' + patternId + ')');
         }
       } else if (element.tag === 'rect') {
-          tag.attr('x', 10)
-            .attr('y', 235)
-            .attr('height', that.SHAPE_SIZE / 2)
+          tag.attr('x', element.x)
+            .attr('y', element.y - 2 * that.SHAPE_SIZE - 10)
+            .attr('height', that.SHAPE_SIZE * 3 / 4)
             .attr('width', that.SHAPE_SIZE);
 
       } else if (element.tag === 'path') {
@@ -139,6 +138,10 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
               [(element.x + element.x + that.SHAPE_SIZE) / 2, element.y],
               [element.x + that.SHAPE_SIZE, element.y]
             ];
+
+            if (element.type === 'trust-boundary') {
+                points.forEach(p => p[1] -= 50);
+            }
 
             const pathData = lineGenerator(points);
 
@@ -182,32 +185,40 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
         // .attr('x', element.x + 3 * that.SHAPE_SIZE / 2)
         .attr('y', function() {
           if (element.tag === 'path') {
-            return element.y + that.SHAPE_SIZE / 3;
+            if (element.type === 'data-flow') {
+                return element.y + that.SHAPE_SIZE / 3;
+            } else {
+              return element.y - that.SHAPE_SIZE / 2 - 5;
+            }
           } else {
-            return element.y + that.SHAPE_SIZE * 5 / 4;
+            if (element.type === 'process' || element.type === 'complex-process') {
+                return element.y + that.SHAPE_SIZE * 5 / 4;
+            } else {
+                return element.y - that.SHAPE_SIZE - 10;
+            }
           }
         })
         // .attr('text-anchor', 'middle')
         .attr('font-size', that.TEXT_SIZE)
         .attr('font-family', 'sans-serif')
-        .attr('fill', 'green')
+        .attr('fill', 'black')
         .text(element.type.charAt(0).toUpperCase() + element.type.slice(1));
 
     });
 
-      this.svg.on('click', function () {
-        const containerElement = this as ContainerElement;
-        const mouse = d3.mouse(containerElement);
+      /*this.svg.on('click', function () {
+        // const containerElement = this as ContainerElement;
+        // const mouse = d3.mouse(containerElement);
 
-        /*const newCircle = svg
+        const newCircle = svg
                 .append('img')
                 .datum({x: mouse[0], y: mouse[1], selected: false})
           .attr('src', 'assets/images/dog.jpg')
           .attr('height', that.IMAGE_SIZE)
           .attr('width', that.IMAGE_SIZE)
-          .style('cursor', 'copy');*/
+          .style('cursor', 'copy');
 
-        /*const newCircle = svg
+        const newCircle = svg
                 .append('image')
                 .datum({x: mouse[0], y: mouse[1], selected: false})
           .attr('xlink:href', 'assets/images/dog.jpg')
@@ -215,9 +226,9 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
           .attr('y', mouse[1])
           .attr('height', that.SHAPE_SIZE)
           .attr('width', that.SHAPE_SIZE)
-          .style('cursor', 'copy');*/
+          .style('cursor', 'copy');
 
-        /*newCircle.on('click', function () {
+        newCircle.on('click', function () {
             if (d3.event.ctrlKey) {
                 newCircle.transition()
                     .duration(500)
@@ -244,8 +255,8 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
                 }
             }
             d3.event.stopPropagation();
-        });*/
-    });
+        });
+    });*/
 
     let currentElement: any;
     let oldPosition: any;
@@ -303,8 +314,29 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
               const svgCanvasWidth: number = svgCanvas.clientWidth;
               const svgCanvasHeight: number = svgCanvas.clientHeight;
 
-              if (svgCanvasPoint.x + that.SHAPE_SIZE >= 0 && svgCanvasPoint.x <= svgCanvasWidth
-                  && svgCanvasPoint.y + that.SHAPE_SIZE >= 0 && svgCanvasPoint.y <= svgCanvasHeight) {
+              let a: number;
+              let b: number;
+              if (d.type === 'complex-process') {
+                a = that.SHAPE_SIZE * 3 / 2 + 10;
+                b = that.SHAPE_SIZE * 2 - 15;
+              } else if (d.tag === 'circle' || d.tag === 'image') {
+                a = that.SHAPE_SIZE / 2 + 10;
+                b = that.SHAPE_SIZE / 2;
+              } else if (d.type === 'data-store') {
+                a = that.SHAPE_SIZE * 7 / 2;
+                b = that.SHAPE_SIZE * 7 / 2;
+              } else if (d.tag === 'rect') {
+                a = that.SHAPE_SIZE * 5 / 2;
+                b = that.SHAPE_SIZE * 5 / 2 - 5;
+              } else {
+                a = that.SHAPE_SIZE * 9 / 4;
+                b = that.SHAPE_SIZE * 5 / 2 - 15;
+              }
+
+              if (svgCanvasPoint.x + that.SHAPE_SIZE / 2 + 10 >= 0
+                  && svgCanvasPoint.x + that.SHAPE_SIZE / 2 <= svgCanvasWidth
+                  && svgCanvasPoint.y + a >= 0
+                  && svgCanvasPoint.y + b <= svgCanvasHeight) {
                   currentElement.style('cursor', 'copy');
               } else {
                   currentElement.style('cursor', 'not-allowed');
@@ -352,19 +384,58 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
               const svgCanvasD3Width: number = +svgCanvasD3WidthStr.substring(0, svgCanvasD3WidthStr.length - 2);
               const svgCanvasD3Height: number = +svgCanvasD3HeightStr.substring(0, svgCanvasD3HeightStr.length - 2);
               */
-              const svgCanvasWidth: number = svgCanvas.clientWidth;
-              const svgCanvasHeight: number = svgCanvas.clientHeight;
+            const svgCanvasWidth: number = svgCanvas.clientWidth;
+            const svgCanvasHeight: number = svgCanvas.clientHeight;
 
-            if (svgCanvasPoint.x + that.SHAPE_SIZE >= 0 && svgCanvasPoint.x <= svgCanvasWidth
-                && svgCanvasPoint.y + that.SHAPE_SIZE >= 0 && svgCanvasPoint.y <= svgCanvasHeight) {
+              let a: number;
+              let b: number;
+              if (d.type === 'complex-process') {
+                a = that.SHAPE_SIZE * 3 / 2 + 10;
+                b = that.SHAPE_SIZE * 2 - 15;
+              } else if (d.tag === 'circle' || d.tag === 'image') {
+                a = that.SHAPE_SIZE / 2 + 10;
+                b = that.SHAPE_SIZE / 2;
+              } else if (d.type === 'data-store') {
+                a = that.SHAPE_SIZE * 7 / 2;
+                b = that.SHAPE_SIZE * 7 / 2;
+              } else if (d.tag === 'rect') {
+                a = that.SHAPE_SIZE * 5 / 2;
+                b = that.SHAPE_SIZE * 5 / 2 - 5;
+              } else {
+                a = that.SHAPE_SIZE * 9 / 4;
+                b = that.SHAPE_SIZE * 5 / 2 - 15;
+              }
 
+              if (svgCanvasPoint.x + that.SHAPE_SIZE / 2 + 10 >= 0
+                && svgCanvasPoint.x + that.SHAPE_SIZE / 2 <= svgCanvasWidth
+                && svgCanvasPoint.y + a >= 0
+                && svgCanvasPoint.y + b <= svgCanvasHeight) {
                 let xCoordinate: number;
                 let yCoordinate: number;
+                let e: number;
+                let f: number;
+
+                if (d.tag === 'circle' || d.tag === 'image' || d.tag === 'rect') {
+                  e = that.SHAPE_SIZE * 3 / 2 + 5;
+                } else {
+                  e = that.SHAPE_SIZE + 20;
+                }
+
+                if (d.type === 'complex-process') {
+                  f = that.SHAPE_SIZE - 10;
+                } else if (d.tag === 'circle' || d.tag === 'image') {
+                  f = that.SHAPE_SIZE * 3 / 2 + 5;
+                } else if (d.tag === 'rect') {
+                  f = that.SHAPE_SIZE * 9 / 8 + 5;
+                } else {
+                  f = that.SHAPE_SIZE + 20;
+                }
+
 
                 if (svgCanvasPoint.x <= 0) {
-                  xCoordinate = 4;
+                  xCoordinate = 0;
                 } else if (svgCanvasPoint.x + that.SHAPE_SIZE >= svgCanvasWidth) {
-                  xCoordinate = svgCanvasWidth - that.SHAPE_SIZE - 10;
+                  xCoordinate = svgCanvasWidth - e;
                 } else {
                   xCoordinate = svgCanvasPoint.x;
                 }
@@ -372,7 +443,7 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
                 if (svgCanvasPoint.y <= 0) {
                   yCoordinate = 0;
                 } else if (svgCanvasPoint.y + that.SHAPE_SIZE >= svgCanvasHeight) {
-                  yCoordinate = svgCanvasHeight - that.SHAPE_SIZE - 5;
+                  yCoordinate = svgCanvasHeight - f;
                 } else {
                   yCoordinate = svgCanvasPoint.y;
                 }
@@ -389,10 +460,16 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
 
                       // dragHandlerSvgCanvas(d3.selectAll('svg#id_canvas image'));*/
                 const data = currentElement.data()[0];
-                if (data.tag === 'image') {
+                if (data.type === 'complex-process') {
+                  yCoordinate += that.SHAPE_SIZE * 3 / 4;
+                } else if (data.tag === 'image') {
                   yCoordinate += that.SHAPE_SIZE;
-                } else if (data.tag === 'path') {
+                } else if (yCoordinate !== 0 && yCoordinate !== svgCanvasHeight - f
+                  && (data.tag === 'path' || data.tag === 'rect')) {
                   yCoordinate += 2 * that.SHAPE_SIZE;
+                  if (data.type === 'data-store') {
+                    yCoordinate += that.SHAPE_SIZE;
+                  }
                 }
 
                 that.canvasService.doAction(that.currentDiagram, 'add-new-graphic-element',

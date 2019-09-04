@@ -1,4 +1,45 @@
 
 <div class="border border-primary" style="width: 100%; height: 100%">
-        <p>threat-list-panel works!</p>
+	<div class="scrollbar scrollbar-secondary">
+		<div class="table-responsive">
+			<table class="table table-dark table-hover table-bordered">
+				<tr>
+					<th>ID</th>
+					<th>Diagram</th>
+					<th>State</th>
+					<th>Title</th>
+					<th>Category</th>
+					<th>Description</th>
+					<th>Interaction</th>
+					<th>Priority</th>
+				</tr>
+				<tr *ngFor="let threat of threatList">
+					<td>
+							{{threat.id}}
+					</td>
+					<td>
+							{{threat.diagram}}
+					</td>
+					<td>
+							{{threat.state}}
+					</td>
+					<td>
+							{{threat.title}}
+					</td>
+					<td>
+							{{threat.category}}
+					</td>
+					<td>
+							{{threat.description}}
+					</td>
+					<td>
+							{{threat.interaction}}
+					</td>
+					<td>
+							{{threat.priority}}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </div>

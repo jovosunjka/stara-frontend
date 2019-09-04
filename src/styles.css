@@ -49,7 +49,7 @@ a {
     fill: rgb(200,200,200);
 }
 
-.link.not_possible, .trust-boundary.selected {
+.link.not_possible, .trust-boundary.not_possible {
     stroke: rgb(200,200,200);
 }
 
@@ -57,7 +57,7 @@ a {
     fill: #EC888C;
 }
 
-.link.possible, .trust-boundary.selected {
+.link.possible, .trust-boundary.possible {
     stroke: #EC888C;
 }
 

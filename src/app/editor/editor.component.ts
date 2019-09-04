@@ -34,6 +34,8 @@ export class EditorComponent implements OnInit {
 
   diagramsTabMaxLength = 5;
 
+  staticPoints: boolean;
+
   // form: FormGroup;
   // fileName: string;
 
@@ -44,6 +46,7 @@ export class EditorComponent implements OnInit {
     this.view = View.DESIGN;
     this.buttonText = this.switchToAnalysisView;
     this.selectedItems = false;
+    this.staticPoints = false;
   }
 
   ngOnInit() {

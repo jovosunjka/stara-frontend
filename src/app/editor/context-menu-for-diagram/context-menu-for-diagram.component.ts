@@ -25,8 +25,7 @@ export class ContextMenuForDiagramComponent implements OnInit {
   }
 
   delete(item: any)  {
-    this.canvasService.doAction(this.diagramId, 'remove-graphic-element',
-                               {type: item.type, id: item.id});
+    this.canvasService.doAction(this.diagramId, 'remove-graphic-element', item);
     this.toastr.info('Delete action');
   }
 
@@ -39,14 +38,8 @@ export class ContextMenuForDiagramComponent implements OnInit {
   }
 
   showProperties(item: any)  {
+    this.canvasService.doAction(this.diagramId, 'show-properties', item);
     this.toastr.info('Properties action');
   }
 
-  getDashes(length: number) {
-    let dashes = '';
-    for (let i = 0; i < length; i++) {
-      dashes += '-';
-    }
-    return dashes;
-  }
 }

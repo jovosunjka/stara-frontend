@@ -1,11 +1,11 @@
 import { GraphicElement } from './graphic-element';
 import { Link } from './link';
-import { TrustBoundary } from './trust-boundary';
+import { TrustBoundaryGraphicElement } from './trust-boundary-graphic-element';
 
 export interface Graph {
     nodes: GraphicElement [];
     links: Link[];
-    boundaries: TrustBoundary[];
+    boundaries: TrustBoundaryGraphicElement[];
     sections: GraphicElement[]; // za sada neka stoji ovaj tip (GraphicElement)
     translateX: number;
     translateY: number;

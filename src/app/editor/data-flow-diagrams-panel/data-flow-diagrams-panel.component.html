@@ -41,7 +41,8 @@
                          style="width: 100%; height: 90%">
                         <!--<app-canvas [selectSvg]="selectSvgs[i]" [eventEmitterName]="diagram.name"></app-canvas>-->
                         <app-canvas (addNewDiagram)="makeNewDiagramForComplexProcess($event)" (removeDiagram)="removeComplexProcessDiagram($event)"
-                         [diagram]="diagram" [numOfElements]="getNumOfElements()"></app-canvas>
+                         [diagram]="diagram" [numOfElements]="getNumOfElements()"
+                         [staticPoints]="staticPoints"></app-canvas>
                     </div>
                 <!--</ng-template>-->
             </div>

@@ -1,8 +1,5 @@
-import { Point } from './point';
-import { GraphicElement } from './graphic-element';
-import { CircleForManipulation } from './circle-for-manipulation';
+import { Base } from './base';
 
-export interface TrustBoundary extends GraphicElement {
-    points: Point[];
-    circleForManipulation: CircleForManipulation;
+export interface TrustBoundary extends Base {
+    links: string[];
 }

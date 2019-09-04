@@ -3,14 +3,16 @@
 </ul>-->
 
 <context-menu #basicMenu>
+    <!--
     <ng-template contextMenuItem let-item [enabled]="false">
-            <b>{{item?.name}}</b>
+        <b>{{item?.name}}</b>
     </ng-template>
     <ng-template contextMenuItem let-item [enabled]="false">
-            <b>{{getDashes(item?.name.length)}}</b>
+        <b>{{getDashes(item?.name.length)}}</b>
     </ng-template>
     <ng-template contextMenuItem divider="true"></ng-template>
     <ng-template contextMenuItem divider="true"></ng-template>
+    -->
     <ng-template contextMenuItem (execute)="delete($event.item)">
         Delete
     </ng-template>

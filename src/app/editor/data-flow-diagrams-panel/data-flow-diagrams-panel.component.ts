@@ -20,6 +20,8 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
   diagramsTab: DataFlowDiagram[];
   @Input() diagramsTabMaxLength: number;
 
+  @Input() staticPoints: boolean;
+
   currentDiagram: string;
 
   private idDiagramGenerator = 0;
@@ -137,22 +139,6 @@ export class DataFlowDiagramsPanelComponent implements OnInit, OnChanges {
       }
     }
   }
-
-  // ngAfterContentInit
-  /*ngAfterViewInit() {
-      for (let i = 0; i < this.model.diagrams.length; i++) {
-          this.selectSvgs.push('id_canvas_' + DataFlowDiagramsPanelComponent.svgIdIndexGenerator++);
-      }
-
-      const that = this;
-      let index = 0;
-
-      const a = d3.selectAll('app-canvas svg');
-
-      d3.selectAll('app-canvas svg').attr('id', function() {
-        return that.selectSvgs[index++];
-      });
-  }*/
 
   changeDiagram(newDiagram: string) {
     if (this.currentDiagram !== newDiagram) {

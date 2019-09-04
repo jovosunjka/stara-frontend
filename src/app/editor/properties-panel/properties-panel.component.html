@@ -1,13 +1,28 @@
 <div class="border border-primary" style="width: 100%; height: 100%">
     <div *ngIf="selectedElement" class="scrollbar scrollbar-primary">
-        <div class="row" *ngFor="let key of getKeys()">
-            <div class="col-xl-6">
-                {{key}}
+        <ng-template ngFor let-key [ngForOf]="getKeys()">
+            <div *ngIf="checkProperty(key, selectedElement[key])" id="id_property_row" class="row">
+                <div id="id_property_name" class="col-xl-6">
+                    <b><i>{{key}}</i></b>
+                </div>
+                <div class="col-xl-6">
+                    <input *ngIf="inputType(selectedElement[key]) === 'checkbox'" type="checkbox"
+                     [checked]="selectedElement[key]" class="property_checkbox" (change)="selectedElement[key] = !selectedElement[key]" />
+                    
+                     <input *ngIf="inputType(selectedElement[key]) === 'text' && key !== 'name'" type="text" 
+                        [(ngModel)]="selectedElement[key]" name="{{key}}" size="15" maxlength="50"/>
+                    <!--Ako se radi o atributu name, e onda bi trebalo prilikom izmene osveziti i u canvas-u
+                        zato ovaj <input> ispod koristi (ngModelChange)="refreshCanvas($event)"-->
+                    <input *ngIf="inputType(selectedElement[key]) === 'text' && key === 'name'" type="text" 
+                        [(ngModel)]="selectedElement[key]" (ngModelChange)="refreshCanvas($event)"
+                        name="{{key}}" size="15" maxlength="50"/>
+                    
+                        <select *ngIf="inputType(selectedElement[key]) === 'select'" 
+                     [(ngModel)]="selectedElement[key]" name="{{key}}">
+                        <option *ngFor="let runLevelStr of getRunLevels()" [ngValue]="runLevelStr">{{runLevelStr.split('_').join(' ')}}</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-xl-6">
-                <input type="text" [(ngModel)]="selectedElement[key]" (ngModelChange)="refreshCanvas($event)"
-                    name="{{selectedElement[key]}}" size="15" maxlength="50"/>
-            </div>
-        </div>
+        </ng-template>
     </div>
 </div>

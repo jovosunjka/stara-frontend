@@ -5,3 +5,18 @@
 .btn-group-space {
     margin-right: 30px;
 }
+
+#id_static_points {
+    width: 20px;
+    height: 20px;
+}
+
+label[for="id_static_points"] {
+    background-color: gray;
+    color: white;
+    padding-left: 5px;
+}
+
+#id_div_static_points {
+    background-color: gray;
+}

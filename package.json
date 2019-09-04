@@ -33,6 +33,7 @@
     "ngx-contextmenu": "^5.2.0",
     "ngx-toastr": "^10.0.4",
     "popper.js": "^1.15.0",
+    "raphael": "^2.3.0",
     "rxjs": "~6.5.2",
     "tslib": "~1.10.0",
     "zone.js": "~0.9.1"

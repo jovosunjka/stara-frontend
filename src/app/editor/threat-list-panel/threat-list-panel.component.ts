@@ -7,7 +7,26 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ThreatListPanelComponent implements OnInit {
 
-  constructor() { }
+  threatList: any[];
+
+  constructor() {
+    this.threatList = [];
+
+    for (let i = 0; i < 9; i++) {
+        this.threatList.push(
+          {
+            id: i,
+            diagram: 'Diagram ' + i,
+            state: 'State ' + i,
+            title: 'Title ' + i,
+            category: 'Category ' + i,
+            description: 'Description ' + i,
+            interaction: 'Interaction ' + i,
+            priority: 'Priority ' + i,
+          }
+        );
+    }
+  }
 
   ngOnInit() {
   }

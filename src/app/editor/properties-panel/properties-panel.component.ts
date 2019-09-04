@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PropertiesService } from './service/properties.service';
+import { RunLevel } from 'src/app/shared/model/enum/run-level.enum';
 
 @Component({
   selector: 'app-properties-panel',
@@ -12,6 +13,8 @@ export class PropertiesPanelComponent implements OnInit {
   currentDiagram: string;
 
   selectedElement: any;
+
+  private excludePropertyNames = ['id', 'source', 'destination'];
 
   constructor(private propertiesService: PropertiesService) { }
 
@@ -32,4 +35,30 @@ export class PropertiesPanelComponent implements OnInit {
   refreshCanvas() {
     this.propertiesService.refreshCanvas(this.currentDiagram, this.selectedElement.id);
   }
+
+  checkProperty(name: string, value: any) {
+    if (Array.isArray(value)) {
+      return false;
+    }
+
+    if (this.excludePropertyNames.includes(name)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  inputType(value: any) {
+    if (typeof value === 'boolean') {
+      return 'checkbox';
+    } else if (this.getRunLevels().includes(value)) {
+      return 'select';
+    }
+    return 'text';
+  }
+
+  getRunLevels() {
+    return Object.keys(RunLevel).filter((k: string) => isNaN(+k));
+  }
+
 }

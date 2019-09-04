@@ -13,11 +13,14 @@ import { RunLevel } from 'src/app/shared/model/enum/run-level.enum';
 import { Flow } from 'src/app/shared/model/flow';
 import { DataFlowDiagramsService } from '../data-flow-diagrams-panel/service/data-flow-diagrams.service';
 import { PropertiesService } from '../properties-panel/service/properties.service';
-import { Base } from 'src/app/shared/model/base';
 import { TrustBoundary } from 'src/app/shared/model/trust-boundary';
+import { TrustBoundaryGraphicElement } from 'src/app/shared/model/trust-boundary-graphic-element';
 
 // u fajlu angular.json, u atribut scripts ubaceno je: "node_modules/d3plus/d3plus.full.min.js"
 declare const d3plus: any;
+
+// u fajlu angular.json, u atribut scripts ubaceno je: "node_modules/raphael/raphael.min.js"
+declare const Raphael: any;
 
 
 @Component({
@@ -33,6 +36,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   diagram: DataFlowDiagram;
   @Input()
   numOfElements: number;
+  @Input()
+  staticPoints: boolean;
 
   @Output() addNewDiagram: EventEmitter<string> = new EventEmitter<string>();
   @Output() removeDiagram: EventEmitter<string> = new EventEmitter<string>();
@@ -60,7 +65,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   private idTrustBoundaryGenerator = 0;
 
   private SHAPE_SIZE = 80; // 70
-  private TEXT_SIZE = 10;
+  private TEXT_SIZE = 12;
 
 
   private MAX_ZOOM_OUT = 0.2;
@@ -167,6 +172,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             this.removeGraphicElement(action.obj);
         } else if (action.type === 'remove-selected-graphic-elements') {
           this.removeSelectedGraphicElements();
+        } else if (action.type === 'show-properties') {
+          this.showProperties({type: action.obj.type, id: this.getIdOfData(action.obj)});
         } else if (action.type === 'changed-tab') {
           this.changedTabChangeSelectedItems();
         } else if (action.type === 'zoom-out') {
@@ -178,45 +185,94 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // dodajemo svoj eventEmitterName u mapu svih eventEmitter-a
     this.propertiesService.addEventEmitterName(this.diagram.id);
 
+    const that = this;
+
     this.propertiesService.getEventEmitter(this.diagram.id).subscribe(
       (setSelectedElementId: string) => {
+        // this.nodeTextConfig.resize = true;
+        // this.restart();
         this.gNode.each(function(d, i) {
           if (d.idOfData === setSelectedElementId) {
+
+            const name = that.getGraphicElement(d.idOfData, 'node').name;
+            const stencil = that.getStencil(d.stencilId);
+
+            let textColor: string;
+            if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
+                textColor = 'green';
+            } else {
+                textColor = 'white';
+            }
+
             const self = d3.select(this);
+
+            self.select('.node title').text(name);
+
             self.select('text').remove();
             self.append('text')
                 // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
                 // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
                 // .attr('text-anchor', 'middle')
-                // .attr('font-size', that.TEXT_SIZE)
+                .attr('font-size', that.TEXT_SIZE)
                 .attr('font-family', 'sans-serif')
-                .attr('fill', 'white')
+                .attr('fill', textColor)
                 .attr('id', that.idSvg + '_id_text' + i)
-                // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-                .text(that.getGraphicElement(setSelectedElementId, 'node').name)
+                // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')*/
+                .text(name)
                 .classed('wrap', true)
                 .classed('node-text', true)
                 .classed('zoom-element', true);
 
             that.nodeTextConfig.resize = true;
 
+            let shape: string;
+            if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                shape = 'circle';
+            } else {
+                shape = 'square';
+            }
+
             d3plus.textwrap()
-                .config(that.nodeTextConfig)
+                // .config(that.nodeTextConfig)
                 .container('#' + that.idSvg + '_id_text' + i)
-                .shape('circle')
+                // .resize(true)
+                .shape(shape)
                 .padding(10)
                 // .align('middle')
                 .valign('middle')
                 .draw();
+            that.nodeTextConfig.resize = true;
           }
         });
       }
     );
 
-    const that = this;
     d3.select(this.selectSvg).on('click', function () {
       that.clickOnSvg();
     });
+  }
+
+  getIdOfData(obj: any) {
+    let IdOfData = '';
+    switch (obj.type) {
+      case 'process':
+      case 'complex-process':
+      case 'external-entity':
+      case 'data-store':
+        IdOfData = this.diagram.graph.nodes.filter(n => n.id === obj.id)[0].idOfData;
+        break;
+      case 'data-flow':
+        IdOfData = this.diagram.graph.links.filter(l => l.id === obj.id)[0].idOfData;
+        break;
+        case 'trust-boundary':
+            IdOfData = this.diagram.graph.boundaries.filter(b => b.id === obj.id)[0].idOfData;
+        break;
+      default:
+          alert('Not implemented for type: ' + obj.type + ' (getIdOfData method)');
+        break;
+    }
+
+    return IdOfData;
   }
 
   changedTabChangeSelectedItems() {
@@ -272,8 +328,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           const flow: Flow = this.diagram.flows.filter(f => f.id === graphLink.idOfData)[0];
           const  index = this.diagram.flows.indexOf(flow);
           this.diagram.flows.splice(index, 1); // uklanjamo i iz podataka
+
+          flow.boundariesCrossed.forEach(boundaryId => {
+            const boundary: TrustBoundary = this.diagram.boundaries.filter(b => b.id === boundaryId)[0];
+            const boundaryIndex = boundary.links.indexOf(flow.id);
+            boundary.links.splice(boundaryIndex, 1);
+        });
       } else if (graphicElementForRemoving.type === 'process'
-                || graphicElementForRemoving.type === 'complex-process') {
+                || graphicElementForRemoving.type === 'complex-process'
+                || graphicElementForRemoving.type === 'external-entity'
+                || graphicElementForRemoving.type === 'data-store') {
           const graphNode = this.diagram.graph.nodes.filter(n => n.id === graphicElementForRemoving.id)[0];
           this.diagram.graph.links.forEach(link => {
               let flow: Flow = null;
@@ -307,6 +371,25 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           if (graphicElementForRemoving.type === 'complex-process') {
             this.removeDiagram.emit(element.idOfDiagram);
           }
+      } else if (graphicElementForRemoving.type === 'trust-boundary') {
+        const graphTrustBoundary = this.diagram.graph.boundaries.filter(b => b.id === graphicElementForRemoving.id)[0];
+          const graphTrustBoundaryIndex = this.diagram.graph.boundaries.indexOf(graphTrustBoundary);
+          // uklanjamo podatke vezane za graficki prikaz trustBounday-a
+          this.diagram.graph.boundaries.splice(graphTrustBoundaryIndex, 1);
+
+          const trustBoundary: TrustBoundary = this.diagram.boundaries.filter(f => f.id === graphTrustBoundary.idOfData)[0];
+          const  index = this.diagram.boundaries.indexOf(trustBoundary);
+          this.diagram.boundaries.splice(index, 1); // uklanjamo i iz podataka
+
+          trustBoundary.links.forEach(
+            linkId => {
+              const boundariesCrossed = this.diagram.flows.filter(f => f.id === linkId)[0].boundariesCrossed;
+              const i = boundariesCrossed.indexOf(trustBoundary.id);
+              boundariesCrossed.splice(i, 1);
+            }
+          );
+      }  else {
+        alert('Not implemented for type: ' + graphicElementForRemoving.type + ' (removeGraphicElement method)');
       }
 
       this.restart();
@@ -334,7 +417,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       };
       this.diagram.graph.links.push(newLink);
     } else if (type === 'trust-boundary') {
-      const newTrustBoundary: TrustBoundary =  {
+      const newTrustBoundary: TrustBoundaryGraphicElement =  {
         id: this.diagram.id + '_id-trust-boundary-' + this.idTrustBoundaryGenerator++,
         stencilId: graphicElement.stencilId,
         idOfData: graphicElement.idOfData,
@@ -350,7 +433,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         }
       };
       this.diagram.graph.boundaries.push(newTrustBoundary);
-    } else if (type === 'complex-process' || type === 'process' || type === 'external-entity') {
+    } else if (type === 'complex-process' || type === 'process' || type === 'external-entity' || type === 'data-store') {
       // const newId = this.idNodeGenerator++;
       // graphicElement.name += ' ' + newId;
       graphicElement.id = this.diagram.id + '_id-node-' + this.idNodeGenerator++;
@@ -423,7 +506,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         idOfData = this.diagram.id + '_id-boundary-' + len;
         const newBoundaryData = {
           id: idOfData,
-          name: 'Trust boundary ' + len
+          name: 'Trust boundary ' + len,
+          links: []
         };
         this.diagram.boundaries.push(newBoundaryData);
         break;
@@ -431,7 +515,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       case 'external-entity':
         len = this.diagram.elements.length;
         idOfData = this.diagram.id + '_id-element-' + len;
-        const newExternalENtityData = {
+        const newExternalEntityData = {
           id: idOfData,
           name: 'External entity ' + len,
           outOfScope: false,
@@ -446,7 +530,29 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           runLevel: RunLevel.HIGH_PRIVILEGE,
           assets: []
         };
-        this.diagram.elements.push(newExternalENtityData);
+        this.diagram.elements.push(newExternalEntityData);
+        break;
+
+      case 'data-store':
+        len = this.diagram.elements.length;
+        idOfData = this.diagram.id + '_id-element-' + len;
+        const newDataStoreData = {
+          id: idOfData,
+          name: 'Data store ' + len,
+          outOfScope: false,
+          outOfScopeReason: 'Out of scope reason ' + len,
+          exploits: [],
+          importAssets: [],
+          importExploits: [],
+          section: 'Section ' + len,
+          runLevel: RunLevel.HIGH_PRIVILEGE,
+          assets: [],
+          dataIsEncrypted: false,
+          dataIsSigned: true,
+          storeCredentials: false,
+          hasBackup: true
+        };
+        this.diagram.elements.push(newDataStoreData);
         break;
 
       default:
@@ -496,15 +602,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   that.dragged(d, -1);
                 })
                 .on('end', function(d) {
-                  that.dragended(d);
+                  that.dragended(d, this);
                 }));
 
     this.link.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.rightClickOnLink(d);
+        that.rightClickOnLinkOrBoundary(d, this);
       } else {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'link').name,
-                                      type: that.getStencil(d.stencilId).type, id: d.id});
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -514,7 +621,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.link.on('click', function(d, i) {
-      that.clickOnElement(d);
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
        // ovo ce prekinuti obradu ovog eventa
        d3.event.preventDefault();
@@ -531,7 +640,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });
 
       if (stencil.tag === 'path') {
-            /*if (d.source && d.target) {
+            if (d.source && d.target && !that.staticPoints) {
               const source = that.getNode(d.source);
               const target = that.getNode(d.target);
               const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
@@ -551,11 +660,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2},
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
                 endPoint
-                //[endPoint[0], endPoint[1] - 10],
-                //endPoint,
-                //[endPoint[0], endPoint[1] + 10]
+                // [endPoint[0], endPoint[1] - 10],
+                // endPoint,
+                // [endPoint[0], endPoint[1] + 10]
              ];
-            }*/
+            }
 
             const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
@@ -589,7 +698,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
        }
      });
 
-    this.nodeTextConfig.resize = false;
+    // this.nodeTextConfig.resize = false;
 
     this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node').data(this.diagram.graph.nodes);
     this.gNode.exit().remove();
@@ -627,7 +736,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             that.dragged(d, i);
           })
           .on('end', function() {
-            that.dragended(d);
+            that.dragended(d, this);
           }));
 
           let shape: string;
@@ -658,13 +767,23 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           }
 
           const name = that.getGraphicElement(d.idOfData, 'node').name;
+
+          nodeElement.append('title').text(name);
+
+          let textColor: string;
+          if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
+              textColor = 'green';
+          } else {
+              textColor = 'white';
+          }
+
           self.append('text')
               // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
               // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
               // .attr('text-anchor', 'middle')
-              // .attr('font-size', that.TEXT_SIZE)
+              .attr('font-size', that.TEXT_SIZE)
               .attr('font-family', 'sans-serif')
-              .attr('fill', 'white')
+              .attr('fill', textColor)
               .attr('id', that.idSvg + '_id_text' + i)
               // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
               .text(name)
@@ -673,7 +792,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .classed('zoom-element', true);
 
           d3plus.textwrap()
-              .config(that.nodeTextConfig)
+              // .config(that.nodeTextConfig)
               .container('#' + that.idSvg + '_id_text' + i)
               .shape(shape)
               .padding(10)
@@ -682,15 +801,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .draw();
         });
 
-    this.nodeTextConfig.resize = true;
+    // this.nodeTextConfig.resize = true;
 
     this.gNode = svgCanvas.selectAll(this.selectSvg + ' g.g-node');
     this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
 
     this.node.on('contextmenu', function(d: any, i) {
-      that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
-                                    type: that.getStencil(d.stencilId).type, id: d.id});
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
 
       // ovo ce prekinuti obradu ovog eventa
       // i nece se prikazati browser-ov context menu
@@ -699,7 +819,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.node.on('click', function(d, i) {
-      that.clickOnElement(d);
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -720,30 +842,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .each(function(d: any, i) {
                   const self = d3.select(this);
                   const endPoint = d.points[d.points.length - 1];
-
-                  let a;
-                  let point;
-
-                  if (d.target) {
-                    const target = that.getNode(d.target);
-                    point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
-                  } else {
-                      point = d.points[0];
-                  }
-
-                  if (!self.attr('transform')) {
-                      a = 10;
-                  } else {
-                    if (point.x >= endPoint.x) {
-                        a = 10;
-                    } else {
-                        a = -10;
-                    }
-                  }
+                  let offset = 0;
 
                   const points = [ // formiramo trougao
                     [endPoint.x, endPoint.y + 10],
-                    [endPoint.x + a, endPoint.y],
+                    [endPoint.x + 10, endPoint.y],
                     [endPoint.x, endPoint.y - 10],
                     [endPoint.x, endPoint.y + 10]
                   ];
@@ -751,16 +854,33 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   const pathData = that.lineGenerator(points);
                   self.attr('d', pathData);
 
-                  if (d.target) {
-                    const angle = that.getAngleForRotating(point, endPoint);
-                    console.log('angle: ' + angle);
-                    const firstThreePoints = points.slice(0, points.length - 1);
-                    const xMean = d3.mean(firstThreePoints.map(p => p[0]));
-                    const yMean = d3.mean(firstThreePoints.map(p => p[1]));
-                    // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
-                    self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
-                    // self.attr('transform-origin', xMean + ' ' + yMean);
+                  let angle = 0;
+                  if (d.target && !that.staticPoints) {
+                    const target = that.getNode(d.target);
+                    const point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
+                    if (point.x >= endPoint.x) {
+                        offset = 0;
+                    } else {
+                        offset = 180;
+                    }
+                    angle = that.getAngleForRotating(point, endPoint, offset);
+                  } else {
+                    let transform = self.attr('transform');
+                    if (transform && transform.includes('rotate')) {
+                      transform = transform.trim();
+                      const tokens: string[] = transform.split(' ');
+                      angle = +tokens[2].replace('rotate(', '').replace(')', '');
+                    }
                   }
+
+                  console.log('angle: ' + angle);
+                  const firstThreePoints = points.slice(0, points.length - 1);
+                  const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+                  const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+                  // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+                  self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+                  // self.attr('transform-origin', xMean + ' ' + yMean);
+                  // }
               });
 
     this.linkText = this.linkText.data(this.diagram.graph.links);
@@ -777,7 +897,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   // return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE * 3 / 2)
+              .attr('font-size', that.TEXT_SIZE)
               .attr('font-family', 'sans-serif')
               .attr('fill', 'white')
               .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
@@ -809,15 +929,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   that.dragged(d, -1);
                 })
                 .on('end', function(d) {
-                  that.dragended(d);
+                  that.dragended(d, this);
                 }));
 
     this.trustBoundary.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.rightClickOnLink(d);
+        that.rightClickOnLinkOrBoundary(d, this);
       } else {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'boundary').name,
-                                      type: that.getStencil(d.stencilId).type, id: d.id});
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -827,7 +948,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.trustBoundary.on('click', function(d, i) {
-      that.clickOnElement(d);
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
        // ovo ce prekinuti obradu ovog eventa
        d3.event.preventDefault();
@@ -844,7 +967,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });
 
       if (stencil.tag === 'path') {
-            if (d.source && d.target) {
+            /*if (d.source && d.target) {
               const source = that.getNode(d.source);
               const target = that.getNode(d.target);
               const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
@@ -864,11 +987,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 { x: (startPoint.x + endPoint.x) / 2, y: (startPoint.y + endPoint.y) / 2},
                 // [(d.source.x + d.target.x) / 2, (d.source.y + d.target.y) / 2],
                 endPoint
-                /*[endPoint[0], endPoint[1] - 10],
-                endPoint,
-                [endPoint[0], endPoint[1] + 10]*/
+                // [endPoint[0], endPoint[1] - 10],
+                // endPoint,
+                // [endPoint[0], endPoint[1] + 10]
              ];
-            }
+            }*/
 
             const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
@@ -891,6 +1014,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       return transformAttribute;
     });
 
+    this.doLassoSelect();
+
     /*// Update and restart the this.simulation.
     this.simulation.nodes(this.diagram.graph.nodes);
     const forceLink: any = this.simulation.force('link');
@@ -899,10 +1024,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.simulation.restart();*/
   }
 
-  rightClickOnLink(linkOrBoundary: any) {
-    if (d3.event.defaultPrevented) {
+  rightClickOnLinkOrBoundary(linkOrBoundary: any, linkOrBoundaryThis: any) {
+    /*if (d3.event.defaultPrevented) {
       return;
-    }
+    }*/
 
     const that = this;
     const circlesOnLinkOrBoundary = d3.select(this.selectSvg).selectAll(' circle.circle-on-link-or-boundary-' + linkOrBoundary.id);
@@ -933,7 +1058,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                       that.draggedForCircleOnLinkOrBoundary(d);
                     })
                     .on('end', function(d) {
-                      that.dragendedForCircleOnLinkOrBoundary(d);
+                      that.dragendedForCircleOnLinkOrBoundary(d, linkOrBoundaryThis, linkOrBoundary);
                     }));
     } else {
       circlesOnLinkOrBoundary.remove();
@@ -1104,13 +1229,20 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   dragged(d, i) {
-    const type = this.getStencil(d.stencilId).type;
+    const that = this;
+
+    const stencil = this.getStencil(d.stencilId);
+    const type = stencil.type;
 
     if (type === 'data-flow' || type === 'trust-boundary') {
       d.source = null;
       d.target = null;
-      const eventX = d3.event.x / this.diagram.graph.scale - this.diagram.graph.translateX;
-      const eventY = d3.event.y / this.diagram.graph.scale - this.diagram.graph.translateY;
+      const eventX = (d3.event.x - this.diagram.graph.translateX) / this.diagram.graph.scale;
+      // const eventX = d3.event.x;
+      const eventY = (d3.event.y - this.diagram.graph.translateY) / this.diagram.graph.scale;
+      // const eventY = d3.event.y;
+
+      // const nearestPoint = this.getNearestPoint(d.points, { x: eventX, y: eventY } );
       const nearestPoint = this.getNearestPoint(d.points, { x: eventX, y: eventY } );
       // const dx = d3.event.x - nearestPoint.x;
       const dx = eventX - nearestPoint.x;
@@ -1121,23 +1253,30 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         point.y = point.y + dy;
       });
     } else {
-      // d.position.x = d3.event.x;
-      // d.position.y = d3.event.y;
+      let offsetX, offsetY;
+      if (stencil.tag === 'rect') {
+        offsetX = this.SHAPE_SIZE / 2;
+        offsetY = this.SHAPE_SIZE * 3 / 8;
+      } else {
+        offsetX = this.SHAPE_SIZE / 2;
+        offsetY = this.SHAPE_SIZE / 2;
+      }
+
       // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
-      const newX = (d3.event.x - this.SHAPE_SIZE / 2 - this.diagram.graph.translateX) / this.diagram.graph.scale;
+      const newX = (d3.event.x - offsetX - this.diagram.graph.translateX) / this.diagram.graph.scale;
       const dx = newX - d.position.x;
       d.position.x = newX;
       // oduzimamo pluprecnik da bismo dobili koordinatu gornjeg levog coska
-      const newY = (d3.event.y - this.SHAPE_SIZE / 2 - this.diagram.graph.translateY) / this.diagram.graph.scale;
+      const newY = (d3.event.y - offsetY - this.diagram.graph.translateY) / this.diagram.graph.scale;
       const dy = newY - d.position.y;
       d.position.y = newY;
-      const that = this;
       this.link.each(function (l: any) {
             if (l.source && l.source === d.id) {
-                /*const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(l.source.x + that.SHAPE_SIZE / 2,
-                                                                  l.source.y + that.SHAPE_SIZE / 2,
-                                                                  l.target.x + that.SHAPE_SIZE / 2,
-                                                                  l.target.y + that.SHAPE_SIZE / 2,
+                /*
+                const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
+                                                                  source.position.y + that.SHAPE_SIZE / 2,
+                                                                  l.points[0].x,
+                                                                  l.points[0].y,
                                                                   that.SHAPE_SIZE / 2);
                 const startPoint = startAndEndPoints.start;
                 const endPoint = startAndEndPoints.end;
@@ -1156,63 +1295,51 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     [endPoint[0], endPoint[1] + 10]
                 ];*/
 
-
-                /*const source = that.getNode(l.source);
-                const point = that.getNearestPointOnCircle(source.position.x + that.SHAPE_SIZE / 2,
-                                                                    source.position.y + that.SHAPE_SIZE / 2,
-                                                                    l.points[0].x,
-                                                                    l.points[0].y,
-                                                                    that.SHAPE_SIZE / 2);
-                */
-
                 // menjamo prvu i srednju tacku
-                l.points[0].x = l.points[0].x + dx; // d.position.x;
-                l.points[0].y = l.points[0].y + dy; // d.position.y;
+                if (!that.staticPoints) {
+                    const source = that.getNode(l.source);
+                    const point = that.getNearestPointOnCircleOrRect(source.position.x + that.SHAPE_SIZE / 2,
+                                                              source.position.y + that.SHAPE_SIZE / 2,
+                                                              l.points[0].x,
+                                                              l.points[0].y,
+                                                              that.SHAPE_SIZE / 2);
+                    l.points[0].x = point.x;
+                    const yDown = source.position.y + that.SHAPE_SIZE * 3 / 4;
+                    if (stencil.tag === 'rect' && point.y > yDown) {
+                      l.points[0].y = yDown;
+                    } else {
+                      l.points[0].y = point.y;
+                    }
+                } else {
+                    l.points[0].x = l.points[0].x + dx;
+                    l.points[0].y = l.points[0].y + dy;
+                }
                 l.points[1].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
                 l.points[1].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
-                /*l.points = [
-                    point,
-                    [point.x, point.y - 10],
-                    point,
-                    [point.x, point.y + 10],
-                    point
-                ].concat(l.points.slice(6));
-
-                l.points.splice(5, 0, [
-                    d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]),
-                    d3.mean([l.points[0][0], l.points[l.points.length - 1][1]])
-                  ]
-                );*/
               }
 
               if (l.target && l.target === d.id) {
-                /*const target = that.getNode(l.target);
-                const point = that.getNearestPointOnCircle(target.position.x + that.SHAPE_SIZE / 2,
-                                                          target.position.y + that.SHAPE_SIZE / 2,
-                                                          l.points[l.points.length - 1].x,
-                                                          l.points[l.points.length - 1].y,
-                                                          that.SHAPE_SIZE / 2);
-                */
-
                 // menjamo poslednju i srednju tacku
-                l.points[l.points.length - 1].x = l.points[l.points.length - 1].x + dx; // point.x;
-                l.points[l.points.length - 1].y = l.points[l.points.length - 1].y + dy; // point.y;
+                if (!that.staticPoints) {
+                    const target = that.getNode(l.target);
+                    const point = that.getNearestPointOnCircleOrRect(target.position.x + that.SHAPE_SIZE / 2,
+                                                              target.position.y + that.SHAPE_SIZE / 2,
+                                                              l.points[l.points.length - 1].x,
+                                                              l.points[l.points.length - 1].y,
+                                                              that.SHAPE_SIZE / 2);
+                    l.points[l.points.length - 1].x = point.x;
+                    const yDown = target.position.y + that.SHAPE_SIZE * 3 / 4;
+                    if (stencil.tag === 'rect' && point.y > yDown) {
+                      l.points[l.points.length - 1].y = yDown;
+                    } else {
+                      l.points[l.points.length - 1].y = point.y;
+                    }
+                } else {
+                    l.points[l.points.length - 1].x = l.points[l.points.length - 1].x + dx;
+                    l.points[l.points.length - 1].y = l.points[l.points.length - 1].y + dy;
+                }
                 l.points[l.points.length - 2].x = d3.mean([l.points[0].x, l.points[l.points.length - 1].x]);
                 l.points[l.points.length - 2].y = d3.mean([l.points[0].y, l.points[l.points.length - 1].y]);
-                /*l.points = l.points.slice(0, 5).concat(
-                  [
-                    point,
-                    [point.x, point.y - 10],
-                    point,
-                    [point.x, point.y + 10],
-                    point
-                  ]
-                );
-                l.points.splice(5, 0, [
-                    d3.mean([l.points[0][0], l.points[l.points.length - 1][0]]),
-                    d3.mean([l.points[0][0], l.points[l.points.length - 1][1]])
-                  ]
-                );*/
               }
             });
     }
@@ -1220,43 +1347,117 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.ticked(i);
   }
 
-  dragended(d) {
+  dragended(d, thatDraggedElement) {
       const that = this;
       // d.fixed = true;
       // d.fx = null;
       // d.fy = null;
 
-      if (this.getStencil(d.stencilId).tag === 'path') {
-          const circles = this.node.data()
-                              .map(el => {
-                                return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
-                              });
+      const type = this.getStencil(d.stencilId).type;
 
-          const nearestPointToLinkStart = this.getNearestPointOnCircles(circles, d.points[0].x, d.points[0].y, this.SHAPE_SIZE / 2);
-          console.log('(nearestPointToLinkStart) Distance : ' + nearestPointToLinkStart.distance);
-          if (nearestPointToLinkStart.distance <= 25 ) {
-              d.points[0].x = nearestPointToLinkStart.x;
-              d.points[0].y = nearestPointToLinkStart.y;
-              d.source = that.node.data()[nearestPointToLinkStart.index].id;
-          }
+      if (type === 'process' || type === 'complex-process' || type === 'external-entity'
+          || type === 'data-store' || type === 'data-flow') {
+          let movedLinks: any;
+          if (type === 'data-flow') {
+              const circles = this.node.data()
+                                  .map(el => {
+                                    return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
+                                  });
 
-          const indexOfLastPoint = d.points.length - 1;
-          const nearestPointToLinkEnd = this.getNearestPointOnCircles(circles,
-                 d.points[indexOfLastPoint].x, d.points[indexOfLastPoint].y, this.SHAPE_SIZE / 2);
-          console.log('(nearestPointToLinkEnd) Distance : ' + nearestPointToLinkEnd.distance);
-          if (nearestPointToLinkEnd.distance <= 25 ) {
-              d.points[indexOfLastPoint].x = nearestPointToLinkEnd.x;
-              d.points[indexOfLastPoint].y = nearestPointToLinkEnd.y;
-              d.target = that.node.data()[nearestPointToLinkEnd.index].id;
-          }
-          console.log(this.link.data());
-          that.ticked(-1);
+              const nearestPointToLinkStart = this.getNearestPointOnCircleOrRects(circles, d.points[0].x,
+                                                                   d.points[0].y, this.SHAPE_SIZE / 2);
+              console.log('(nearestPointToLinkStart) Distance : ' + nearestPointToLinkStart.distance);
+              if (nearestPointToLinkStart.distance <= 25 ) {
+                  d.points[0].x = nearestPointToLinkStart.x;
+                  d.points[0].y = nearestPointToLinkStart.y;
+                  d.source = that.node.data()[nearestPointToLinkStart.index].id;
+              }
+
+              const indexOfLastPoint = d.points.length - 1;
+              const nearestPointToLinkEnd = this.getNearestPointOnCircleOrRects(circles,
+                    d.points[indexOfLastPoint].x, d.points[indexOfLastPoint].y, this.SHAPE_SIZE / 2);
+              console.log('(nearestPointToLinkEnd) Distance : ' + nearestPointToLinkEnd.distance);
+              if (nearestPointToLinkEnd.distance <= 25 ) {
+                  d.points[indexOfLastPoint].x = nearestPointToLinkEnd.x;
+                  d.points[indexOfLastPoint].y = nearestPointToLinkEnd.y;
+                  d.target = that.node.data()[nearestPointToLinkEnd.index].id;
+              }
+
+              // console.log(this.link.data());
+              that.ticked(-1);
+
+              movedLinks = this.link.filter(function(l: any) {
+                  return l.id === d.id;
+              });
+          } else {
+              movedLinks = this.link.filter(function(l: any) {
+                  return l.source === d.id || l.target === d.id;
+              });
+            }
+          this.checkAndUpdateBoundariesCrossedForMovedLinks(movedLinks);
+      } else if (type === 'trust-boundary') {
+          that.checkAndUpdateBoundariesCrossed(thatDraggedElement, d);
+      } else {
+          alert('Not implemented for type: ' + type + '(dragended method)');
       }
 
       // this.simulation.alpha(0);
       // d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
       // this.ticked();
       // this.simulation.restart();
+  }
+
+  checkAndUpdateBoundariesCrossedForMovedLinks(movedLinks: any) {
+    const that = this;
+    movedLinks.each(function(d: any) {
+        const movedLink = that.diagram.flows.filter(f => f.id === d.idOfData)[0];
+        movedLink.boundariesCrossed.forEach(boundaryId => {
+            const boundary: TrustBoundary = that.diagram.boundaries.filter(b => b.id === boundaryId)[0];
+            const index = boundary.links.indexOf(d.idOfData);
+            boundary.links.splice(index, 1);
+        });
+        movedLink.boundariesCrossed = [];
+
+        const movedLinkThis = this;
+        that.trustBoundary.each(function(tb: any) {
+            const boundaryThis = this;
+            const boundary: TrustBoundary = that.diagram.boundaries.filter(b => b.id === tb.idOfData)[0];
+            const intersections: any[] = Raphael.pathIntersection(
+              d3.select(movedLinkThis).attr('d'),
+              d3.select(boundaryThis).attr('d')
+            );
+            if (intersections.length > 0) {
+              movedLink.boundariesCrossed.push(boundary.id);
+              boundary.links.push(movedLink.id);
+            }
+        });
+    });
+  }
+
+  checkAndUpdateBoundariesCrossed(thatDraggedElement: any, d: any) {
+    const currentBoundary = this.diagram.boundaries.filter(b => b.id === d.idOfData)[0];
+    currentBoundary.links.forEach(
+      linkId => {
+        const boundariesCrossed = this.diagram.flows.filter(f => f.id === linkId)[0].boundariesCrossed;
+        const index = boundariesCrossed.indexOf(currentBoundary.id);
+        boundariesCrossed.splice(index, 1);
+      }
+    );
+    currentBoundary.links = [];
+
+    const that = this;
+
+    this.link.each(function(l: any) {
+      const linkThis = this;
+      const intersections: any[] = Raphael.pathIntersection(
+        d3.select(thatDraggedElement).attr('d'),
+        d3.select(linkThis).attr('d')
+      );
+      if (intersections.length > 0) {
+        that.diagram.flows.filter(f => f.id === l.idOfData)[0].boundariesCrossed.push(currentBoundary.id);
+        currentBoundary.links.push(l.idOfData);
+      }
+    });
   }
 
   dragstartedForCircleOnLinkOrBoundary(d, linkOrBoundary) {
@@ -1279,39 +1480,48 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // d.fy = d.y;
   }
 
-  draggedForCircleOnLinkOrBoundary(d) {
+  draggedForCircleOnLinkOrBoundary(d: any) {
       d.x = d3.event.x;
       d.y = d3.event.y;
 
       this.ticked(-1);
   }
 
-  dragendedForCircleOnLinkOrBoundary(d) {
+  dragendedForCircleOnLinkOrBoundary(d: any, linkOrBoundaryThis: any, linkOrBoundary: any) {
     const that = this;
     // d.fixed = true;
     // d.fx = null;
     // d.fy = null;
 
-    const circles = this.node.data()
-                          .map(el => {
-                            return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
-                          });
-    const nearestPoint = this.getNearestPointOnCircles(circles, d3.event.x, d3.event.y, this.SHAPE_SIZE / 2);
-    console.log('Distance: ' + nearestPoint.distance);
-    if (nearestPoint.distance <= 25 ) {
-      this.link.each(function (el: any) {
-          if (el.points[0] === d || el.points[el.points.length - 1] === d) {
-            d.x = nearestPoint.x;
-            d.y = nearestPoint.y;
-            if (el.points[0] === d) {
-              el.source = that.node.data()[nearestPoint.index].id;
-            } else if (el.points[el.points.length - 1] === d) {
-              el.target = that.node.data()[nearestPoint.index].id;
-            }
-            that.ticked(-1);
-            return;
-          }
-      });
+    const type = this.getStencil(linkOrBoundary.stencilId).type;
+    if (type === 'trust-boundary') {
+        this.checkAndUpdateBoundariesCrossed(linkOrBoundaryThis, linkOrBoundary);
+    } else if (type === 'data-flow') {
+        const circles = this.node.data()
+                .map(el => {
+                  return { x: el.position.x + this.SHAPE_SIZE / 2, y: el.position.y + this.SHAPE_SIZE / 2 };
+                });
+        const nearestPoint = this.getNearestPointOnCircleOrRects(circles, d3.event.x, d3.event.y, this.SHAPE_SIZE / 2);
+        console.log('Distance: ' + nearestPoint.distance);
+        if (nearestPoint.distance <= 25 ) {
+            this.link.each(function (el: any) {
+                if (el.points[0] === d || el.points[el.points.length - 1] === d) {
+                    d.x = nearestPoint.x;
+                    d.y = nearestPoint.y;
+                    if (el.points[0] === d) {
+                        el.source = that.node.data()[nearestPoint.index].id;
+                    } else if (el.points[el.points.length - 1] === d) {
+                        el.target = that.node.data()[nearestPoint.index].id;
+                    }
+                    that.ticked(-1);
+                    const movedLinks = that.link.filter(function(l: any) {
+                        return l.id === el.id;
+                    });
+                    that.checkAndUpdateBoundariesCrossedForMovedLinks(movedLinks);
+                    return;
+                }
+            });
+        }
     }
 
     // this.simulation.alpha(0);
@@ -1363,15 +1573,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     that.dragged(d, -1);
                 })
                 .on('end', function(d) {
-                    that.dragended(d);
+                    that.dragended(d, this);
                 }));
 
     this.link.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.rightClickOnLink(d);
+        that.rightClickOnLinkOrBoundary(d, this);
       } else {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'link').name,
-                                      type: that.getStencil(d.stencilId).type, id: d.id});
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -1381,7 +1592,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.link.on('click', function(d, i) {
-        that.clickOnElement(d);
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -1397,7 +1610,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       });
 
       if (stencil.tag === 'path') {
-            /*if (d.source && d.target) {
+            if (d.source && d.target && !that.staticPoints) {
               const source = that.getNode(d.source);
               const target = that.getNode(d.target);
               const startAndEndPoints = that.getStartAndEndPointsForLinkOnCircle(source.position.x + that.SHAPE_SIZE / 2,
@@ -1422,7 +1635,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 // [endPoint[0], endPoint[1] + 10],
                 endPoint
              ];
-            }*/
+            }
 
             const pathData = that.lineGenerator(d.points.map(point => [point.x, point. y]));
             self.attr('d', pathData);
@@ -1503,7 +1716,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         that.dragged(d, i);
       })
       .on('end', function() {
-        that.dragended(d);
+        that.dragended(d, this);
       }));
 
       let shape: string;
@@ -1533,23 +1746,37 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         shape = 'square';
       }
 
+      const name = that.getGraphicElement(d.idOfData, 'node').name;
+
+      nodeElement.append('title')
+                  .text(name);
+
+      let textColor: string;
+      if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
+          textColor = 'green';
+      } else {
+          textColor = 'white';
+      }
+
       self.append('text')
           // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
           // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
           // .attr('text-anchor', 'middle')
-          // .attr('font-size', that.TEXT_SIZE)
+          .attr('font-size', that.TEXT_SIZE)
           .attr('font-family', 'sans-serif')
-          .attr('fill', 'white')
+          .attr('fill', textColor)
           .attr('id', that.idSvg + '_id_text' + i)
           // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-          .text(that.getGraphicElement(d.idOfData, 'node').name)
+          .text(name)
           .classed('wrap', true)
           .classed('node-text', true)
           .classed('zoom-element', true);
+      // text.append('title').text(name);
 
       d3plus.textwrap()
-          .config(that.nodeTextConfig)
+          // .config(that.nodeTextConfig)
           .container('#' + that.idSvg + '_id_text' + i)
+          // .resize(true)
           .shape(shape)
           .padding(10)
           // .align('middle')
@@ -1562,8 +1789,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.node = svgCanvas.selectAll(this.selectSvg + ' .node');
 
     this.node.on('contextmenu', function(d: any, i) {
-      that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'node').name,
-                                    type: that.getStencil(d.stencilId).type, id: d.id});
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
 
       // ovo ce prekinuti obradu ovog eventa
       // i nece se prikazati browser-ov context menu
@@ -1572,7 +1800,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.node.on('click', function(d, i) {
-      that.clickOnElement(d);
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -1593,25 +1823,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .each(function(d: any, i) {
                 const self = d3.select(this);
                 const endPoint = d.points[d.points.length - 1];
-                let a;
-                let point;
-
-                if (d.target) {
-                  const target = that.getNode(d.target);
-                  point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
-                } else {
-                    point = d.points[0];
-                }
-
-                if (point.x >= endPoint.x) {
-                    a = 10;
-                } else {
-                    a = -10;
-                }
+                let offset = 0;
 
                 const points = [ // formiramo trougao
                   [endPoint.x, endPoint.y + 10],
-                  [endPoint.x + a, endPoint.y],
+                  [endPoint.x + 10, endPoint.y],
                   [endPoint.x, endPoint.y - 10],
                   [endPoint.x, endPoint.y + 10]
                 ];
@@ -1619,16 +1835,32 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 const pathData = that.lineGenerator(points);
                 self.attr('d', pathData);
 
-                if (d.target) {
-                  const angle = that.getAngleForRotating(point, endPoint);
-                  console.log('angle: ' + angle);
-                  const firstThreePoints = points.slice(0, points.length - 1);
-                  const xMean = d3.mean(firstThreePoints.map(p => p[0]));
-                  const yMean = d3.mean(firstThreePoints.map(p => p[1]));
-                  // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
-                  self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
-                  // self.attr('transform-origin', xMean + ' ' + yMean);
+                let angle = 0;
+                if (d.target && !that.staticPoints) {
+                  const target = that.getNode(d.target);
+                  const point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
+                  if (point.x >= endPoint.x) {
+                      offset = 0;
+                  } else {
+                      offset = 180;
+                  }
+                  angle = that.getAngleForRotating(point, endPoint, offset);
+                } else {
+                  const transform = self.attr('transform').trim();
+                  if (transform && transform.includes('rotate')) {
+                    const tokens: string[] = transform.split(' ');
+                    angle = +tokens[2].replace('rotate(', '').replace(')', '');
+                  }
                 }
+
+                console.log('angle: ' + angle);
+                const firstThreePoints = points.slice(0, points.length - 1);
+                const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+                const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+                // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+                self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+                // self.attr('transform-origin', xMean + ' ' + yMean);
+                // }
               });
               /*.attr('transform', function(d) {
                 const point = d.points[d.points.length - 1];
@@ -1647,7 +1879,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                   // return d3.mean(d.points.map(point => point[1]));
               })
               // .attr('text-anchor', 'middle')
-              .attr('font-size', that.TEXT_SIZE * 3 / 2)
+              .attr('font-size', that.TEXT_SIZE)
               .attr('font-family', 'sans-serif')
               .attr('fill', 'white')
               .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
@@ -1675,15 +1907,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     that.dragged(d, -1);
                 })
                 .on('end', function(d) {
-                    that.dragended(d);
+                    that.dragended(d, this);
                 }));
 
     this.trustBoundary.on('contextmenu', function(d, i) {
       if (d3.event.ctrlKey) {
-        that.rightClickOnLink(d);
+        that.rightClickOnLinkOrBoundary(d, this);
       } else {
-        that.onContextMenu(d3.event, {name: that.getGraphicElement(d.idOfData, 'boundary').name,
-                                      type: that.getStencil(d.stencilId).type, id: d.id});
+        d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+        d3.select(this).classed('selected', true);
+        that.onContextMenu(d3.event, {type: that.getStencil(d.stencilId).type, id: d.id});
       }
 
       // ovo ce prekinuti obradu ovog eventa
@@ -1693,7 +1926,9 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.trustBoundary.on('click', function(d, i) {
-        that.clickOnElement(d);
+      d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
+      d3.select(this).classed('selected', true);
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -1791,7 +2026,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     return radians * (180 / Math.PI);
   }
 
-  getAngleForRotating(centerOrStartPoint: Point, pointOnCircle: Point) {
+  getAngleForRotating(centerOrStartPoint: Point, pointOnCircle: Point, offset: number) {
     const hypotenuse = this.getDistance(centerOrStartPoint, pointOnCircle); // this.SHAPE_SIZE / 2;
     const cos = Math.abs(centerOrStartPoint.x - pointOnCircle.x) / hypotenuse;
     const angle = Math.acos(cos);
@@ -1809,7 +2044,14 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         coef = 1;
       }
     }
-    return coef * this.radiansToDegrees(angle);
+
+    let radiansAngle = this.radiansToDegrees(angle);
+    if (radiansAngle >= 0) {
+      radiansAngle += offset;
+    } else {
+      radiansAngle -= offset;
+    }
+    return coef * radiansAngle;
   }
 
   getNode(id: string) {
@@ -1882,6 +2124,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('cy', function(el: any) { return el.position.y + that.SHAPE_SIZE / 2 + that.diagram.graph.translateY; });*/
           self.attr('cx', function(el: any) { return el.position.x + that.SHAPE_SIZE / 2; })
               .attr('cy', function(el: any) { return el.position.y + that.SHAPE_SIZE / 2; });
+        } else if (stencil.tag === 'rect') {
+          self.attr('x', function(el: any) { return el.position.x; })
+              .attr('y', function(el: any) { return el.position.y; });
+        } else {
+          alert('Not implemented for stencil tag: ' + stencil.tag + '(ticked method)');
         }
     });
 
@@ -1894,34 +2141,54 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       svgCanvas.selectAll(this.selectSvg + ' g.g-node')
                 .each(function(d: any, i) {
                   if (i === indexOfNodeText) {
+                    const stencil: Stencil = that.getStencil(d.stencilId);
+                    let shape: string;
+                    if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                      shape = 'circle';
+                    } else {
+                      shape = 'square';
+                    }
+                    const name = that.getGraphicElement(d.idOfData, 'node').name;
+
                     const self = d3.select(this);
+
+                    self.select('.node title').text(name);
+
+                    let textColor: string;
+                    if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
+                        textColor = 'green';
+                    } else {
+                        textColor = 'white';
+                    }
+
                     self.select('text').remove();
                     self.append('text')
                         // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
                         // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
                         // .attr('text-anchor', 'middle')
-                        // .attr('font-size', that.TEXT_SIZE)
+                        .attr('font-size', that.TEXT_SIZE)
                         .attr('font-family', 'sans-serif')
-                        .attr('fill', 'white')
+                        .attr('fill', textColor)
                         .attr('id', that.idSvg + '_id_text' + i)
                         // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')
-                        .text(that.getGraphicElement(d.idOfData, 'node').name)
+                        .text(name)
                         .classed('wrap', true)
                         .classed('node-text', true)
                         .classed('zoom-element', true);
 
-                    that.nodeTextConfig = false;
+                    that.nodeTextConfig.resize = false;
 
                     d3plus.textwrap()
-                        .config(that.nodeTextConfig)
+                        // .config(that.nodeTextConfig)
                         .container('#' + that.idSvg + '_id_text' + i)
-                        .shape('circle')
+                        // .resize(true)
+                        .shape(shape)
                         .padding(10)
                         // .align('middle')
                         .valign('middle')
                         .draw();
 
-                    that.nodeTextConfig = true;
+                    that.nodeTextConfig.resize = true;
                   }
                 });
       this.nodeText = svgCanvas.selectAll(this.selectSvg + ' .node-text');
@@ -1930,29 +2197,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.linkArrow.each(function(d: any, i) {
       const self = d3.select(this);
       const endPoint = d.points[d.points.length - 1];
-      let a;
-      let point;
-
-      if (d.target) {
-        const target = that.getNode(d.target);
-        point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
-      } else {
-          point = d.points[0];
-      }
-
-      if (!self.attr('transform')) {
-          a = 10;
-      } else {
-        if (point.x >= endPoint.x) {
-            a = 10;
-        } else {
-            a = -10;
-        }
-      }
+      let offset = 0;
 
       const points = [ // formiramo trougao
         [endPoint.x, endPoint.y + 10],
-        [endPoint.x + a, endPoint.y],
+        [endPoint.x + 10, endPoint.y],
         [endPoint.x, endPoint.y - 10],
         [endPoint.x, endPoint.y + 10]
       ];
@@ -1960,16 +2209,32 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       const pathData = that.lineGenerator(points);
       self.attr('d', pathData);
 
-      if (d.target) {
-        const angle = that.getAngleForRotating(point, endPoint);
-        console.log('angle: ' + angle);
-        const firstThreePoints = points.slice(0, points.length - 1);
-        const xMean = d3.mean(firstThreePoints.map(p => p[0]));
-        const yMean = d3.mean(firstThreePoints.map(p => p[1]));
-        // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
-        self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
-        // self.attr('transform-origin', xMean + ' ' + yMean);
+      let angle = 0;
+      if (d.target && !that.staticPoints) {
+        const target = that.getNode(d.target);
+        const point = { x: target.position.x + that.SHAPE_SIZE / 2, y: target.position.y + that.SHAPE_SIZE / 2 };
+        if (point.x >= endPoint.x) {
+            offset = 0;
+        } else {
+            offset = 180;
+        }
+        angle = that.getAngleForRotating(point, endPoint, offset);
+      } else {
+        const transform = self.attr('transform').trim();
+        if (transform && transform.includes('rotate')) {
+          const tokens: string[] = transform.split(' ');
+          angle = +tokens[2].replace('rotate(', '').replace(')', '');
+        }
       }
+
+      console.log('angle: ' + angle);
+      const firstThreePoints = points.slice(0, points.length - 1);
+      const xMean = d3.mean(firstThreePoints.map(p => p[0]));
+      const yMean = d3.mean(firstThreePoints.map(p => p[1]));
+      // xMean i yMean predstavljaju koordinate tacke (teziste) oko koje cemo rotirati strelice (trouglove)
+      self.attr('transform', `rotate(${angle + ' ' + xMean + ' ' + yMean})`);
+      // self.attr('transform-origin', xMean + ' ' + yMean);
+      // }
     });
 
     d3.selectAll(this.selectSvg + ' .zoom-element').attr('transform', function() {
@@ -2001,26 +2266,6 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
           + that.diagram.graph.translateY + ') scale(' + that.diagram.graph.scale + ')';
     });
     */
-  }
-
-  groupBy(list) {
-    const map = new Map();
-    list.forEach((item) => {
-         let key;
-         const stencil: Stencil = this.getStencil(item.stencilId);
-         if (stencil.tag === 'image') {
-           key = 'circle';
-         } else {
-           key = stencil.tag;
-         }
-         const collection = map.get(key);
-         if (!collection) {
-             map.set(key, [item]);
-         } else {
-             collection.push(item);
-         }
-    });
-    return map;
   }
 
   getStartAndEndPointsForLinkOnCircle(x1: number, y1: number, x2: number, y2: number, r: number) {
@@ -2069,7 +2314,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     return {start: { x: xStart, y: yStart},  end: { x: xEnd, y: yEnd}};
   }
 
-  getNearestPointOnCircle(x1: number, y1: number, x2: number, y2: number, r: number) {
+  getNearestPointOnCircleOrRect(x1: number, y1: number, x2: number, y2: number, r: number) {
     // x1 = x1 + this.diagram.graph.translateX;
     // y2 = x1 + this.diagram.graph.translateY;
     // x2 = x2 + this.diagram.graph.translateX;
@@ -2116,7 +2361,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     return {x: xNearest, y: yNearest};
   }
 
-  getNearestPointOnCircles(circles: any[], x2: number, y2: number, r: number) {
+  getNearestPointOnCircleOrRects(circles: any[], x2: number, y2: number, r: number) {
     // x2 = x2 + this.diagram.graph.translateX;
     // y2 = x2 + this.diagram.graph.translateY;
 
@@ -2224,20 +2469,18 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     // ali ne i da li su skalirane (zoom i zoomOut)
 
     let nearestPoint = points[0];
-    let minDistance: number = this.getDistance({ x: points[0].x + this.diagram.graph.translateX,
-                                                y: points[0].y + this.diagram.graph.translateY }, point);
+    let minDistance: number = this.getDistance(points[0], point);
 
     points = points.slice(1);
     points.forEach(p => {
-        const distance: number = this.getDistance({ x: p.x + this.diagram.graph.translateX,
-                                                    y: p.y + this.diagram.graph.translateY }, point);
+        const distance: number = this.getDistance(p, point);
         if (distance < minDistance) {
           minDistance = distance;
           nearestPoint = p;
         }
     });
 
-    return { x: nearestPoint.x + this.diagram.graph.translateX, y: nearestPoint.y + this.diagram.graph.translateY };
+    return nearestPoint;
   }
 
   getDistance(p1: Point, p2: Point) {
@@ -2262,15 +2505,17 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       return this.stencils.filter(s => s.id === id)[0];
   }
 
-  clickOnElement(d: any) {
+  showProperties(typeAndId: any) {
     let obj = null;
-    const stencil: Stencil = this.getStencil(d.stencilId);
-    if (stencil.type === 'process' || stencil.type === 'complex-process') {
-        obj = this.diagram.elements.filter(e => e.id === d.idOfData)[0];
-    } else if (stencil.type === 'data-flow') {
-      obj = this.diagram.flows.filter(f => f.id === d.idOfData)[0];
+    if (typeAndId.type === 'process' || typeAndId.type === 'complex-process'
+    || typeAndId.type === 'external-entity' || typeAndId.type === 'data-store') {
+        obj = this.diagram.elements.filter(e => e.id === typeAndId.id)[0];
+    } else if (typeAndId.type === 'data-flow') {
+      obj = this.diagram.flows.filter(f => f.id === typeAndId.id)[0];
+    }  else if (typeAndId.type === 'trust-boundary') {
+      obj = this.diagram.boundaries.filter(t => t.id === typeAndId.id)[0];
     } else {
-      alert('Not implented for type: ' + stencil.type + ' (this.link.onClick method)');
+      alert('Not implented for type: ' + typeAndId.type + ' (this.link.onClick method)');
     }
 
     this.propertiesService.setSelectedElement(obj);

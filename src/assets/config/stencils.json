@@ -14,11 +14,19 @@
             {
                 "id": "ge_2",
                 "type": "complex-process",
-                "tag": "image",
+                "tag": "circle",
                 "properties": [
                     {
-                    "name": "xlink:href",
-                    "value": "assets/images/complex-process.png"
+                    "name": "stroke",
+                    "value": "green"
+                    },
+                    {
+                        "name": "stroke-width",
+                        "value": 5
+                    },
+                    {
+                        "name": "fill",
+                        "value": "white"
                     }
                 ]
             },
@@ -72,6 +80,25 @@
                     {
                         "name": "fill",
                         "value": "blue"
+                    }
+                ]
+            },
+            {
+                "id": "ge_6",
+                "type": "data-store",
+                "tag": "rect",
+                "properties": [
+                    {
+                    "name": "stroke",
+                    "value": "green"
+                    },
+                    {
+                        "name": "stroke-width",
+                        "value": 5
+                    },
+                    {
+                        "name": "fill",
+                        "value": "white"
                     }
                 ]
             }
