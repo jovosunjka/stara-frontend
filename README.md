@@ -1,6 +1,22 @@
-# StaraFrontend
 
+
+# Software Threat and Risk Analyzer
+
+<p align="center"><img src="https://github.com/jovosunjka/stara-frontend/blob/master/wiki-resources/stara.png"/></p>
+
+<b>Software Threat and Risk Analyzer (STARA)</b> is a front-end application for threat modeling. <b>STARA</b> consists of three parts:
+- <b><i>Work with documents (threat models)</i></b>
+- <b><i>Data Flow Diagram Editor</i></b>
+- <b><i>Threat analysis support</i></b>, where diagrams are sent to the back-end system for analysis, to obtain the information that threats need to be addressed and how much risk they present to the system against resources. This means:
+
+##
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.2.
+##
+
+## Contribute
+### Prerequisites:
+- Installed [Node.js and npm](https://www.npmjs.com/get-npm)
+- After you have installed npm, you can use the `npm install` command in Command Prompt to get all the dependencies you need
 
 ## Development server
 
@@ -25,3 +41,11 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+## Author
+
+-   Jovo Šunjka -  [jovosunjka](https://github.com/jovosunjka)
+
+## Additional info
+
+For more information see this repository's  [wiki page](https://github.com/jovosunjka/stara-frontend/wiki).

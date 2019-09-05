@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { GraphicElement } from '../shared/model/graphic-element';
 import { DataFlowDiagramsService } from './data-flow-diagrams-panel/service/data-flow-diagrams.service';
 import { CanvasService } from './canvas/service/canvas.service';
+import { RunLevel } from '../shared/model/enum/run-level.enum';
 // import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 
 // u fajlu angular.json, u atribut scripts ubaceno je: "node_modules/bootbox/dist/bootbox.min.js"
@@ -266,6 +267,7 @@ export class EditorComponent implements OnInit {
                     l.target = (l.target as GraphicElement).id;
                   });
                 });*/
+                // that.model.diagrams.forEach(d => d.elements.forEach(e => e.runLevel = RunLevel[e.runLevel]));
                 jsonText = JSON.stringify(that.model, null, 2); // spacing level = 2
               } else {
                 const modelWithoutGraph = {

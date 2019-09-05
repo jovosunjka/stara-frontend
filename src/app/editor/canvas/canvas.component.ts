@@ -173,7 +173,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         } else if (action.type === 'remove-selected-graphic-elements') {
           this.removeSelectedGraphicElements();
         } else if (action.type === 'show-properties') {
-          this.showProperties({type: action.obj.type, id: this.getIdOfData(action.obj)});
+          this.showProperties({type: action.obj.type, id: action.obj.id, idOfData: this.getIdOfData(action.obj)});
         } else if (action.type === 'changed-tab') {
           this.changedTabChangeSelectedItems();
         } else if (action.type === 'zoom-out') {
@@ -188,62 +188,70 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     const that = this;
 
     this.propertiesService.getEventEmitter(this.diagram.id).subscribe(
-      (setSelectedElementId: string) => {
+      (graphicElement: any) => {
         // this.nodeTextConfig.resize = true;
         // this.restart();
-        this.gNode.each(function(d, i) {
-          if (d.idOfData === setSelectedElementId) {
+        if (graphicElement.type === 'data-flow') {
+             this.linkText.each(function(d, i) {
+                if (d.id === graphicElement.id) {
+                  d3.select(this).text(that.getGraphicElement(d.idOfData, graphicElement.type).name);
+                }
+             });
+        } else {
+          this.gNode.each(function(d, i) {
+            if (d.id === graphicElement.id) {
 
-            const name = that.getGraphicElement(d.idOfData, 'node').name;
-            const stencil = that.getStencil(d.stencilId);
+              const name = that.getGraphicElement(d.idOfData, graphicElement.type).name;
+              const stencil = that.getStencil(d.stencilId);
 
-            let textColor: string;
-            if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
-                textColor = 'green';
-            } else {
-                textColor = 'white';
+              let textColor: string;
+              if (stencil.type === 'complex-process' || stencil.type === 'data-store') {
+                  textColor = 'green';
+              } else {
+                  textColor = 'white';
+              }
+
+              const self = d3.select(this);
+
+              self.select('.node title').text(name);
+
+              self.select('text').remove();
+              self.append('text')
+                  // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
+                  // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
+                  // .attr('text-anchor', 'middle')
+                  .attr('font-size', that.TEXT_SIZE)
+                  .attr('font-family', 'sans-serif')
+                  .attr('fill', textColor)
+                  .attr('id', that.idSvg + '_id_text' + i)
+                  // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')*/
+                  .text(name)
+                  .classed('wrap', true)
+                  .classed('node-text', true)
+                  .classed('zoom-element', true);
+
+              that.nodeTextConfig.resize = true;
+
+              let shape: string;
+              if (stencil.tag === 'circle' || stencil.tag === 'image') {
+                  shape = 'circle';
+              } else {
+                  shape = 'square';
+              }
+
+              d3plus.textwrap()
+                  // .config(that.nodeTextConfig)
+                  .container('#' + that.idSvg + '_id_text' + i)
+                  // .resize(true)
+                  .shape(shape)
+                  .padding(10)
+                  // .align('middle')
+                  .valign('middle')
+                  .draw();
+              that.nodeTextConfig.resize = true;
             }
-
-            const self = d3.select(this);
-
-            self.select('.node title').text(name);
-
-            self.select('text').remove();
-            self.append('text')
-                // .attr('x', d.position.x + that.SHAPE_SIZE / 20)
-                // .attr('y', d.position.y + that.SHAPE_SIZE / 2)
-                // .attr('text-anchor', 'middle')
-                .attr('font-size', that.TEXT_SIZE)
-                .attr('font-family', 'sans-serif')
-                .attr('fill', textColor)
-                .attr('id', that.idSvg + '_id_text' + i)
-                // .attr('filter', 'url(#' + that.idSvg + '_id_orange_color)')*/
-                .text(name)
-                .classed('wrap', true)
-                .classed('node-text', true)
-                .classed('zoom-element', true);
-
-            that.nodeTextConfig.resize = true;
-
-            let shape: string;
-            if (stencil.tag === 'circle' || stencil.tag === 'image') {
-                shape = 'circle';
-            } else {
-                shape = 'square';
-            }
-
-            d3plus.textwrap()
-                // .config(that.nodeTextConfig)
-                .container('#' + that.idSvg + '_id_text' + i)
-                // .resize(true)
-                .shape(shape)
-                .padding(10)
-                // .align('middle')
-                .valign('middle')
-                .draw();
-            that.nodeTextConfig.resize = true;
-          }
-        });
+          });
+        }
       }
     );
 
@@ -252,27 +260,39 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
   }
 
-  getIdOfData(obj: any) {
-    let IdOfData = '';
+  getData(obj: any) {
+    let data = null;
+    let idOfData = '';
     switch (obj.type) {
       case 'process':
       case 'complex-process':
       case 'external-entity':
       case 'data-store':
-        IdOfData = this.diagram.graph.nodes.filter(n => n.id === obj.id)[0].idOfData;
+        idOfData = this.diagram.graph.nodes.filter(n => n.id === obj.id)[0].idOfData;
+        data = this.diagram.elements.filter(e => e.id === idOfData)[0];
         break;
       case 'data-flow':
-        IdOfData = this.diagram.graph.links.filter(l => l.id === obj.id)[0].idOfData;
+        idOfData = this.diagram.graph.links.filter(l => l.id === obj.id)[0].idOfData;
+        data = this.diagram.flows.filter(f => f.id === idOfData)[0];
         break;
-        case 'trust-boundary':
-            IdOfData = this.diagram.graph.boundaries.filter(b => b.id === obj.id)[0].idOfData;
+      case 'trust-boundary':
+        idOfData = this.diagram.graph.boundaries.filter(b => b.id === obj.id)[0].idOfData;
+        data = this.diagram.boundaries.filter(b => b.id === idOfData)[0];
         break;
       default:
-          alert('Not implemented for type: ' + obj.type + ' (getIdOfData method)');
+        alert('Not implemented for type: ' + obj.type + ' (getData method)');
         break;
     }
 
-    return IdOfData;
+    return data;
+  }
+
+  getIdOfData(obj: any) {
+    const data = this.getData(obj);
+    if (data) {
+      return data.id;
+    }
+    return '';
   }
 
   changedTabChangeSelectedItems() {
@@ -623,7 +643,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.link.on('click', function(d, i) {
       d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
       d3.select(this).classed('selected', true);
-      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
        // ovo ce prekinuti obradu ovog eventa
        d3.event.preventDefault();
@@ -766,7 +786,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             shape = 'square';
           }
 
-          const name = that.getGraphicElement(d.idOfData, 'node').name;
+          const name = that.getGraphicElement(d.idOfData, stencil.type).name;
 
           nodeElement.append('title').text(name);
 
@@ -821,7 +841,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.node.on('click', function(d, i) {
       d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
       d3.select(this).classed('selected', true);
-      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -902,7 +922,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('fill', 'white')
               .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
               .text(function(d: any) {
-                  return that.getGraphicElement(d.idOfData, 'link').name;
+                  return that.getGraphicElement(d.idOfData, 'data-flow').name;
               })
               .classed('link-text', true)
               .classed('zoom-element', true);
@@ -950,7 +970,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.trustBoundary.on('click', function(d, i) {
       d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
       d3.select(this).classed('selected', true);
-      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
        // ovo ce prekinuti obradu ovog eventa
        d3.event.preventDefault();
@@ -1594,7 +1614,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.link.on('click', function(d, i) {
         d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
         d3.select(this).classed('selected', true);
-        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -1746,7 +1766,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
         shape = 'square';
       }
 
-      const name = that.getGraphicElement(d.idOfData, 'node').name;
+      const name = that.getGraphicElement(d.idOfData, stencil.type).name;
 
       nodeElement.append('title')
                   .text(name);
@@ -1802,7 +1822,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.node.on('click', function(d, i) {
         d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
         d3.select(this).classed('selected', true);
-        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+        that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -1884,7 +1904,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
               .attr('fill', 'white')
               .attr('filter', 'url(#' + that.idSvg + '_id_yellow_color)')
               .text(function(d: any) {
-                  return that.getGraphicElement(d.idOfData, 'link').name;
+                  return that.getGraphicElement(d.idOfData, 'data-flow').name;
               })
               .classed('link-text', true)
               .classed('zoom-element', true);
@@ -1928,7 +1948,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     this.trustBoundary.on('click', function(d, i) {
       d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
       d3.select(this).classed('selected', true);
-      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.idOfData});
+      that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa
         d3.event.preventDefault();
@@ -2148,7 +2168,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                     } else {
                       shape = 'square';
                     }
-                    const name = that.getGraphicElement(d.idOfData, 'node').name;
+                    const name = that.getGraphicElement(d.idOfData, stencil.type).name;
 
                     const self = d3.select(this);
 
@@ -2489,11 +2509,11 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   getGraphicElement(idOfData: string, type: string) {
-    if (type === 'node') {
+    if (type === 'process' || type === 'complex-process' || type === 'external-entity' || type === 'data-store') {
       return this.diagram.elements.filter(e => e.id === idOfData)[0];
-    } else if (type === 'link') {
+    } else if (type === 'data-flow') {
       return this.diagram.flows.filter(f => f.id === idOfData)[0];
-    } else if (type === 'boundary') {
+    } else if (type === 'trust-boundary') {
       return this.diagram.boundaries.filter(f => f.id === idOfData)[0];
     } else {
       alert('Not implemented for type: ' + type + '(getGraphicElementName method)');
@@ -2505,20 +2525,28 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
       return this.stencils.filter(s => s.id === id)[0];
   }
 
-  showProperties(typeAndId: any) {
+  showProperties(typeAndIdOfDataAndId: any) {
     let obj = null;
-    if (typeAndId.type === 'process' || typeAndId.type === 'complex-process'
-    || typeAndId.type === 'external-entity' || typeAndId.type === 'data-store') {
-        obj = this.diagram.elements.filter(e => e.id === typeAndId.id)[0];
-    } else if (typeAndId.type === 'data-flow') {
-      obj = this.diagram.flows.filter(f => f.id === typeAndId.id)[0];
-    }  else if (typeAndId.type === 'trust-boundary') {
-      obj = this.diagram.boundaries.filter(t => t.id === typeAndId.id)[0];
+    if (typeAndIdOfDataAndId.type === 'process' || typeAndIdOfDataAndId.type === 'complex-process'
+    || typeAndIdOfDataAndId.type === 'external-entity' || typeAndIdOfDataAndId.type === 'data-store') {
+        obj = this.diagram.elements.filter(e => e.id === typeAndIdOfDataAndId.idOfData)[0];
+    } else if (typeAndIdOfDataAndId.type === 'data-flow') {
+      obj = this.diagram.flows.filter(f => f.id === typeAndIdOfDataAndId.idOfData)[0];
+    }  else if (typeAndIdOfDataAndId.type === 'trust-boundary') {
+      obj = this.diagram.boundaries.filter(t => t.id === typeAndIdOfDataAndId.idOfData)[0];
     } else {
-      alert('Not implented for type: ' + typeAndId.type + ' (this.link.onClick method)');
+      alert('Not implented for type: ' + typeAndIdOfDataAndId.type + ' (this.link.onClick method)');
     }
 
-    this.propertiesService.setSelectedElement(obj);
+    this.propertiesService.setSelectedElement(
+      {
+        graphicElement: {
+          id: typeAndIdOfDataAndId.id,
+          type: typeAndIdOfDataAndId.type
+        },
+        data: obj
+      }
+    );
   }
 
 }

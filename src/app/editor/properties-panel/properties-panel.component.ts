@@ -14,7 +14,7 @@ export class PropertiesPanelComponent implements OnInit {
 
   selectedElement: any;
 
-  private excludePropertyNames = ['id', 'source', 'destination'];
+  private excludePropertyNames = ['id', 'idOfDiagram', 'source', 'destination'];
 
   constructor(private propertiesService: PropertiesService) { }
 
@@ -29,11 +29,11 @@ export class PropertiesPanelComponent implements OnInit {
   }
 
   getKeys() {
-    return Object.keys(this.selectedElement);
+    return Object.keys(this.selectedElement.data);
   }
 
   refreshCanvas() {
-    this.propertiesService.refreshCanvas(this.currentDiagram, this.selectedElement.id);
+    this.propertiesService.refreshCanvas(this.currentDiagram, this.selectedElement.graphicElement);
   }
 
   checkProperty(name: string, value: any) {
@@ -58,7 +58,9 @@ export class PropertiesPanelComponent implements OnInit {
   }
 
   getRunLevels() {
-    return Object.keys(RunLevel).filter((k: string) => isNaN(+k));
+    const b = RunLevel.SANDBOX;
+    const a = Object.keys(RunLevel);
+    return a.filter((k: string) => isNaN(+k));
   }
 
 }
