@@ -2,7 +2,7 @@
 
 # Software Threat and Risk Analyzer
 
-<p align="center"><img src="https://github.com/jovosunjka/stara-frontend/blob/master/wiki-resources/stara.png"/></p>
+<p align="center"><img src="https://github.com/jovosunjka/stara-frontend/blob/master/wiki-resources/stara-frontend.png"/></p>
 
 <b>Software Threat and Risk Analyzer (STARA)</b> is a front-end application for threat modeling. <b>STARA</b> consists of three parts:
 - <b><i>Work with documents (threat models)</i></b>
