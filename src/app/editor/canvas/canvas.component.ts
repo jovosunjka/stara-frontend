@@ -256,6 +256,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     );
 
     d3.select(this.selectSvg).on('click', function () {
+      if (d3.event.defaultPrevented) {
+        return;
+      }
+
       that.clickOnSvg();
     });
   }
@@ -369,7 +373,7 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 flow.source = null;
               }
 
-              if (link.target && (link.target as GraphicElement).id === graphNode.id) {
+              if (link.target && link.target === graphNode.id) {
                 // uklanjamo referencu ka target-u u podacima o grafickom prikazu linka
                 link.target = null;
                 if (!flow) {
@@ -779,7 +783,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
                 .attr('x', d.position.x)
                 .attr('y', d.position.y)
                 .attr('width', that.SHAPE_SIZE)
-                .attr('height', that.SHAPE_SIZE * 3 / 4);
+                .attr('height', that.SHAPE_SIZE * 3 / 4)
+                .attr('stroke-dasharray', `${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4} ${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4}`);
             stencil.properties.forEach(prop => {
               nodeElement.attr(prop.name, prop.value);
             });
@@ -1225,6 +1230,10 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }*/
 
   dragstarted(d) {
+    if (d3.event.sourceEvent.defaultPrevented) {
+      return;
+    }
+
     // Called when drag event starts. It stop the propagation of the click event
     d3.event.sourceEvent.stopPropagation();
     // d.fixed = false;
@@ -1249,6 +1258,12 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
   }
 
   dragged(d, i) {
+    /*if (d3.event.sourceEvent.defaultPrevented) {
+      return;
+    }*/
+
+    d3.event.sourceEvent.stopPropagation();
+
     const that = this;
 
     const stencil = this.getStencil(d.stencilId);
@@ -1759,7 +1774,8 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
             .attr('x', d.position.x)
             .attr('y', d.position.y)
             .attr('width', that.SHAPE_SIZE)
-            .attr('height', that.SHAPE_SIZE * 3 / 4);
+            .attr('height', that.SHAPE_SIZE * 3 / 4)
+            .attr('stroke-dasharray', `${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4} ${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4}`);
         stencil.properties.forEach(prop => {
           nodeElement.attr(prop.name, prop.value);
         });
@@ -1820,8 +1836,16 @@ export class CanvasComponent implements OnInit, AfterViewInit /*AfterContentInit
     });
 
     this.node.on('click', function(d, i) {
+        if (d3.event.defaultPrevented) {
+          return;
+        }
+
         d3.selectAll(that.selectSvg + ' .selected').classed('selected', false);
         d3.select(this).classed('selected', true);
+        that.selectedItems = that.node.filter(function(n: any) {
+          return n.id === d.id;
+        });
+        that.changedTabChangeSelectedItems();
         that.showProperties({type: that.getStencil(d.stencilId).type, id: d.id, idOfData: d.idOfData});
 
         // ovo ce prekinuti obradu ovog eventa

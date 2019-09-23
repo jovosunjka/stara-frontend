@@ -114,7 +114,8 @@ export class ElementsPanelComponent implements OnInit, AfterViewInit, OnChanges 
           tag.attr('x', element.x)
             .attr('y', element.y - 2 * that.SHAPE_SIZE - 10)
             .attr('height', that.SHAPE_SIZE * 3 / 4)
-            .attr('width', that.SHAPE_SIZE);
+            .attr('width', that.SHAPE_SIZE)
+            .attr('stroke-dasharray', `${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4} ${that.SHAPE_SIZE} ${that.SHAPE_SIZE * 3 / 4}`);
 
       } else if (element.tag === 'path') {
         /*tag.attr('x1', that.coordinates.x)
