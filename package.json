@@ -29,7 +29,7 @@
     "d3plus": "^1.9.8",
     "font-awesome": "^4.7.0",
     "guid-typescript": "^1.0.9",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "ngx-contextmenu": "^5.2.0",
     "ngx-toastr": "^10.0.4",
     "popper.js": "^1.15.0",
